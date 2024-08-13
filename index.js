@@ -42,6 +42,7 @@ const Location = require("./routes/Location");
 const Appeals = require("./routes/Appeals");
 const Videos = require("./routes/Videos");
 const User = require("./routes/User");
+const Emails = require("./routes/Emails");
 
 //connect Database
 ConnectDB();
@@ -88,6 +89,7 @@ const apis = [
   Appeals,
   Videos,
   User,
+  Emails
 ];
 
 apis.forEach((api) => {
