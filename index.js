@@ -47,17 +47,10 @@ const Emails = require("./routes/Emails");
 //connect Database
 ConnectDB();
 
-// app.use(cors({ origin: "*" }));
-app.use(cors({
-  origin: [
-    'https://ekolfront.netlify.app/',
-    'https://ekoladmin.netlify.app/#/'
-  ]
-}));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, 'public')));
-// app.use("/public", express.static(path.join(__dirname, "public")));
+app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/richtextuploads", express.static(path.join(__dirname, "richtextuploads")));
 app.use("/purchasePdf", express.static(path.join(__dirname, "purchasePdf")));
 
