@@ -48,7 +48,7 @@ ConnectDB();
 
 app.use(express.json());
 
-app.use("/public", express.static(path.join(__dirname, "public")));
+app.use("/public", express.static('/var/data'));
 app.use("/richtextuploads", express.static(path.join(__dirname, "richtextuploads")));
 app.use("/purchasePdf", express.static(path.join(__dirname, "purchasePdf")));
 

@@ -2,11 +2,11 @@ const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-const diskMountPath = '/var/data'; // Render'ın sunduğu disk mount path'i
+const diskMountPath = '/var/data'; 
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, diskMountPath); // Dosyalar doğrudan /var/data içine kaydedilecek
+    cb(null, diskMountPath); 
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
