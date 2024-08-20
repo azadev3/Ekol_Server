@@ -1,11 +1,10 @@
 const multer = require("multer");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const diskMountPath = '/var/data';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(diskMountPath, 'public'));
+    cb(null, path.join(__dirname, "/public"));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
