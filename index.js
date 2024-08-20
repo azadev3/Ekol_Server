@@ -1,6 +1,5 @@
 //modules
 const express = require("express");
-const cors = require("cors");
 const ConnectDB = require("./config/Config");
 const path = require("path");
 const app = express();
@@ -47,7 +46,6 @@ const Emails = require("./routes/Emails");
 //connect Database
 ConnectDB();
 
-app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.use("/public", express.static(path.join(__dirname, "public")));
