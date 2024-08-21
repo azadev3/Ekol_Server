@@ -5,6 +5,7 @@ const path = require("path");
 const app = express();
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const cors = require("cors");
 dotenv.config();
 
 //routes import
@@ -46,6 +47,7 @@ const Emails = require("./routes/Emails");
 //connect Database
 ConnectDB();
 
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.use("/public", express.static('/var/data'));
