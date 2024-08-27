@@ -14,6 +14,7 @@ const OurWorks = require("./routes/OurWorks");
 const Statistics = require("./routes/Statistics");
 const Services = require("./routes/Services");
 const Blog = require("./routes/Blog");
+const NewBlog = require("./routes/NewBlogs");
 const Contact = require("./routes/Contact");
 const Socials = require("./routes/Socials");
 const Logo = require("./routes/Logo");
@@ -61,6 +62,7 @@ const apis = [
   Statistics,
   Services,
   Blog,
+  NewBlog,
   Contact,
   Socials,
   Logo,
