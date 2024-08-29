@@ -44,6 +44,7 @@ const Appeals = require("./routes/Appeals");
 const Videos = require("./routes/Videos");
 const User = require("./routes/User");
 const Emails = require("./routes/Emails");
+const PurchaseAnnouncement = require("./routes/PurchaseAnnouncement");
 
 //connect Database
 ConnectDB();
@@ -91,7 +92,8 @@ const apis = [
   Appeals,
   Videos,
   User,
-  Emails
+  Emails,
+  PurchaseAnnouncement,
 ];
 
 apis.forEach((api) => {
