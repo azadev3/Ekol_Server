@@ -45,6 +45,7 @@ const Videos = require("./routes/Videos");
 const User = require("./routes/User");
 const Emails = require("./routes/Emails");
 const PurchaseAnnouncement = require("./routes/PurchaseAnnouncement");
+const PurchaseRules = require("./routes/PurchaseRules");
 
 //connect Database
 ConnectDB();
@@ -94,6 +95,7 @@ const apis = [
   User,
   Emails,
   PurchaseAnnouncement,
+  PurchaseRules
 ];
 
 apis.forEach((api) => {
