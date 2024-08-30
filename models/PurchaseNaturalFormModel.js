@@ -17,6 +17,6 @@ const NaturalFormSchema = mongoose.Schema({
   country: { type: String, required: true },
 });
 
-const PurchaseNaturalFormModel = mongoose.model("PurchaseLegalForm", NaturalFormSchema);
+const PurchaseNaturalFormModel = mongoose.model("PurchaseNaturalForm", NaturalFormSchema);
 
 module.exports = PurchaseNaturalFormModel;
