@@ -74,7 +74,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
   }
 });
 
-router.delete("/deleteItem:id", async (req, res) => {
+router.delete("/deleteItem/:id", async (req, res) => {
   try {
     const id = req.params;
     const findDataById = await PurchaseLegalForm.findByIdAndDelete(id);
