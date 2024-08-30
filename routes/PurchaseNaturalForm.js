@@ -42,7 +42,7 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
      }
    });
    
-   router.delete("/deleteItem/:id", async (req, res) => {
+   router.delete("/deleteItemNat/:id", async (req, res) => {
      try {
        const id = req.params.id;
        const findDataById = await PurchaseNaturalForm.findByIdAndDelete(id);
