@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
-const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
+const PurchaseNaturalForm = require("../models/PurchaseNaturalFormModel");
 
 router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res) => {
   try {
@@ -29,17 +29,12 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
 
     const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
-    const savedData = new PurchaseLegalForm({
-      company: req.body.company,
+    const savedData = new PurchaseNaturalForm({
       voen: req.body.voen,
       name: req.body.name,
       surname: req.body.surname,
       mobtel: req.body.mobtel,
-      worktel: req.body.worktel,
       email: req.body.email,
-      other: req.body.other,
-      country: req.body.country,
-      job: req.body.job,
       location: req.body.location,
       enterprisename: req.body.enterprisename,
       enterpriseNameOrTel: req.body.enterpriseNameOrTel,
@@ -47,13 +42,7 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
       typeofrequest: req.body.typeofrequest,
       requestpdf: pdfFile,
       message: req.body.message,
-      isResponsible: req.body.isResponsible,
-      namesecond: req.body.namesecond || "",
-      surnamesecond: req.body.surnamesecond || "",
-      mobtelsecond: req.body.mobtelsecond || "",
-      worktelsecond: req.body.worktelsecond || "",
-      emailsecond: req.body.emailsecond || "",
-      othersecond: req.body.othersecond || "",
+      country: req.body.country,
     });
 
     const save = await savedData.save();
@@ -66,7 +55,7 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
 router.delete("/deleteItem/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const findDataById = await PurchaseLegalForm.findByIdAndDelete(id);
+    const findDataById = await PurchaseNaturalForm.findByIdAndDelete(id);
     if (!findDataById) {
       return res.status(404).json({ message: "Item not found" });
     }
@@ -81,7 +70,7 @@ router.delete("/deleteItem/:id", async (req, res) => {
 // for front
 router.get("/purchaseNaturalFormFront", async (req, res) => {
   try {
-    const datas = await PurchaseLegalForm.find();
+    const datas = await PurchaseNaturalForm.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
