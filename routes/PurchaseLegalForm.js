@@ -64,6 +64,7 @@ router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (re
       worktelsecond: req.body.worktelsecond,
       emailsecond: req.body.emailsecond,
       othersecond: req.body.othersecond,
+      requestpdf: req.body.requestpdf
     });
 
     const save = await savedData.save();
