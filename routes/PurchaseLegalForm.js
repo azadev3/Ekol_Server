@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const uploadPurchase = require("../config/MulterConfigPurchase");
+const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 
-router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (req, res) => {
+router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) => {
   try {
     const requiredFields = [
       "country",
@@ -38,7 +38,7 @@ router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (re
       }
     }
 
-    const pdfFile = req.file ? `/purchasePdf/${req.file.filename}` : "";
+    const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
     const savedData = new PurchaseLegalForm({
       company: req.body.company,
