@@ -20,12 +20,12 @@ const LegalFormSchema = mongoose.Schema({
   requestpdf: { type: String, required: true }, // Consider storing a URL or file info
   message: { type: String, required: true },
   isResponsible: { type: String, required: true },
-  namesecond: { type: String, required: true },
-  surnamesecond: { type: String, required: true },
-  mobtelsecond: { type: String, required: true },
-  worktelsecond: { type: String, required: true },
-  emailsecond: { type: String, required: true },
-  othersecond: { type: String, required: true },
+  namesecond: { type: String },
+  surnamesecond: { type: String },
+  mobtelsecond: { type: String },
+  worktelsecond: { type: String },
+  emailsecond: { type: String },
+  othersecond: { type: String },
 });
 
 // // Natural Form Schema

@@ -24,12 +24,6 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
       "typeofrequest",
       "message",
       "isResponsible",
-      "namesecond",
-      "surnamesecond",
-      "mobtelsecond",
-      "worktelsecond",
-      "emailsecond",
-      "othersecond",
     ];
 
     for (let field of requiredFields) {
@@ -59,12 +53,12 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
       requestpdf: pdfFile,
       message: req.body.message,
       isResponsible: req.body.isResponsible,
-      namesecond: req.body.namesecond,
-      surnamesecond: req.body.surnamesecond,
-      mobtelsecond: req.body.mobtelsecond,
-      worktelsecond: req.body.worktelsecond,
-      emailsecond: req.body.emailsecond,
-      othersecond: req.body.othersecond,
+      namesecond: req.body.namesecond || "",
+      surnamesecond: req.body.surnamesecond || "",
+      mobtelsecond: req.body.mobtelsecond || "",
+      worktelsecond: req.body.worktelsecond || "",
+      emailsecond: req.body.emailsecond || "",
+      othersecond: req.body.othersecond || "",
     });
 
     const save = await savedData.save();
