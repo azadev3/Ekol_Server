@@ -6,6 +6,7 @@ const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (req, res) => {
   try {
     const requiredFields = [
+      "country",
       "formMainType",
       "company",
       "voen",
@@ -55,7 +56,7 @@ router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (re
       enterpriseNameOrTel: req.body.enterpriseNameOrTel,
       enterprisepart: req.body.enterprisepart,
       typeofrequest: req.body.typeofrequest,
-      requestpdf: req.body.requestpdf,
+      requestpdf: pdfFile,
       message: req.body.message,
       isResponsible: req.body.isResponsible,
       namesecond: req.body.namesecond,
@@ -64,7 +65,6 @@ router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (re
       worktelsecond: req.body.worktelsecond,
       emailsecond: req.body.emailsecond,
       othersecond: req.body.othersecond,
-      requestpdf: req.body.requestpdf
     });
 
     const save = await savedData.save();
