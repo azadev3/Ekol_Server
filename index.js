@@ -46,6 +46,7 @@ const User = require("./routes/User");
 const Emails = require("./routes/Emails");
 const PurchaseAnnouncement = require("./routes/PurchaseAnnouncement");
 const PurchaseRules = require("./routes/PurchaseRules");
+const PurchaseLegalForm = require("./routes/PurchaseLegalForm");
 
 //connect Database
 ConnectDB();
@@ -95,7 +96,8 @@ const apis = [
   User,
   Emails,
   PurchaseAnnouncement,
-  PurchaseRules
+  PurchaseRules,
+  PurchaseLegalForm
 ];
 
 apis.forEach((api) => {
