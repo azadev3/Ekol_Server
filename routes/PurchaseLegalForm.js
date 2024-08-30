@@ -75,7 +75,7 @@ router.post("/purchaseLegalForm", uploadPurchase.single("requestpdf"), async (re
 });
 
 // for front
-router.get("/purchaseannouncementfront", async (req, res) => {
+router.get("/legalformfront", async (req, res) => {
   try {
     const datas = await PurchaseLegalForm.find();
     if (!datas || datas.length === 0) {
