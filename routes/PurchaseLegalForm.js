@@ -74,6 +74,20 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
   }
 });
 
+router.delete("/deleteItem:id", async (req, res) => {
+  try {
+    const id = req.params;
+    const findDataById = await PurchaseLegalForm.findByIdAndDelete(id);
+    if (!findDataById) {
+      return res.status(404).json({ message: "not found item" });
+    }
+
+    return res.status(200).json({ message: "deleted is successfully!" });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // for front
 router.get("/legalformfront", async (req, res) => {
   try {
