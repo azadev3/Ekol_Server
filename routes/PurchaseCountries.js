@@ -11,12 +11,26 @@ router.post("/purchaseAddCountry", async (req, res) => {
       return res.status(400).json({ message: "Countries is not found or empty" });
     }
 
-    // Save the countries to the database
-    const addModelTheCountries = new PurchaseCountriesModel({ countries });
+    // Retrieve the current document, if any
+    const existingDocument = await PurchaseCountriesModel.findOne();
 
-    const savedData = await addModelTheCountries.save();
+    if (existingDocument) {
+      // If document exists, update countries array
+      existingDocument.countries = [...existingDocument.countries, ...countries];
 
-    return res.status(200).json({ savedData });
+      // Remove duplicates if necessary
+      existingDocument.countries = Array.from(
+        new Set(existingDocument.countries.map((country) => country.country))
+      ).map((country) => ({ country }));
+
+      const updatedData = await existingDocument.save();
+      return res.status(200).json({ savedData: updatedData });
+    } else {
+      // If no document exists, create a new one
+      const newDocument = new PurchaseCountriesModel({ countries });
+      const savedData = await newDocument.save();
+      return res.status(200).json({ savedData });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
