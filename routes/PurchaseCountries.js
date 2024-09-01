@@ -48,4 +48,21 @@ router.get("/purchaseCountries", async (req, res) => {
   }
 });
 
+router.delete("/purchaseCountry/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await PurchaseCountriesModel.updateMany({}, { $pull: { countries: { _id: id } } });
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ message: "Country not found" });
+    }
+
+    return res.status(200).json({ message: "Country successfully deleted" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
