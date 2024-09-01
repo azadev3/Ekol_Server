@@ -37,4 +37,15 @@ router.post("/purchaseAddCountry", async (req, res) => {
   }
 });
 
+router.get("/purchaseCountries", async (req, res) => {
+  try {
+    const purchaseCountry = await PurchaseCountriesModel.find().lean().exec();
+
+    return res.status(200).send(purchaseCountry);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
