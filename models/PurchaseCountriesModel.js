@@ -1,11 +1,7 @@
 const mongoose = require("mongoose");
 
-const CountriesPurchase = mongoose.Schema({
-  country: { type: String, required: true },
-});
-
 const PurchaseCountriesModelSchema = mongoose.Schema({
-  countries: [CountriesPurchase],
+  countries: [{ type: String, required: true }],
 });
 
 const PurchaseCountriesModel = mongoose.model("purchase_countries", PurchaseCountriesModelSchema);
