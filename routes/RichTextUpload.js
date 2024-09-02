@@ -5,7 +5,7 @@ const RichTextUpload = require("../models/RichTextUploadModel");
 
 router.post("/uploadForEditor", uploadRichText.single("richImg"), async (req, res) => {
   try {
-    const imgfile = req.file ? `/richtextuploads/${req.file.filename}` : "";
+    const imgfile = req.file ? `/public/${req.file.filename}` : "";
 
     const saveData = new RichTextUpload({
       url: imgfile,
