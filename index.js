@@ -50,7 +50,7 @@ const PurchaseLegalForm = require("./routes/PurchaseLegalForm");
 const PurchaseNaturalForm = require("./routes/PurchaseNaturalForm");
 const PurchaseCountries = require("./routes/PurchaseCountries");
 const YearlyCalculations = require("./routes/YearlyCalculation");
-
+const QuarterlyCalculations = require("./routes/Calculations");
 //connect Database
 ConnectDB();
 
@@ -102,6 +102,7 @@ const apis = [
   PurchaseNaturalForm,
   PurchaseCountries,
   YearlyCalculations,
+  QuarterlyCalculations,
 ];
 
 apis.forEach((api) => {
