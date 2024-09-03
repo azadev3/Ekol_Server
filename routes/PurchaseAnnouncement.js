@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const uploadPurchase = require("../config/MulterConfigPurchase");
+const upload = require("../config/MulterConfig");
 const PurchaseAnnouncement = require("../models/PurchaseAnnouncementModel");
 
-router.post("/purchaseannouncement", uploadPurchase.single("pdf"), async (req, res) => {
+router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
   try {
     const requiredFields = [
       "title_az",
@@ -24,7 +24,7 @@ router.post("/purchaseannouncement", uploadPurchase.single("pdf"), async (req, r
       }
     }
 
-    const pdfFile = req.file ? `/purchasePdf/${req.file.filename}` : "";
+    const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
     const createData = new PurchaseAnnouncement({
       title: {
@@ -84,7 +84,7 @@ router.get("/purchaseannouncement/:editid", async (req, res) => {
   }
 });
 
-router.put("/purchaseannouncement/:editid", uploadPurchase.single("pdf"), async (req, res) => {
+router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -122,7 +122,7 @@ router.put("/purchaseannouncement/:editid", uploadPurchase.single("pdf"), async 
           },
           end_date: end_date,
           status: status,
-          pdf: req.file ? `/purchasePdf/${req.file.filename}` : "",
+          pdf: req.file ? `/public/${req.file.filename}` : "",
         },
       },
       { new: true }

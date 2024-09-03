@@ -49,6 +49,7 @@ const PurchaseRules = require("./routes/PurchaseRules");
 const PurchaseLegalForm = require("./routes/PurchaseLegalForm");
 const PurchaseNaturalForm = require("./routes/PurchaseNaturalForm");
 const PurchaseCountries = require("./routes/PurchaseCountries");
+const YearlyCalculations = require("./routes/YearlyCalculation");
 
 //connect Database
 ConnectDB();
@@ -57,7 +58,6 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] }
 app.use(express.json());
 
 app.use("/public", express.static("/var/data"));
-app.use("/purchasePdf", express.static(path.join(__dirname, "purchasePdf")));
 
 // routes
 const apis = [
@@ -101,6 +101,7 @@ const apis = [
   PurchaseLegalForm,
   PurchaseNaturalForm,
   PurchaseCountries,
+  YearlyCalculations,
 ];
 
 apis.forEach((api) => {

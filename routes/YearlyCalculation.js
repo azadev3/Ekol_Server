@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
-const Purchase = require("../models/PurchaseModel");
+const YearlyCalculations = require("../models/YearlyCalculationsModel");
 
-router.post("/purchase", upload.single("pdf"), async (req, res) => {
+router.post("/yearly_calculations", upload.single("pdf"), async (req, res) => {
   try {
-    const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
+    const requiredFields = ["title_az", "title_en", "title_ru"];
 
     for (let field of requiredFields) {
       if (!req.body[field]) {
@@ -15,16 +15,11 @@ router.post("/purchase", upload.single("pdf"), async (req, res) => {
 
     const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
-    const createData = new Purchase({
+    const createData = new YearlyCalculations({
       title: {
         az: req.body.title_az,
         en: req.body.title_en,
         ru: req.body.title_ru,
-      },
-      description: {
-        az: req.body.description_az,
-        en: req.body.description_en,
-        ru: req.body.description_ru,
       },
       pdf: pdfFile,
     });
@@ -37,9 +32,9 @@ router.post("/purchase", upload.single("pdf"), async (req, res) => {
   }
 });
 
-router.get("/purchase", async (req, res) => {
+router.get("/yearly_calculations", async (req, res) => {
   try {
-    const datas = await Purchase.find();
+    const datas = await YearlyCalculations.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -49,11 +44,11 @@ router.get("/purchase", async (req, res) => {
   }
 });
 
-router.get("/purchase/:editid", async (req, res) => {
+router.get("/yearly_calculations/:editid", async (req, res) => {
   try {
     const { editid } = req.params;
 
-    const datasForId = await Purchase.findById(editid).lean().exec();
+    const datasForId = await YearlyCalculations.findById(editid).lean().exec();
 
     if (!datasForId) {
       return res.status(404).json({ error: "not found editid" });
@@ -66,12 +61,12 @@ router.get("/purchase/:editid", async (req, res) => {
   }
 });
 
-router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
+router.put("/yearly_calculations/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    const { title_az, title_en, title_ru } = req.body;
 
-    const updatedPurchase = await Purchase.findByIdAndUpdate(
+    const updatedYearlyCalculations = await YearlyCalculations.findByIdAndUpdate(
       editid,
       {
         $set: {
@@ -79,11 +74,6 @@ router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
             az: title_az,
             en: title_en,
             ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
           },
           pdf: req.file ? `/public/${req.file.filename}` : "",
         },
@@ -93,21 +83,21 @@ router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
       .lean()
       .exec();
 
-    if (!updatedPurchase) {
+    if (!updatedYearlyCalculations) {
       return res.status(404).json({ error: "not found editid" });
     }
 
-    return res.status(200).json(updatedPurchase);
+    return res.status(200).json(updatedYearlyCalculations);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-router.delete("/purchase/:deleteid", async (req, res) => {
+router.delete("/yearly_calculations/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
-    const deleteData = await Purchase.findByIdAndDelete(deleteid);
+    const deleteData = await YearlyCalculations.findByIdAndDelete(deleteid);
 
     if (!deleteData) {
       return res.status(404).json({ message: "dont delete data or not found data or another error" });
@@ -118,12 +108,12 @@ router.delete("/purchase/:deleteid", async (req, res) => {
 });
 
 // for front
-router.get("/purchasefront", async (req, res) => {
+router.get("/yearly_calculationsfront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await Purchase.find();
+    const datas = await YearlyCalculations.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -131,7 +121,6 @@ router.get("/purchasefront", async (req, res) => {
     const filteredData = datas.map((data) => ({
       _id: data._id,
       title: data.title[preferredLanguage],
-      description: data.description[preferredLanguage],
       createdAt: data.createdAt,
       pdf: data.pdf,
     }));
