@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const uploadRichText = require("../config/MulterConfigRichText");
+const upload = require("../config/MulterConfig");
 const RichTextUpload = require("../models/RichTextUploadModel");
 
-router.post("/uploadForEditor", uploadRichText.single("richImg"), async (req, res) => {
+router.post("/uploadForEditor", upload.single("richImg"), async (req, res) => {
   try {
     const imgfile = req.file ? `/public/${req.file.filename}` : "";
 
@@ -19,7 +19,7 @@ router.post("/uploadForEditor", uploadRichText.single("richImg"), async (req, re
   }
 });
 
-router.get("/getImageUrl", uploadRichText.none(), async (req, res) => {
+router.get("/getImageUrl", upload.none(), async (req, res) => {
   try {
     const sendData = await RichTextUpload.find();
 
