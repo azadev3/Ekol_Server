@@ -67,8 +67,8 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.PGM,
+        user: "azad.miri6@gmail.com",
+        pass: "azad09062001",
       },
     });
 
