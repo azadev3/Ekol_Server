@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
+const nodemailer = require("nodemailer");
 
 router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) => {
   try {
@@ -62,7 +63,40 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
-    return res.status(200).json(save);
+
+    // E-posta gönderim işlemi
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Gmail kullanılıyor, kendi servis sağlayıcınızı seçin
+      auth: {
+        user: "azad.miri6@gmail.com", // Gönderici e-posta adresiniz
+        pass: process.env.PGM, // E-posta şifreniz
+      },
+    });
+
+    const mailOptions = {
+      from: "azad.miri6@gmail.com", // Gönderici e-posta
+      to: "kodingo593@gmail.com", // Alıcı e-posta adresi
+      subject: "Hüquqi Şəxs Form Məlumatları",
+      text: `
+        Yeni formun məlumatları
+        Ad: ${req.body.name} ${req.body.surname}
+        E-mail: ${req.body.email}
+        Mesaj: ${req.body.message}
+        Şirkət: ${req.body.company}
+      `,
+      attachments: pdfFile
+        ? [
+            {
+              filename: req.file.filename,
+              path: pdfFile,
+            },
+          ]
+        : [],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: "Form saved and send email.", data: save });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
