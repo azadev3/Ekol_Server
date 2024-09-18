@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "azad.miri6@gmail.com",
-    pass: "xshk cxdb wgwx lxzk",
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -91,7 +91,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
         İşlətmə əlaqə nömrəsi: ${req.body.enterpriseNameOrTel}
         İşlətmə bölümü: ${req.body.enterprisepart}
         Tip: ${req.body.typeofrequest}
-        File: ${req.file ? req.file.filename : ""},
+        File: ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ""},
       `,
     };
 
