@@ -4,7 +4,6 @@ const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const path = require("path");
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -74,7 +73,6 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
-    const pdfFilePath = req.file ? path.join(__dirname, "..", "public", req.file.filename) : "";
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -93,15 +91,8 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
         İşlətmə əlaqə nömrəsi: ${req.body.enterpriseNameOrTel}
         İşlətmə bölümü: ${req.body.enterprisepart}
         Tip: ${req.body.typeofrequest}
+        File: ${req.file ? req.file.filename : ""},
       `,
-      attachments: pdfFile
-        ? [
-            {
-              filename: req.file.filename,
-              path: pdfFilePath,
-            },
-          ]
-        : [],
     };
 
     await transporter.sendMail(mailOptions);
