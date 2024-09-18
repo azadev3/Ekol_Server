@@ -89,7 +89,9 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
     `,
     };
 
-    return res.status(200).json(save);
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: "Form saved and email sent.", data: save });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
