@@ -3,7 +3,6 @@ const router = express.Router();
 const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
