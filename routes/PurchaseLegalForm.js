@@ -64,18 +64,17 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
 
     const save = await savedData.save();
 
-    // E-posta gönderim işlemi
     const transporter = nodemailer.createTransport({
-      service: "gmail", // Gmail kullanılıyor, kendi servis sağlayıcınızı seçin
+      service: "gmail",
       auth: {
-        user: "azad.miri6@gmail.com", // Gönderici e-posta adresiniz
-        pass: process.env.PGM, // E-posta şifreniz
+        user: process.env.EMAIL_USER,
+        pass: process.env.PGM,
       },
     });
 
     const mailOptions = {
-      from: "azad.miri6@gmail.com", // Gönderici e-posta
-      to: "kodingo593@gmail.com", // Alıcı e-posta adresi
+      from: process.env.EMAIL_USER,
+      to: "kodingo593@gmail.com",
       subject: "Hüquqi Şəxs Form Məlumatları",
       text: `
         Yeni formun məlumatları
