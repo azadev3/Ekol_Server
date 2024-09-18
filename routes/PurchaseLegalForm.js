@@ -65,39 +65,44 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
 
     const save = await savedData.save();
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "azad.miri6@gmail.com",
-        pass: "tabp molz ztjs ajvl",
-      },
-    });
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "azad.miri6@gmail.com",
+          pass: "tabp molz ztjs ajvl",
+        },
+      });
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: "kodingo593@gmail.com",
-      subject: "Hüquqi Şəxs Form Məlumatları",
-      text: `
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: "kodingo593@gmail.com",
+        subject: "Hüquqi Şəxs Form Məlumatları",
+        text: `
         Yeni formun məlumatları
         Ad: ${req.body.name} ${req.body.surname}
         E-mail: ${req.body.email}
         Mesaj: ${req.body.message}
         Şirkət: ${req.body.company}
       `,
-      attachments: pdfFile
-        ? [
-            {
-              filename: req.file.filename,
-              path: pdfFile,
-            },
-          ]
-        : [],
-    };
+        attachments: pdfFile
+          ? [
+              {
+                filename: req.file.filename,
+                path: pdfFile,
+              },
+            ]
+          : [],
+      };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Message sent: %s", info.messageId);
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Message sent: %s", info.messageId);
 
-    return res.status(200).json({ message: "Form saved and send email.", data: save });
+      return res.status(200).json({ message: "Form saved and send email.", data: save });
+    } catch (error) {
+      console.log(error, "send email error");
+      return res.status(500).json({ error: error.message });
+    }
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
