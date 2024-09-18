@@ -63,9 +63,10 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
-
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465, // SSL port
+      secure: true, // SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.PGM,
@@ -93,7 +94,8 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
         : [],
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Message sent: %s", info.messageId);
 
     return res.status(200).json({ message: "Form saved and send email.", data: save });
   } catch (error) {
