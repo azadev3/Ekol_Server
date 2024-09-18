@@ -68,7 +68,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
       service: "gmail",
       auth: {
         user: "azad.miri6@gmail.com",
-        pass: "azad09062001",
+        pass: "tabp molz ztjs ajvl",
       },
     });
 
