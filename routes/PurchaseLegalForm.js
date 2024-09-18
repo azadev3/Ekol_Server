@@ -4,6 +4,15 @@ const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const nodemailer = require("nodemailer");
 
+// Nodemailer configuration
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) => {
   try {
     const requiredFields = [
@@ -63,12 +72,42 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
-    return res.status(200).json(save);
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: "kodingo593@gmail.com",
+      subject: "Yeni Hüquqi Şəxs Form Məlumatları",
+      text: `
+        Yeni formun məlumatları:
+        Ad: ${req.body.name} ${req.body.surname}
+        E-mail: ${req.body.email}
+        Mesaj: ${req.body.message}
+        Şirkət: ${req.body.company}
+        Ölkə: ${req.body.country}
+        İş: ${req.body.job}
+        Lokasyon: ${req.body.location}
+        İşlətmə adı: ${req.body.enterprisename}
+        İşlətmə əlaqə nömrəsi: ${req.body.enterpriseNameOrTel}
+        İşlətmə bölümü: ${req.body.enterprisepart}
+        Tip: ${req.body.typeofrequest}
+      `,
+      attachments: pdfFile
+        ? [
+            {
+              filename: req.file.filename,
+              path: pdfFile,
+            },
+          ]
+        : [],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: "Form saved and email sent.", data: save });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
-
 router.delete("/deleteItem/:id", async (req, res) => {
   try {
     const id = req.params.id;
