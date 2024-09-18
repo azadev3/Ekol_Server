@@ -7,7 +7,9 @@ require("dotenv").config();
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: "azad.miri6@gmail.com",
     pass: process.env.EMAIL_PASS,
@@ -91,8 +93,31 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
         İşlətmə əlaqə nömrəsi: ${req.body.enterpriseNameOrTel}
         İşlətmə bölümü: ${req.body.enterprisepart}
         Tip: ${req.body.typeofrequest}
-        File: ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ""},
       `,
+      html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #4CAF50;">Yeni Form Məlumatları</h2>
+        <p><strong>Ad:</strong> ${req.body.name} ${req.body.surname}</p>
+        <p><strong>E-mail:</strong> ${req.body.email}</p>
+        <p><strong>Mesaj:</strong> ${req.body.message}</p>
+        <p><strong>Şirkət:</strong> ${req.body.company}</p>
+        <p><strong>Ölkə:</strong> ${req.body.country}</p>
+        <p><strong>İş:</strong> ${req.body.job}</p>
+        <p><strong>Lokasyon:</strong> ${req.body.location}</p>
+        <p><strong>İşlətmə adı:</strong> ${req.body.enterprisename}</p>
+        <p><strong>İşlətmə əlaqə nömrəsi:</strong> ${req.body.enterpriseNameOrTel}</p>
+        <p><strong>İşlətmə bölümü:</strong> ${req.body.enterprisepart}</p>
+        <p><strong>Tip:</strong> ${req.body.typeofrequest}</p>
+        <p>
+        <strong>Fayl:</strong>
+        ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ""},
+        </p>
+        
+        <footer style="margin-top: 20px;">
+          <p style="font-size: 12px; color: #777;">Bu mesaj otomatik olarak oluşturulmuştur, lütfen cevap vermeyin.</p>
+        </footer>
+      </div>
+    `,
     };
 
     await transporter.sendMail(mailOptions);
