@@ -64,6 +64,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
