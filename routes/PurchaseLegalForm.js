@@ -4,6 +4,7 @@ const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+const path = require("path");
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
