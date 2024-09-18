@@ -73,6 +73,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
     });
 
     const save = await savedData.save();
+    const pdfFilePath = req.file ? path.join(__dirname, "..", "public", req.file.filename) : "";
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -96,7 +97,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
         ? [
             {
               filename: req.file.filename,
-              path: pdfFile,
+              path: pdfFilePath,
             },
           ]
         : [],
