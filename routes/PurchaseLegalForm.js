@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) => {
   try {
@@ -64,9 +65,7 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
 
     const save = await savedData.save();
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465, // SSL port
-      secure: true, // SSL
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.PGM,
