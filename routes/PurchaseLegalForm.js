@@ -79,41 +79,45 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
       from: process.env.EMAIL_USER,
       to: "kodingo593@gmail.com",
       subject: "Yeni Hüquqi Şəxs Form Məlumatları",
-      text: `
-        Yeni formun məlumatları:
-        Ad: ${req.body.name} ${req.body.surname}
-        E-mail: ${req.body.email}
-        Mesaj: ${req.body.message}
-        Şirkət: ${req.body.company}
-        Ölkə: ${req.body.country}
-        İş: ${req.body.job}
-        Lokasyon: ${req.body.location}
-        İşlətmə adı: ${req.body.enterprisename}
-        İşlətmə əlaqə nömrəsi: ${req.body.enterpriseNameOrTel}
-        İşlətmə bölümü: ${req.body.enterprisepart}
-        Tip: ${req.body.typeofrequest}
-      `,
       html: `
       <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #4CAF50;">Yeni Form Məlumatları</h2>
-        <p><strong>Ad:</strong> ${req.body.name} ${req.body.surname}</p>
-        <p><strong>E-mail:</strong> ${req.body.email}</p>
-        <p><strong>Mesaj:</strong> ${req.body.message}</p>
-        <p><strong>Şirkət:</strong> ${req.body.company}</p>
+        <h2 style="color: #4CAF50;">Yeni Hüquqi Şəxs Form Məlumatları</h2>
+        <p><strong>Şirkət:</strong>${req.body.company}</p>
+        <p><strong>VÖEN:</strong> ${req.body.voen}</p>
+        <p><strong>Ad:</strong> ${req.body.name}</p>
+        <p><strong>Soyad:</strong> ${req.body.surname}</p>
+        <p><strong>Mobil telefon:</strong> ${req.body.mobtel}</p>
+        <p><strong>İş telefonu:</strong> ${req.body.worktel}</p>
+        <p><strong>Email:</strong> ${req.body.email}</p>
+        <p><strong>Digər:</strong> ${req.body.other}</p>
         <p><strong>Ölkə:</strong> ${req.body.country}</p>
         <p><strong>İş:</strong> ${req.body.job}</p>
-        <p><strong>Lokasyon:</strong> ${req.body.location}</p>
-        <p><strong>İşlətmə adı:</strong> ${req.body.enterprisename}</p>
-        <p><strong>İşlətmə əlaqə nömrəsi:</strong> ${req.body.enterpriseNameOrTel}</p>
-        <p><strong>İşlətmə bölümü:</strong> ${req.body.enterprisepart}</p>
-        <p><strong>Tip:</strong> ${req.body.typeofrequest}</p>
+        <p><strong>Ünvan:</strong> ${req.body.location}</p>
+        <p><strong>Müəssisə adı:</strong> ${req.body.enterprisename}</p>
+        <p><strong>Müəssisə adı və ya telefonu:</strong> ${req.body.enterpriseNameOrTel}</p>
+        <p><strong>Müəssisə növü:</strong> ${req.body.enterprisepart}</p>
+        <p><strong>Sorğu tipi:</strong> ${req.body.typeofrequest}</p>
+        <p><strong>Message:</strong> ${req.body.message}</p>
+        ${
+          req.body.isResponsible
+            ? `
+        <p><strong>Müraciət edənin adı:</strong> ${req.body.namesecond}</p>
+        <p><strong>Müraciət edənin soyadı:</strong> ${req.body.surnamesecond}</p>
+        <p><strong>Müraciət edənin Mobil telefon nömrəsi:</strong> ${req.body.mobtelsecond}</p>
+        <p><strong>Müraciət edənin İş telefon nömrəsi:</strong> ${req.body.worktelsecond}</p>
+        <p><strong>Müraciət edənin E-mail:</strong> ${req.body.emailsecond}</p>
+        <p><strong>Müraciət edənin digər məlumatları:</strong> ${req.body.othersecond}</p>
+          `
+            : ""
+        }
+
         <p>
         <strong>Fayl:</strong>
         ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ""},
         </p>
         
         <footer style="margin-top: 20px;">
-          <p style="font-size: 12px; color: #777;">Bu mesaj otomatik olarak oluşturulmuştur, lütfen cevap vermeyin.</p>
+          <p style="font-size: 16px; color: #777;">Bu mesaj avtomatik yaradıldı. Xahiş olunur cavablamayın.</p>
         </footer>
       </div>
     `,
