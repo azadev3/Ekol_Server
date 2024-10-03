@@ -4,6 +4,7 @@ const ServicesPage = require("../models/ServicesPageModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { uploadConfig, useSharp } = require("../config/MulterC");
+const mountPath = require("../config/mountPath");
 
 router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) => {
   try {
@@ -12,7 +13,7 @@ router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) =>
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join("/public", imgFileName);
+      const imgOutputPath = path.join(mountPath, imgFileName);
 
       await useSharp(req.file.buffer, imgOutputPath);
 
@@ -75,17 +76,17 @@ router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, 
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-      // Img
-      let imageFile = "";
+    // Img
+    let imageFile = "";
 
-      if (req.file) {
-        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-        const imgOutputPath = path.join("/public", imgFileName);
-  
-        await useSharp(req.file.buffer, imgOutputPath);
-  
-        imageFile = `/public/${imgFileName}`;
-      }
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+
+      await useSharp(req.file.buffer, imgOutputPath);
+
+      imageFile = `/public/${imgFileName}`;
+    }
 
     const updatedservicespage = await ServicesPage.findByIdAndUpdate(
       editid,

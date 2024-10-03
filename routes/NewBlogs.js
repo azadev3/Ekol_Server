@@ -4,6 +4,7 @@ const NewBlogs = require("../models/NewBlogsModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { uploadConfig, useSharp } = require("../config/MulterC");
+const mountPath = require("../config/mountPath");
 
 router.post("/newblogs", uploadConfig.single("imgback"), async (req, res) => {
   try {
@@ -12,7 +13,7 @@ router.post("/newblogs", uploadConfig.single("imgback"), async (req, res) => {
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join("/public", imgFileName);
+      const imgOutputPath = path.join(mountPath, imgFileName);
 
       await useSharp(req.file.buffer, imgOutputPath);
 
@@ -81,7 +82,7 @@ router.put("/newblogs/:editid", uploadConfig.single("imgback"), async (req, res)
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join("/public", imgFileName);
+      const imgOutputPath = path.join(mountPath, imgFileName);
 
       await useSharp(req.file.buffer, imgOutputPath);
 
