@@ -1,19 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../config/MulterConfig");
 const ServicesPage = require("../models/ServicesPageModel");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const { uploadConfig, useSharp } = require("../config/MulterC");
 
-router.post("/servicespage", upload.single("imgback"), async (req, res) => {
+router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
+    // Img
+    let imageFile = "";
 
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
-      }
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join("./public", imgFileName);
+
+      await useSharp(req.file.buffer, imgOutputPath);
+
+      imageFile = `/public/${imgFileName}`;
     }
-
-    const imageFile = req.file ? `/public/${req.file.filename}` : "";
 
     const createData = new ServicesPage({
       title: {
@@ -66,10 +70,22 @@ router.get("/servicespage/:editid", async (req, res) => {
   }
 });
 
-router.put("/servicespage/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+      // Img
+      let imageFile = "";
+
+      if (req.file) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join("./public", imgFileName);
+  
+        await useSharp(req.file.buffer, imgOutputPath);
+  
+        imageFile = `/public/${imgFileName}`;
+      }
 
     const updatedservicespage = await ServicesPage.findByIdAndUpdate(
       editid,
@@ -85,7 +101,7 @@ router.put("/servicespage/:editid", upload.single("imgback"), async (req, res) =
             en: description_en,
             ru: description_ru,
           },
-          image: req.file ? `/public/${req.file.filename}` : "",
+          image: imageFile,
         },
       },
       { new: true }

@@ -1,19 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../config/MulterConfig");
 const NewBlogs = require("../models/NewBlogsModel");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const { uploadConfig, useSharp } = require("../config/MulterC");
 
-router.post("/newblogs", upload.single("imgback"), async (req, res) => {
+router.post("/newblogs", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
+    // Img
+    let imageFile = "";
 
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
-      }
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join("./public", imgFileName);
+
+      await useSharp(req.file.buffer, imgOutputPath);
+
+      imageFile = `/public/${imgFileName}`;
     }
-
-    const imageFile = req.file ? `/public/${req.file.filename}` : "";
 
     const createData = new NewBlogs({
       title: {
@@ -26,6 +30,8 @@ router.post("/newblogs", upload.single("imgback"), async (req, res) => {
         en: req.body.description_en,
         ru: req.body.description_ru,
       },
+      created_at: req.body.created_at,
+      updated: req.body.updated,
       image: imageFile,
     });
 
@@ -66,10 +72,21 @@ router.get("/newblogs/:editid", async (req, res) => {
   }
 });
 
-router.put("/newblogs/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/newblogs/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    // Img
+    let imageFile = "";
+
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join("./public", imgFileName);
+
+      await useSharp(req.file.buffer, imgOutputPath);
+
+      imageFile = `/public/${imgFileName}`;
+    }
 
     const updatedNewBlog = await NewBlogs.findByIdAndUpdate(
       editid,
@@ -85,7 +102,9 @@ router.put("/newblogs/:editid", upload.single("imgback"), async (req, res) => {
             en: description_en,
             ru: description_ru,
           },
-          image: req.file ? `/public/${req.file.filename}` : "",
+          created_at: req.body.created_at,
+          updated: req.body.updated,
+          image: imageFile,
         },
       },
       { new: true }
@@ -133,8 +152,8 @@ router.get("/newblogfront", async (req, res) => {
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      created_at: data.created_at,
+      updated: data.updated,
     }));
 
     return res.status(200).json(filteredData);
@@ -156,8 +175,8 @@ router.get("/lastnewblog", async (req, res) => {
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      created_at: data.created_at,
+      updated: data.updated,
     }));
 
     return res.status(200).json(filteredData);

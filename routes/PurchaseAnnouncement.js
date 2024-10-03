@@ -5,24 +5,6 @@ const PurchaseAnnouncement = require("../models/PurchaseAnnouncementModel");
 
 router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
   try {
-    const requiredFields = [
-      "title_az",
-      "title_en",
-      "title_ru",
-      "description_az",
-      "description_en",
-      "description_ru",
-      "predmet_az",
-      "predmet_en",
-      "predmet_ru",
-      "end_date",
-    ];
-
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
-      }
-    }
 
     const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 

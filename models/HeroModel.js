@@ -2,18 +2,19 @@ const mongoose = require("mongoose");
 
 const HeroSchema = mongoose.Schema({
   title: {
-    az: String,
-    en: String,
-    ru: String,
+    az: { type: String, required: false, default: "" },
+    en: { type: String, required: false, default: "" },
+    ru: { type: String, required: false, default: "" },
   },
   description: {
-    az: String,
-    en: String,
-    ru: String,
+    az: { type: String, required: false, default: "" },
+    en: { type: String, required: false, default: "" },
+    ru: { type: String, required: false, default: "" },
   },
   image: {
     type: String,
-    required: true,
+    required: false,
+    default: "",
   },
 });
 

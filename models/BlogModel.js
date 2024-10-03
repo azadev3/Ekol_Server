@@ -1,23 +1,23 @@
 const mongoose = require("mongoose");
 
-
 const BlogSchema = mongoose.Schema({
   title: {
-    az: String,
-    en: String,
-    ru: String,
+    az: { type: String, required: false, default: "" },
+    en: { type: String, required: false, default: "" },
+    ru: { type: String, required: false, default: "" },
   },
   description: {
-    az: String,
-    en: String,
-    ru: String,
+    az: { type: String, required: false, default: "" },
+    en: { type: String, required: false, default: "" },
+    ru: { type: String, required: false, default: "" },
   },
   image: {
     type: String,
-    required: true,
+    required: false,
+    default: "",
   },
-}, {
-  timestamps: true
+  created_at: { type: String, required: false, default: "" },
+  updated: { type: String, required: false, default: "" },
 });
 
 const BlogModel = mongoose.model("blogmodel", BlogSchema);

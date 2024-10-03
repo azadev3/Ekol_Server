@@ -1,19 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../config/MulterConfig");
+const { uploadConfig, useSharp } = require("../config/MulterC");
 const Hero = require("../models/HeroModel");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 
-router.post("/hero", upload.single("imgback"), async (req, res) => {
+router.post("/hero", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
-
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
-      }
-    }
-
-    const imageFile = req.file ? `/public/${req.file.filename}` : "";
+    // Img
+    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+    const imgOutputPath = path.join("./public", imgFileName);
+    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
+    const imageFile = `/public/${imgFileName}`;
 
     const createData = new Hero({
       title: {
@@ -66,10 +64,16 @@ router.get("/hero/:editid", async (req, res) => {
   }
 });
 
-router.put("/hero/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/hero/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+    // Img
+    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+    const imgOutputPath = path.join("./public", imgFileName);
+    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
+    const imageFile = `/public/${imgFileName}`;
 
     const updatedHero = await Hero.findByIdAndUpdate(
       editid,
@@ -85,7 +89,7 @@ router.put("/hero/:editid", upload.single("imgback"), async (req, res) => {
             en: description_en,
             ru: description_ru,
           },
-          image: req.file ? `/public/${req.file.filename}` : "",
+          image: imageFile,
         },
       },
       { new: true }
