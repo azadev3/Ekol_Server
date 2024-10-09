@@ -138,7 +138,6 @@ router.delete("/newblogs/:deleteid", async (req, res) => {
 });
 
 // for front
-
 router.get("/newblogfront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];

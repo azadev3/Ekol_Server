@@ -89,7 +89,7 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
 
       imageFile = `/public/${imgFileName}`;
     }
-
+  
     const updatedBlog = await Blog.findByIdAndUpdate(
       editid,
       {
@@ -169,7 +169,7 @@ router.get("/lastblogs", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const lastBlogs = await Blog.find().sort({ createdAt: -1 }).limit(5).lean();
+    const lastBlogs = await Blog.find().sort({ created_at: -1 }).limit(5).lean();
     if (!lastBlogs || lastBlogs.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -177,7 +177,7 @@ router.get("/lastblogs", async (req, res) => {
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
-      createdAt: data.createdAt,
+      created_at: data.created_at,
       updatedAt: data.updatedAt,
     }));
 
