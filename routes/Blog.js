@@ -19,6 +19,7 @@ router.post("/blog", uploadConfig.single("imgback"), async (req, res) => {
 
       imageFile = `/public/${imgFileName}`;
     }
+    const userCreatedAtString = req.body.created_at;
 
     const createData = new Blog({
       title: {
@@ -31,8 +32,9 @@ router.post("/blog", uploadConfig.single("imgback"), async (req, res) => {
         en: req.body.description_en,
         ru: req.body.description_ru,
       },
-      created_at: req.body.created_at,
-      updated: req.body.updated,
+      created_at: new Date(userCreatedAtString),
+      created_at_string: userCreatedAtString,
+      updated: req.body.updated || Date.now(),
       image: imageFile,
     });
 
@@ -89,7 +91,8 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
 
       imageFile = `/public/${imgFileName}`;
     }
-  
+    const userCreatedAtString = req.body.created_at;
+
     const updatedBlog = await Blog.findByIdAndUpdate(
       editid,
       {
@@ -104,8 +107,9 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
             en: description_en,
             ru: description_ru,
           },
-          created_at: req.body.created_at,
-          updated: req.body.updated,
+          created_at: new Date(userCreatedAtString),
+          created_at_string: userCreatedAtString,
+          updated: req.body.updated || Date.now(),
           image: imageFile,
         },
       },
@@ -163,22 +167,23 @@ router.get("/blogfront", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
 router.get("/lastblogs", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
     const lastBlogs = await Blog.find().sort({ created_at: -1 }).limit(5).lean();
+
     if (!lastBlogs || lastBlogs.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
+
     const filteredData = lastBlogs.map((data) => ({
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
-      created_at: data.created_at,
-      updatedAt: data.updatedAt,
+      created_at_string: data.created_at_string,
+      updated: data.updated,
     }));
 
     return res.status(200).json(filteredData);
