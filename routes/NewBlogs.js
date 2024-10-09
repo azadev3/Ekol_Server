@@ -19,6 +19,7 @@ router.post("/newblogs", uploadConfig.single("imgback"), async (req, res) => {
 
       imageFile = `/public/${imgFileName}`;
     }
+    
 
     const createData = new NewBlogs({
       title: {
