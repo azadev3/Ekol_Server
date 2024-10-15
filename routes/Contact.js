@@ -5,12 +5,7 @@ const Contact = require("../models/ContactModel");
 
 router.post(
   "/contact",
-  upload.fields([
-    { name: "telephone_logo", maxCount: 1 },
-    { name: "faks_logo", maxCount: 1 },
-    { name: "location_logo", maxCount: 1 },
-    { name: "email_logo", maxCount: 1 },
-  ]),
+  upload.fields([{ name: "telephone_logo" }, { name: "faks_logo" }, { name: "location_logo" }, { name: "email_logo" }]),
   async (req, res) => {
     try {
       const telephoneLogo = req.files["telephone_logo"] ? `/public/${req.files["telephone_logo"][0].filename}` : "";
