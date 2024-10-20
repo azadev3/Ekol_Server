@@ -5,10 +5,9 @@ const upload = require("../config/MulterConfig");
 
 router.post("/ourworksinner", upload.none(), async (req, res) => {
   try {
-
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-    if(!title_az || !title_en || !title_ru || !description_az || !description_en || !description_ru) {
+    if (!title_az || !title_en || !title_ru || !description_az || !description_en || !description_ru) {
       return res.status(400).json({ error: `Missing field` });
     }
 
@@ -62,7 +61,7 @@ router.get("/ourworksinner/:editid", async (req, res) => {
   }
 });
 
-router.put("/ourworksinner/:editid", upload.none(),  async (req, res) => {
+router.put("/ourworksinner/:editid", upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -124,6 +123,7 @@ router.get("/ourworksinnerfront", async (req, res) => {
     }
 
     const filteredData = datas.map((data) => ({
+      _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
     }));

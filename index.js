@@ -27,6 +27,7 @@ const Partners = require("./routes/Partners");
 const GalleryDropdown = require("./routes/GalleryDropdown");
 const Imagespage = require("./routes/Imagespage");
 const OurWorksInner = require("./routes/OurworksInner");
+const OurWorksImagesRoute = require("./routes/OurWorksImages");
 const CareerOpportunitiesBackground = require("./routes/CareerOpportunitiesBackground");
 const WhyEcol = require("./routes/Whyecol");
 const RecruitmentProcess = require("./routes/RecruitmentProcess");
@@ -106,7 +107,8 @@ const apis = [
   PurchaseCountries,
   YearlyCalculations,
   QuarterlyCalculations,
-  BlogImages
+  BlogImages,
+  OurWorksImagesRoute,
 ];
 
 apis.forEach((api) => {
