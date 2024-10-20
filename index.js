@@ -14,6 +14,7 @@ const OurWorks = require("./routes/OurWorks");
 const Statistics = require("./routes/Statistics");
 const Services = require("./routes/Services");
 const Blog = require("./routes/Blog");
+const BlogImages = require("./routes/DescriptionBlogImage");
 const NewBlog = require("./routes/NewBlogs");
 const Contact = require("./routes/Contact");
 const Socials = require("./routes/Socials");
@@ -105,6 +106,7 @@ const apis = [
   PurchaseCountries,
   YearlyCalculations,
   QuarterlyCalculations,
+  BlogImages
 ];
 
 apis.forEach((api) => {
