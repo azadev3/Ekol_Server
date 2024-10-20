@@ -9,8 +9,6 @@ const mountPath = require("../config/mountPath");
 router.post("/ourworksimages", uploadConfig.array("imgourworks", 10), async (req, res) => {
   try {
     const files = req.files;
-    const selected_ourworks = req.body.selected_ourworks;
-
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No images uploaded" });
     }
@@ -26,7 +24,7 @@ router.post("/ourworksimages", uploadConfig.array("imgourworks", 10), async (req
     }
 
     const createData = new OurWorksImageModel({
-      selected_ourworks,
+      selected_ourworks: req.body.selected_ourworks,
       images: imageFilePaths,
     });
 
