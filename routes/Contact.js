@@ -14,6 +14,7 @@ router.post(
       const emailLogo = req.files["email_logo"] ? `/public/${req.files["email_logo"][0].filename}` : "";
 
       const contactData = {
+        map: req.body.iframemap,
         telephones: [
           {
             title: {
@@ -51,7 +52,6 @@ router.post(
           },
           value: req.body.email_value,
           logo: emailLogo,
-          map: req.body.iframemap,
         },
       };
 
