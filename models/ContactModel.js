@@ -6,12 +6,12 @@ const SimpleFieldSchema = new mongoose.Schema({
     en: { type: String, required: true },
     ru: { type: String, required: true },
   },
-  map: { type: String, required: true },
   value: { type: String, required: true },
   logo: { type: String },
 });
 
 const ContactSchema = new mongoose.Schema({
+  map: { type: String, required: true },
   telephones: [SimpleFieldSchema],
   faks: SimpleFieldSchema,
   location: SimpleFieldSchema,
