@@ -53,6 +53,7 @@ const PurchaseNaturalForm = require("./routes/PurchaseNaturalForm");
 const PurchaseCountries = require("./routes/PurchaseCountries");
 const YearlyCalculations = require("./routes/YearlyCalculation");
 const QuarterlyCalculations = require("./routes/Calculations");
+const StructureCategories = require("./routes/StructureCategory");
 //connect Database
 ConnectDB();
 
@@ -109,6 +110,7 @@ const apis = [
   QuarterlyCalculations,
   BlogImages,
   OurWorksImagesRoute,
+  StructureCategories,
 ];
 
 apis.forEach((api) => {
