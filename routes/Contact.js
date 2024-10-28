@@ -51,6 +51,7 @@ router.post(
           },
           value: req.body.email_value,
           logo: emailLogo,
+          map: req.body.iframemap,
         },
       };
 
@@ -112,6 +113,7 @@ router.put("/contact/:editid", upload.single("imgback"), async (req, res) => {
             ru: description_ru,
           },
           image: req.file ? `/public/${req.file.filename}` : "",
+          map: req.body.iframemap,
         },
       },
       { new: true }
@@ -157,6 +159,8 @@ router.get("/contactfront", async (req, res) => {
     }
 
     const filteredData = datas.map((data) => ({
+      _id: data._id,
+      map: data.map,
       telephones: data.telephones.map((telephone) => ({
         title: telephone.title[preferredLanguage] || telephone.title["en"],
         value: telephone.value,
