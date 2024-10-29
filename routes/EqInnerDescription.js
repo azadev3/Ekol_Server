@@ -1,27 +1,35 @@
+const EquipmentsInnerDescription = require("../models/EquipmentInnerDescription");
 const express = require("express");
 const router = express.Router();
 const { uploadConfig, useSharp } = require("../config/MulterC");
-const EquipmentInnerDescription = require("../models/EquipmentInnerDescription");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
-
-router.post("/equipments-description", uploadConfig.single("imgback"), async (req, res) => {
+// Multiple file handling
+router.post("/equipments-description", uploadConfig.array("imgeq", 10), async (req, res) => {
   try {
-    // Img
-    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-    const imgOutputPath = path.join(mountPath, imgFileName);
-    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
-    const imageFile = `/public/${imgFileName}`;
+    const files = req.files;
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No images uploaded" });
+    }
 
-    const createData = new EquipmentInnerDescription({
+    const imageFilePaths = [];
+    for (let file of files) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+
+      await useSharp(file.buffer, imgOutputPath);
+
+      imageFilePaths.push(`/public/${imgFileName}`);
+    }
+
+    const createData = new EquipmentsInnerDescription({
       description: {
         az: req.body.description_az,
         en: req.body.description_en,
         ru: req.body.description_ru,
       },
-      image: imageFile,
-      selected_eq: req.body.selected_eq,
+      images: imageFilePaths,
     });
 
     const savedData = await createData.save();
@@ -34,7 +42,7 @@ router.post("/equipments-description", uploadConfig.single("imgback"), async (re
 
 router.get("/equipments-description", async (req, res) => {
   try {
-    const datas = await EquipmentInnerDescription.find();
+    const datas = await EquipmentsInnerDescription.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -48,7 +56,7 @@ router.get("/equipments-description/:editid", async (req, res) => {
   try {
     const { editid } = req.params;
 
-    const datasForId = await EquipmentInnerDescription.findById(editid).lean().exec();
+    const datasForId = await EquipmentsInnerDescription.findById(editid).lean().exec();
 
     if (!datasForId) {
       return res.status(404).json({ error: "not found editid" });
@@ -61,18 +69,28 @@ router.get("/equipments-description/:editid", async (req, res) => {
   }
 });
 
-router.put("/equipments-description/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/equipments-description/:editid", uploadConfig.array("imgeq", 10), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    const { description_az, description_en, description_ru } = req.body;
 
     // Img
-    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-    const imgOutputPath = path.join("./public", imgFileName);
-    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
-    const imageFile = `/public/${imgFileName}`;
+    const files = req.files;
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No images uploaded" });
+    }
 
-    const updatedEquipmentsDescriptions = await EquipmentInnerDescription.findByIdAndUpdate(
+    const imageFilePaths = [];
+    for (let file of files) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+
+      await useSharp(file.buffer, imgOutputPath);
+
+      imageFilePaths.push(`/public/${imgFileName}`);
+    }
+
+    const updateInnerEQ = await EquipmentsInnerDescription.findByIdAndUpdate(
       editid,
       {
         $set: {
@@ -81,8 +99,7 @@ router.put("/equipments-description/:editid", uploadConfig.single("imgback"), as
             en: description_en,
             ru: description_ru,
           },
-          image: imageFile,
-          selected_eq: req.body.selected_eq,
+          images: imageFilePaths,
         },
       },
       { new: true }
@@ -90,11 +107,11 @@ router.put("/equipments-description/:editid", uploadConfig.single("imgback"), as
       .lean()
       .exec();
 
-    if (!updatedEquipmentsDescriptions) {
+    if (!updateInnerEQ) {
       return res.status(404).json({ error: "not found editid" });
     }
 
-    return res.status(200).json(updatedEquipmentsDescriptions);
+    return res.status(200).json(updateInnerEQ);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
@@ -104,7 +121,7 @@ router.put("/equipments-description/:editid", uploadConfig.single("imgback"), as
 router.delete("/equipments-description/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
-    const deleteData = await EquipmentInnerDescription.findByIdAndDelete(deleteid);
+    const deleteData = await EquipmentsInnerDescription.findByIdAndDelete(deleteid);
 
     if (!deleteData) {
       return res.status(404).json({ message: "dont delete data or not found data or another error" });
@@ -120,7 +137,7 @@ router.get("/equipmentsdescriptionfront", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await EquipmentInnerDescription.find();
+    const datas = await EquipmentsInnerDescription.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -128,8 +145,7 @@ router.get("/equipmentsdescriptionfront", async (req, res) => {
     const filteredData = datas.map((data) => ({
       _id: data._id,
       description: data.description[preferredLanguage],
-      image: data.image,
-      selected_eq: data.selected_eq,
+      images: data.images,
     }));
 
     return res.status(200).json(filteredData);
