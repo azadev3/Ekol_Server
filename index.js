@@ -54,6 +54,7 @@ const PurchaseCountries = require("./routes/PurchaseCountries");
 const YearlyCalculations = require("./routes/YearlyCalculation");
 const QuarterlyCalculations = require("./routes/Calculations");
 const StructureCategories = require("./routes/StructureCategory");
+const EqInnerDescription = require("./routes/EqInnerDescription");
 //connect Database
 ConnectDB();
 
@@ -111,6 +112,7 @@ const apis = [
   BlogImages,
   OurWorksImagesRoute,
   StructureCategories,
+  EqInnerDescription
 ];
 
 apis.forEach((api) => {
