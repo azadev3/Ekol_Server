@@ -134,23 +134,14 @@ router.delete("/blog/:deleteid", async (req, res) => {
 // for front
 router.get("/blogfront", async (req, res) => {
   try {
-    const acceptLanguage = req.headers["accept-language"];
-    const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
+    const preferredLanguage = getPreferredLanguage(req);
 
     const datas = await Blog.find({ status: true });
-    if (!datas || datas.length === 0) {
+    if (!datas.length) {
       return res.status(404).json({ message: "No data found" });
     }
 
-    const filteredData = datas.map((data) => ({
-      _id: data._id,
-      title: data.title[preferredLanguage],
-      description: data.description[preferredLanguage],
-      image: data.image,
-      created_at: data.created_at,
-      updated: data.updated,
-    }));
-
+    const filteredData = datas.map(formatBlogData(preferredLanguage));
     return res.status(200).json(filteredData);
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -159,25 +150,35 @@ router.get("/blogfront", async (req, res) => {
 
 router.get("/lastblogs", async (req, res) => {
   try {
-    const acceptLanguage = req.headers["accept-language"];
-    const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
+    const preferredLanguage = getPreferredLanguage(req);
 
     const lastBlogs = await Blog.find({ status: true }).sort({ created_at: -1 }).limit(5).lean();
-    if (!lastBlogs || lastBlogs.length === 0) {
+    if (!lastBlogs.length) {
       return res.status(404).json({ message: "No data found" });
     }
-    const filteredData = lastBlogs.map((data) => ({
-      title: data.title[preferredLanguage],
-      description: data.description[preferredLanguage],
-      image: data.image,
-      created_at: data.created_at,
-      updatedAt: data.updatedAt,
-    }));
 
+    const filteredData = lastBlogs.map(formatBlogData(preferredLanguage));
     return res.status(200).json(filteredData);
   } catch (error) {
-    res.status(500).json({ error: error.message, message: "Failed to fetch last blogs" });
+    return res.status(500).json({ error: error.message, message: "Failed to fetch last blogs" });
   }
 });
+
+// Helper functions
+function getPreferredLanguage(req) {
+  const acceptLanguage = req.headers["accept-language"];
+  return acceptLanguage.split(",")[0].split(";")[0];
+}
+
+function formatBlogData(preferredLanguage) {
+  return (data) => ({
+    _id: data._id,
+    title: data.title[preferredLanguage],
+    description: data.description[preferredLanguage],
+    image: data.image,
+    created_at: data.created_at,
+    updated: data.updated,
+  });
+}
 
 module.exports = router;
