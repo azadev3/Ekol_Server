@@ -72,7 +72,7 @@ router.get("/blog/:editid", async (req, res) => {
 router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, status } = req.body;
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
     let imageFile = "";
     if (req.file) {
@@ -99,7 +99,6 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
           created_at: req.body.created_at,
           updated: req.body.updated,
           image: imageFile,
-          status: status,
         },
       },
       { new: true }
@@ -117,6 +116,35 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
     return res.status(500).json({ error: error.message });
   }
 });
+
+
+router.put("/blog/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (typeof status !== 'boolean') {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true } 
+    ).lean().exec();
+
+    if (!updatedBlog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    return res.status(200).json(updatedBlog);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 router.delete("/blog/:deleteid", async (req, res) => {
   try {
