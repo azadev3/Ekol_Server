@@ -16,6 +16,11 @@ const BlogSchema = mongoose.Schema({
     required: false,
     default: "",
   },
+  status: { 
+    type: Boolean, 
+    required: true, 
+    default: true 
+  },
   created_at: { type: String, required: false, default: "" },
   updated: { type: String, required: false, default: "" },
 });

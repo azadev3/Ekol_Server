@@ -8,14 +8,11 @@ const mountPath = require("../config/mountPath");
 
 router.post("/blog", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    // Img
     let imageFile = "";
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
-
       await useSharp(req.file.buffer, imgOutputPath);
-
       imageFile = `/public/${imgFileName}`;
     }
 
@@ -33,10 +30,10 @@ router.post("/blog", uploadConfig.single("imgback"), async (req, res) => {
       created_at: req.body.created_at,
       updated: req.body.updated,
       image: imageFile,
+      status: req.body.status || true,
     });
 
     const savedData = await createData.save();
-
     return res.status(200).json(savedData);
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -75,17 +72,13 @@ router.get("/blog/:editid", async (req, res) => {
 router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru, status } = req.body;
 
-    // Img
     let imageFile = "";
-
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
-
       await useSharp(req.file.buffer, imgOutputPath);
-
       imageFile = `/public/${imgFileName}`;
     }
 
@@ -106,6 +99,7 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
           created_at: req.body.created_at,
           updated: req.body.updated,
           image: imageFile,
+          status: status,
         },
       },
       { new: true }
@@ -143,7 +137,7 @@ router.get("/blogfront", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await Blog.find();
+    const datas = await Blog.find({ status: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
@@ -168,7 +162,7 @@ router.get("/lastblogs", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const lastBlogs = await Blog.find().sort({ created_at: -1 }).limit(5).lean();
+    const lastBlogs = await Blog.find({ status: true }).sort({ created_at: -1 }).limit(5).lean();
     if (!lastBlogs || lastBlogs.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
