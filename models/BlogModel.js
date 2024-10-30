@@ -16,8 +16,8 @@ const BlogSchema = mongoose.Schema({
     required: false,
     default: "",
   },
-  status: { 
-    type: Boolean, 
+  status: {
+    type: Boolean,
     default: true,
     required: false,
   },

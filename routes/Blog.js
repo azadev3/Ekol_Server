@@ -117,21 +117,16 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
   }
 });
 
-
 router.put("/blog/status/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (typeof status !== 'boolean') {
+    if (typeof status !== "boolean") {
       return res.status(400).json({ error: "Status must be a boolean value" });
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      id,
-      { status: status },
-      { new: true } 
-    ).lean().exec();
+    const updatedBlog = await Blog.findByIdAndUpdate(id, { status: status }, { new: true }).lean().exec();
 
     if (!updatedBlog) {
       return res.status(404).json({ error: "Blog not found" });
@@ -143,8 +138,6 @@ router.put("/blog/status/:id", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
-
 
 router.delete("/blog/:deleteid", async (req, res) => {
   try {
