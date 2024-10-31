@@ -30,6 +30,11 @@ const PurchaseAnnouncementSchema = mongoose.Schema(
     status: {
       type: String,
     },
+    statusActive: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
   },
   { timestamps: true }
 );

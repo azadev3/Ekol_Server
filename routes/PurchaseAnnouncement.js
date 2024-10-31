@@ -5,7 +5,6 @@ const PurchaseAnnouncement = require("../models/PurchaseAnnouncementModel");
 
 router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
   try {
-
     const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
     const createData = new PurchaseAnnouncement({
@@ -27,6 +26,7 @@ router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
       end_date: req.body.end_date,
       pdf: pdfFile,
       status: req.body?.status,
+      statusActive: req.body.statusActive || true,
     });
 
     const savedData = await createData.save();
@@ -123,6 +123,29 @@ router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, re
   }
 });
 
+router.put("/purch/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusActive } = req.body;
+
+    if (typeof statusActive !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+
+    if (!updatedBlog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    return res.status(200).json(updatedBlog);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
 router.delete("/purchaseannouncement/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
@@ -142,7 +165,7 @@ router.get("/purchaseannouncementfront", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await PurchaseAnnouncement.find();
+    const datas = await PurchaseAnnouncement.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
