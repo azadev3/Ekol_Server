@@ -132,19 +132,18 @@ router.put("/purch/status/:id", async (req, res) => {
       return res.status(400).json({ error: "Status must be a boolean value" });
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+    const updatedPurch = await PurchaseAnnouncement.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
 
-    if (!updatedBlog) {
-      return res.status(404).json({ error: "Blog not found" });
+    if (!updatedPurch) {
+      return res.status(404).json({ error: "PurchaseAnnouncement not found" });
     }
 
-    return res.status(200).json(updatedBlog);
+    return res.status(200).json(updatedPurch);
   } catch (error) {
     console.error("Error updating status:", error);
     return res.status(500).json({ error: error.message });
   }
 });
-
 
 router.delete("/purchaseannouncement/:deleteid", async (req, res) => {
   try {
