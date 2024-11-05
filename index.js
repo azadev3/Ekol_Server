@@ -57,6 +57,7 @@ const StructureCategories = require("./routes/StructureCategory");
 const EqInnerDescription = require("./routes/EqInnerDescription");
 const ToolsInnerRoute = require("./routes/ToolsInnerRoute");
 const ToolsInnerImagesRoute = require("./routes/ToolsInnerImages");
+const ShowHiddenRehberlik = require("./routes/ShowHiddenRehberlik");
 //connect Database
 ConnectDB();
 
@@ -117,6 +118,7 @@ const apis = [
   EqInnerDescription,
   ToolsInnerRoute,
   ToolsInnerImagesRoute,
+  ShowHiddenRehberlik
 ];
 
 apis.forEach((api) => {
