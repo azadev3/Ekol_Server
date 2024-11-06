@@ -6,11 +6,19 @@ const uploadConfig = multer({ storage });
 
 const useSharp = async (buffer, outputPath) => {
   try {
-    await sharp(buffer).resize(700).webp({ quality: 70 }).toFile(outputPath);
+    await sharp(buffer)
+      .resize(700, null, {
+        fit: sharp.fit.inside,
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 90 }) 
+      .toFile(outputPath);
+      
     console.log("ok sharp!");
   } catch (error) {
     console.log("error sharp!", error);
   }
 };
+
 
 module.exports = { uploadConfig, useSharp };
