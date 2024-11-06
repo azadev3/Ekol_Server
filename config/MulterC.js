@@ -11,14 +11,13 @@ const useSharp = async (buffer, outputPath) => {
         fit: sharp.fit.inside,
         withoutEnlargement: true,
       })
-      .webp({ quality: 90 }) 
+      .webp({ quality: 90 })
       .toFile(outputPath);
-      
+
     console.log("ok sharp!");
   } catch (error) {
     console.log("error sharp!", error);
   }
 };
-
 
 module.exports = { uploadConfig, useSharp };
