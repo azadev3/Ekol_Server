@@ -5,11 +5,12 @@ const ShowHiddenRehberlikModel = require("../models/ShowHiddenRehberlikModel");
 router.post("/hidden-rehberlik", async (req, res) => {
   try {
     const { show } = req.body;
-    const saveshow = ShowHiddenRehberlikModel({
-      showed: show,
-    });
 
-    const saved = await saveshow.save();
+    const saved = await ShowHiddenRehberlikModel.findOneAndUpdate(
+      {},
+      { showed: show }, 
+      { upsert: true, new: true } 
+    );
 
     return res.status(200).json({ saved });
   } catch (error) {
@@ -20,7 +21,7 @@ router.post("/hidden-rehberlik", async (req, res) => {
 
 router.get("/hidden-rehberlik-front", async (req, res) => {
   try {
-    const showState = await ShowHiddenRehberlikModel.find();
+    const showState = await ShowHiddenRehberlikModel.findOne();
 
     return res.status(200).json(showState);
   } catch (error) {
