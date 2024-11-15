@@ -6,13 +6,7 @@ const uploadConfig = multer({ storage });
 
 const useSharp = async (buffer, outputPath) => {
   try {
-    await sharp(buffer)
-      .resize(700, null, {
-        fit: sharp.fit.inside,
-        withoutEnlargement: true,
-      })
-      .webp({ quality: 90 })
-      .toFile(outputPath);
+    await sharp(buffer).webp({ quality: 100 }).toFile(outputPath);
 
     console.log("ok sharp!");
   } catch (error) {
