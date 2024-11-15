@@ -12,7 +12,7 @@ router.post("/blog", uploadConfig.single("imgback"), async (req, res) => {
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
-      await useSharp(req.file.buffer, imgOutputPath);
+      await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
       imageFile = `/public/${imgFileName}`;
     }
 
@@ -78,7 +78,7 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
-      await useSharp(req.file.buffer, imgOutputPath);
+      await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
       imageFile = `/public/${imgFileName}`;
     }
 
