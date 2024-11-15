@@ -72,8 +72,6 @@ router.get("/blog/:editid", async (req, res) => {
 router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
-
     let imageFile = "";
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -87,18 +85,18 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
       {
         $set: {
           title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
+            az: req.body.title_az,
+            en: req.body.title_en,
+            ru: req.body.title_ru,
           },
           description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
+            az: req.body.description_az,
+            en: req.body.description_en,
+            ru: req.body.description_ru,
           },
+          image: imageFile,
           created_at: req.body.created_at,
           updated: req.body.updated,
-          image: imageFile,
         },
       },
       { new: true }
