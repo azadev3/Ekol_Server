@@ -1,7 +1,7 @@
 //modules
 const express = require("express");
 const ConnectDB = require("./config/Config");
-const path = require("path");
+// const path = require("path");
 const app = express();
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
@@ -22,7 +22,7 @@ const Logo = require("./routes/Logo");
 const Translate = require("./routes/Translate");
 const WhoAreWe = require("./routes/WhoAreWe");
 const Management = require("./routes/Management");
-const Structures = require("./routes/Structures");
+// const Structures = require("./routes/Structures");
 const Partners = require("./routes/Partners");
 const GalleryDropdown = require("./routes/GalleryDropdown");
 const Imagespage = require("./routes/Imagespage");
@@ -53,11 +53,12 @@ const PurchaseNaturalForm = require("./routes/PurchaseNaturalForm");
 const PurchaseCountries = require("./routes/PurchaseCountries");
 const YearlyCalculations = require("./routes/YearlyCalculation");
 const QuarterlyCalculations = require("./routes/Calculations");
-const StructureCategories = require("./routes/StructureCategory");
+// const StructureCategories = require("./routes/StructureCategory");
 const EqInnerDescription = require("./routes/EqInnerDescription");
 const ToolsInnerRoute = require("./routes/ToolsInnerRoute");
 const ToolsInnerImagesRoute = require("./routes/ToolsInnerImages");
 const ShowHiddenRehberlik = require("./routes/ShowHiddenRehberlik");
+const StructureImgRoute = require("./routes/StructureRoute");
 //connect Database
 ConnectDB();
 
@@ -82,7 +83,7 @@ const apis = [
   Translate,
   WhoAreWe,
   Management,
-  Structures,
+  // Structures,
   Partners,
   GalleryDropdown,
   Imagespage,
@@ -114,11 +115,12 @@ const apis = [
   QuarterlyCalculations,
   BlogImages,
   OurWorksImagesRoute,
-  StructureCategories,
+  // StructureCategories,
   EqInnerDescription,
   ToolsInnerRoute,
   ToolsInnerImagesRoute,
-  ShowHiddenRehberlik
+  ShowHiddenRehberlik,
+  StructureImgRoute
 ];
 
 apis.forEach((api) => {
