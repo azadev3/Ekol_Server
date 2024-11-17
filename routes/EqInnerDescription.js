@@ -6,7 +6,7 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
 // Multiple file handling
-router.post("/equipments-description", uploadConfig.array("imgeq", 10), async (req, res) => {
+router.post("/equipments-description", uploadConfig.array("imgeq"), async (req, res) => {
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -69,7 +69,7 @@ router.get("/equipments-description/:editid", async (req, res) => {
   }
 });
 
-router.put("/equipments-description/:editid", uploadConfig.array("imgeq", 10), async (req, res) => {
+router.put("/equipments-description/:editid", uploadConfig.array("imgeq"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { description_az, description_en, description_ru } = req.body;
