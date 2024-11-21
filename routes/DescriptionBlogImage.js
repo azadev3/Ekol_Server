@@ -115,6 +115,7 @@ router.get("/blogimage/:editid", async (req, res) => {
 // });
 
 
+
 router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
@@ -128,7 +129,6 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
       for (let file of files) {
         const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
         const imgOutputPath = path.join(mountPath, imgFileName);
-
         await useSharp(file.buffer, imgOutputPath);
         imageFilePaths.push(`/public/${imgFileName}`);
       }
@@ -139,23 +139,15 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
       return res.status(404).json({ error: "Blog not found" });
     }
 
-    // Remove deleted images from the list
     const updatedImages = existingBlog.images.filter(
       (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
     );
 
-    // Delete the images from the server
-    imagesToDelete.forEach((imagePath) => {
-      const localPath = path.join(__dirname, "../../", imagePath.replace("https://ekol-server-1.onrender.com", ""));
-      if (fs.existsSync(localPath)) {
-        fs.unlinkSync(localPath);
-      }
-    });
-
-    // Combine existing images and new uploaded images
     const finalImages = [...updatedImages, ...imageFilePaths];
     existingBlog.images = finalImages;
     existingBlog.selected_blog = selected_blog;
+
+    // Save the updated blog
     const updatedBlog = await existingBlog.save();
 
     return res.status(200).json(updatedBlog);
@@ -164,6 +156,7 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
