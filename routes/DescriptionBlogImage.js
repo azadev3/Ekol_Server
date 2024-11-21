@@ -136,13 +136,15 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
 
     const existingBlog = await BlogDescriptionImageModel.findById(editid).exec();
     if (!existingBlog) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Blog not found" });
     }
 
+    // Remove deleted images from the list
     const updatedImages = existingBlog.images.filter(
       (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
     );
 
+    // Delete the images from the server
     imagesToDelete.forEach((imagePath) => {
       const localPath = path.join(__dirname, "../../", imagePath.replace("https://ekol-server-1.onrender.com", ""));
       if (fs.existsSync(localPath)) {
@@ -150,6 +152,7 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
       }
     });
 
+    // Combine existing images and new uploaded images
     const finalImages = [...updatedImages, ...imageFilePaths];
     existingBlog.images = finalImages;
     existingBlog.selected_blog = selected_blog;
@@ -157,10 +160,11 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
 
     return res.status(200).json(updatedBlog);
   } catch (error) {
-    console.error("Error updating data:", error);
+    console.error("Error updating blog images:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
