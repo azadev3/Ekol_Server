@@ -67,52 +67,102 @@ router.get("/blogimage/:editid", async (req, res) => {
   }
 });
 
+// router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { selected_blog } = req.body;
+
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ error: "No images uploaded" });
+//     }
+
+//     const imageFilePaths = [];
+//     for (let file of files) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(file.buffer, imgOutputPath);
+
+//       imageFilePaths.push(`/public/${imgFileName}`);
+//     }
+
+//     const existingBlogImage = await BlogDescriptionImageModel.findById(editid).lean().exec();
+//     if (!existingBlogImage) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     const updatedImagePaths = [...existingBlogImage.images, ...imageFilePaths];
+
+//     const updatedBlogImage = await BlogDescriptionImageModel.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           selected_blog: selected_blog,
+//           images: updatedImagePaths, 
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     return res.status(200).json(updatedBlogImage);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { selected_blog } = req.body;
+    const { selected_blog, deletedImages } = req.body;
+
+    const imagesToDelete = JSON.parse(deletedImages || "[]");
 
     const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
-    }
-
     const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+    if (files && files.length > 0) {
+      for (let file of files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
 
-      await useSharp(file.buffer, imgOutputPath);
-
-      imageFilePaths.push(`/public/${imgFileName}`);
+        await useSharp(file.buffer, imgOutputPath);
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
     }
 
-    const existingBlogImage = await BlogDescriptionImageModel.findById(editid).lean().exec();
-    if (!existingBlogImage) {
+    const existingBlog = await BlogDescriptionImageModel.findById(editid).exec();
+    if (!existingBlog) {
       return res.status(404).json({ error: "not found editid" });
     }
 
-    const updatedImagePaths = [...existingBlogImage.images, ...imageFilePaths];
+    const updatedImages = existingBlog.images.filter(
+      (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
+    );
 
-    const updatedBlogImage = await BlogDescriptionImageModel.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          selected_blog: selected_blog,
-          images: updatedImagePaths, 
-        },
-      },
-      { new: true }
-    )
-      .lean()
-      .exec();
+    imagesToDelete.forEach((imagePath) => {
+      const localPath = path.join(__dirname, "../../", imagePath.replace("https://ekol-server-1.onrender.com", ""));
+      if (fs.existsSync(localPath)) {
+        fs.unlinkSync(localPath);
+      }
+    });
 
-    return res.status(200).json(updatedBlogImage);
+    const finalImages = [...updatedImages, ...imageFilePaths];
+    existingBlog.images = finalImages;
+    existingBlog.selected_blog = selected_blog;
+    const updatedBlog = await existingBlog.save();
+
+    return res.status(200).json(updatedBlog);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
+
 
 router.delete("/blogimage/:deleteid", async (req, res) => {
   try {
