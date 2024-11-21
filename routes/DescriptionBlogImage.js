@@ -67,7 +67,8 @@ router.get("/blogimage/:editid", async (req, res) => {
   }
 });
 
-router.put("/blogimage/:editid", uploadConfig.array("imgback"), async (req, res) => {
+
+router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { selected_blog } = req.body;
@@ -111,6 +112,9 @@ router.put("/blogimage/:editid", uploadConfig.array("imgback"), async (req, res)
     return res.status(500).json({ error: error.message });
   }
 });
+
+
+
 
 router.delete("/blogimage/:deleteid", async (req, res) => {
   try {
