@@ -65,12 +65,57 @@ router.get("/toolsinnerimages/:editid", async (req, res) => {
   }
 });
 
-router.put("/toolsinnerimages/:editid", uploadConfig.array("imgtools"), async (req, res) => {
+// router.put("/toolsinnerimages/:editid", uploadConfig.array("imgtools"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { selected_tools } = req.body;
+
+//     // Img
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ error: "No images uploaded" });
+//     }
+
+//     const imageFilePaths = [];
+//     for (let file of files) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(file.buffer, imgOutputPath);
+
+//       imageFilePaths.push(`/public/${imgFileName}`);
+//     }
+
+//     const updatedToolsInnerImages = await ToolsInnerImagesModel.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           selected_tools: selected_tools,
+//           images: imageFilePaths,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedToolsInnerImages) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedToolsInnerImages);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+router.put("/toolsinnerimages/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { selected_tools } = req.body;
 
-    // Img
     const files = req.files;
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No images uploaded" });
@@ -86,12 +131,19 @@ router.put("/toolsinnerimages/:editid", uploadConfig.array("imgtools"), async (r
       imageFilePaths.push(`/public/${imgFileName}`);
     }
 
-    const updatedToolsInnerImages = await ToolsInnerImagesModel.findByIdAndUpdate(
+    const existingToolsImage = await ToolsInnerImagesModel.findById(editid).lean().exec();
+    if (!existingToolsImage) {
+      return res.status(404).json({ error: "not found editid" });
+    }
+
+    const updatedImagePaths = [...existingToolsImage.images, ...imageFilePaths];
+
+    const updatedToolsImage = await ToolsInnerImagesModel.findByIdAndUpdate(
       editid,
       {
         $set: {
           selected_tools: selected_tools,
-          images: imageFilePaths,
+          images: updatedImagePaths, 
         },
       },
       { new: true }
@@ -99,16 +151,15 @@ router.put("/toolsinnerimages/:editid", uploadConfig.array("imgtools"), async (r
       .lean()
       .exec();
 
-    if (!updatedToolsInnerImages) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedToolsInnerImages);
+    return res.status(200).json(updatedToolsImage);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
+
+
 
 router.delete("/toolsinnerimages/:deleteid", async (req, res) => {
   try {
