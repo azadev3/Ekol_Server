@@ -68,18 +68,45 @@ router.get("/imagespage/:editid", async (req, res) => {
   }
 });
 
+
+
+
 router.put(
   "/imagespage/:editid",
-  upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]),
+  upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images", maxCount: 5 }]),
   async (req, res) => {
     try {
       const { editid } = req.params;
       const { categoryName_az, categoryName_en, categoryName_ru } = req.body;
 
-      const categoryImgFile = req.files["imgback"] ? `/public/${req.files["imgback"][0].filename}` : undefined;
-      const images = req.files["images"]
-        ? req.files["images"].map((file) => ({ image: `/public/${file.filename}` }))
+      // Resimlerin yolu
+      const categoryImgFile = req.files["imgback"]
+        ? `/public/${req.files["imgback"][0].filename}`
         : undefined;
+
+      const imagesToDelete = req.body.imagesToDelete ? JSON.parse(req.body.imagesToDelete) : [];
+      
+      if (imagesToDelete.length > 0) {
+        imagesToDelete.forEach((image) => {
+          const filePath = path.join(__dirname, "..", image); 
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);  
+          }
+        });
+      }
+
+      let images = [];
+      if (req.files["images"]) {
+        images = await Promise.all(
+          req.files["images"].map(async (file) => {
+            const filePath = `/public/${file.filename}`;
+            await sharp(file.buffer)
+              .resize(800) 
+              .toFile(path.join(__dirname, "..", filePath)); 
+            return { image: filePath };
+          })
+        );
+      }
 
       const updateData = {
         categoryName: {
@@ -88,12 +115,14 @@ router.put(
           ru: categoryName_ru,
         },
         ...(categoryImgFile && { categoryImg: categoryImgFile }),
-        ...(images && { images: images }),
+        ...(images.length > 0 && { images: images }),
       };
 
-      const updatedImagespage = await Imagespage.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
-        .lean()
-        .exec();
+      const updatedImagespage = await Imagespage.findByIdAndUpdate(
+        editid,
+        { $set: updateData },
+        { new: true }
+      ).lean().exec();
 
       if (!updatedImagespage) {
         return res.status(404).json({ error: "Not found: editid" });
@@ -106,6 +135,9 @@ router.put(
     }
   }
 );
+
+
+
 
 router.delete("/imagespage/:deleteid", async (req, res) => {
   try {
