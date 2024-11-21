@@ -67,18 +67,18 @@ router.get("/blogimage/:editid", async (req, res) => {
   }
 });
 
-
 router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { selected_blog } = req.body;
 
-    // Img
+    // Gelen dosyalar
     const files = req.files;
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No images uploaded" });
     }
 
+    // Yeni yüklenen resimleri işleme
     const imageFilePaths = [];
     for (let file of files) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -89,12 +89,22 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
       imageFilePaths.push(`/public/${imgFileName}`);
     }
 
+    // Mevcut veri tabanından resimleri al
+    const existingBlogImage = await BlogDescriptionImageModel.findById(editid).lean().exec();
+    if (!existingBlogImage) {
+      return res.status(404).json({ error: "not found editid" });
+    }
+
+    // Eski resimlere yenileri ekle
+    const updatedImagePaths = [...existingBlogImage.images, ...imageFilePaths];
+
+    // Veri tabanını güncelle
     const updatedBlogImage = await BlogDescriptionImageModel.findByIdAndUpdate(
       editid,
       {
         $set: {
           selected_blog: selected_blog,
-          images: imageFilePaths,
+          images: updatedImagePaths, 
         },
       },
       { new: true }
@@ -102,16 +112,13 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
       .lean()
       .exec();
 
-    if (!updatedBlogImage) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
     return res.status(200).json(updatedBlogImage);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
