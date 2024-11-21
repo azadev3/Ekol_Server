@@ -99,7 +99,7 @@ router.get("/blogimage/:editid", async (req, res) => {
 //       {
 //         $set: {
 //           selected_blog: selected_blog,
-//           images: updatedImagePaths, 
+//           images: updatedImagePaths,
 //         },
 //       },
 //       { new: true }
@@ -113,8 +113,6 @@ router.get("/blogimage/:editid", async (req, res) => {
 //     return res.status(500).json({ error: error.message });
 //   }
 // });
-
-
 
 router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
@@ -156,10 +154,6 @@ router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, re
     return res.status(500).json({ error: error.message });
   }
 });
-
-
-
-
 
 router.delete("/blogimage/:deleteid", async (req, res) => {
   try {

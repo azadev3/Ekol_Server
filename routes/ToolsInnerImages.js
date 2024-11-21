@@ -111,49 +111,91 @@ router.get("/toolsinnerimages/:editid", async (req, res) => {
 // });
 
 
+// router.put("/toolsinnerimages/:editid", uploadConfig.array("newImages"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { selected_tools } = req.body;
+
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ error: "No images uploaded" });
+//     }
+
+//     const imageFilePaths = [];
+//     for (let file of files) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(file.buffer, imgOutputPath);
+
+//       imageFilePaths.push(`/public/${imgFileName}`);
+//     }
+
+//     const existingToolsImage = await ToolsInnerImagesModel.findById(editid).lean().exec();
+//     if (!existingToolsImage) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     const updatedImagePaths = [...existingToolsImage.images, ...imageFilePaths];
+
+//     const updatedToolsImage = await ToolsInnerImagesModel.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           selected_tools: selected_tools,
+//           images: updatedImagePaths, 
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     return res.status(200).json(updatedToolsImage);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/toolsinnerimages/:editid", uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { selected_tools } = req.body;
+    const { selected_tools, deletedImages } = req.body;
+
+    const imagesToDelete = JSON.parse(deletedImages || "[]");
 
     const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
-    }
-
     const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
-
-      await useSharp(file.buffer, imgOutputPath);
-
-      imageFilePaths.push(`/public/${imgFileName}`);
+    if (files && files.length > 0) {
+      for (let file of files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+        await useSharp(file.buffer, imgOutputPath);
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
     }
 
-    const existingToolsImage = await ToolsInnerImagesModel.findById(editid).lean().exec();
-    if (!existingToolsImage) {
-      return res.status(404).json({ error: "not found editid" });
+    const existingTool = await ToolsInnerImagesModel.findById(editid).exec();
+    if (!existingTool) {
+      return res.status(404).json({ error: "tools img not found" });
     }
 
-    const updatedImagePaths = [...existingToolsImage.images, ...imageFilePaths];
+    const updatedImages = existingTool.images.filter(
+      (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
+    );
 
-    const updatedToolsImage = await ToolsInnerImagesModel.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          selected_tools: selected_tools,
-          images: updatedImagePaths, 
-        },
-      },
-      { new: true }
-    )
-      .lean()
-      .exec();
+    const finalImages = [...updatedImages, ...imageFilePaths];
+    existingTool.images = finalImages;
+    existingTool.selected_tools = selected_tools;
 
-    return res.status(200).json(updatedToolsImage);
+    // Save the updated tools img
+    const updatedTools = await existingTool.save();
+
+    return res.status(200).json(updatedTools);
   } catch (error) {
-    console.error("Error updating data:", error);
+    console.error("Error updating tools images:", error);
     return res.status(500).json({ error: error.message });
   }
 });
