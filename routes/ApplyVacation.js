@@ -59,11 +59,7 @@ router.post(
           <p><strong>Müraciət tarixi:</strong> ${req.body.applyDate}</p>
         <p>
         <strong>CV:</strong>
-        ${
-          req.file
-            ? `https://ekol-server-1.onrender.com${req.files["cv"] ? `/public/${req.files["cv"][0].filename}` : ""}`
-            : ""
-        },
+        ${`https://ekol-server-1.onrender.com${cv}`};
         </p>
 
              <footer style="margin-top: 20px;">
