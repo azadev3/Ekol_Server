@@ -48,7 +48,7 @@ router.post(
 
       const mailOptions = {
         from: "",
-        to: "kodingo593@gmail.com",
+        to: "hr@ekol.az",
         subject: "Vakansiya müraciəti",
         html: `
           <h1>Vakansiya müraciəti</h1>
