@@ -59,7 +59,11 @@ router.post(
           <p><strong>Müraciət tarixi:</strong> ${req.body.applyDate}</p>
         <p>
         <strong>CV:</strong>
-        ${req.file ? `https://ekol-server-1.onrender.com${cv}` : ""},
+        ${
+          req.file
+            ? `https://ekol-server-1.onrender.com${req.files["cv"] ? `/public/${req.files["cv"][0].filename}` : ""}`
+            : ""
+        },
         </p>
 
              <footer style="margin-top: 20px;">
@@ -67,7 +71,7 @@ router.post(
         </footer>
         `,
       };
-
+      console.log(cv);
       await transporter.sendMail(mailOptions);
 
       return res.status(200).json({
