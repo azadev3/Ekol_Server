@@ -61,30 +61,71 @@ router.get("/sociallifecarousel/:editid", async (req, res) => {
   }
 });
 
+// router.put("/sociallifecarousel/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru } = req.body;
+
+//     const updatedSocialLifeCarousel = await SocialLifeCarousel.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           image: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedSocialLifeCarousel) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedSocialLifeCarousel);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/sociallifecarousel/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
+    const existingSocialLifeCarousel = await SocialLifeCarousel.findById(editid).exec();
+    if (!existingSocialLifeCarousel) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {};
+
+    updateData.title = {
+      az: title_az || existingSocialLifeCarousel.title.az,
+      en: title_en || existingSocialLifeCarousel.title.en,
+      ru: title_ru || existingSocialLifeCarousel.title.ru,
+    };
+
+    if (req.file) {
+      updateData.image = `/public/${req.file.filename}`;
+    }
+
     const updatedSocialLifeCarousel = await SocialLifeCarousel.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          image: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updateData },
       { new: true }
     )
       .lean()
       .exec();
 
     if (!updatedSocialLifeCarousel) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedSocialLifeCarousel);
@@ -93,6 +134,7 @@ router.put("/sociallifecarousel/:editid", upload.single("imgback"), async (req, 
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/sociallifecarousel/:deleteid", async (req, res) => {
   try {

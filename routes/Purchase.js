@@ -66,36 +66,89 @@ router.get("/purchase/:editid", async (req, res) => {
   }
 });
 
+// router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+//     const updatedPurchase = await Purchase.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           pdf: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedPurchase) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedPurchase);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
+    const existingPurchase = await Purchase.findById(editid).exec();
+    if (!existingPurchase) {
+      return res.status(404).json({ error: "Purchase not found" });
+    }
+
+    const updatedData = {};
+
+    if (title_az || title_en || title_ru) {
+      updatedData.title = {
+        az: title_az || existingPurchase.title.az,
+        en: title_en || existingPurchase.title.en,
+        ru: title_ru || existingPurchase.title.ru,
+      };
+    }
+
+    if (description_az || description_en || description_ru) {
+      updatedData.description = {
+        az: description_az || existingPurchase.description.az,
+        en: description_en || existingPurchase.description.en,
+        ru: description_ru || existingPurchase.description.ru,
+      };
+    }
+
+    if (req.file) {
+      updatedData.pdf = `/public/${req.file.filename}`;
+    } else {
+      updatedData.pdf = existingPurchase.pdf; 
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingPurchase);
+    }
+
     const updatedPurchase = await Purchase.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          pdf: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
-
-    if (!updatedPurchase) {
-      return res.status(404).json({ error: "not found editid" });
-    }
 
     return res.status(200).json(updatedPurchase);
   } catch (error) {
@@ -103,6 +156,8 @@ router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+
 
 router.delete("/purchase/:deleteid", async (req, res) => {
   try {

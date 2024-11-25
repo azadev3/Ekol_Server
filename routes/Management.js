@@ -89,6 +89,67 @@ router.get("/management/:editid", async (req, res) => {
   }
 });
 
+// router.put("/management/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const {
+//       nameSurname_az,
+//       nameSurname_en,
+//       nameSurname_ru,
+//       job_az,
+//       job_en,
+//       job_ru,
+//       education_az,
+//       education_en,
+//       education_ru,
+//       description_az,
+//       description_en,
+//       description_ru,
+//     } = req.body;
+
+//     const updatedManagement = await Management.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           nameSurname: {
+//             az: nameSurname_az,
+//             en: nameSurname_en,
+//             ru: nameSurname_ru,
+//           },
+//           job: {
+//             az: job_az,
+//             en: job_en,
+//             ru: job_ru,
+//           },
+//           profile: req.file ? `/public/${req.file.filename}` : "",
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           education: {
+//             az: education_az,
+//             en: education_en,
+//             ru: education_ru,
+//           },
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedManagement) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedManagement);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/management/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
@@ -107,40 +168,44 @@ router.put("/management/:editid", upload.single("imgback"), async (req, res) => 
       description_ru,
     } = req.body;
 
-    const updatedManagement = await Management.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          nameSurname: {
-            az: nameSurname_az,
-            en: nameSurname_en,
-            ru: nameSurname_ru,
-          },
-          job: {
-            az: job_az,
-            en: job_en,
-            ru: job_ru,
-          },
-          profile: req.file ? `/public/${req.file.filename}` : "",
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          education: {
-            az: education_az,
-            en: education_en,
-            ru: education_ru,
-          },
-        },
+    const existingManagement = await Management.findById(editid).exec();
+    if (!existingManagement) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {
+      nameSurname: {
+        az: nameSurname_az,
+        en: nameSurname_en,
+        ru: nameSurname_ru,
       },
-      { new: true }
-    )
+      job: {
+        az: job_az,
+        en: job_en,
+        ru: job_ru,
+      },
+      description: {
+        az: description_az,
+        en: description_en,
+        ru: description_ru,
+      },
+      education: {
+        az: education_az,
+        en: education_en,
+        ru: education_ru,
+      },
+    };
+
+    if (req.file) {
+      updateData.profile = `/public/${req.file.filename}`;
+    }
+
+    const updatedManagement = await Management.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
       .lean()
       .exec();
 
     if (!updatedManagement) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedManagement);
@@ -149,6 +214,7 @@ router.put("/management/:editid", upload.single("imgback"), async (req, res) => 
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/management/:deleteid", async (req, res) => {
   try {

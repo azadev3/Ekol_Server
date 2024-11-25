@@ -54,34 +54,79 @@ router.get("/socials/:editid", async (req, res) => {
   }
 });
 
+// router.put("/socials/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { link } = req.body;
+
+//     const updatedSocials = await Socials.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           link: link,
+//           icon: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedSocials) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedSocials);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/socials/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { link } = req.body;
 
-    const updatedSocials = await Socials.findByIdAndUpdate(
+    const existingSocials = await Socials.findById(editid).exec();
+    if (!existingSocials) {
+      return res.status(404).json({ error: "Social not found" });
+    }
+
+    const updatedData = {};
+
+    if (link) {
+      updatedData.link = link;
+    } else {
+      updatedData.link = existingSocials.link; 
+    }
+
+    if (req.file) {
+      updatedData.icon = `/public/${req.file.filename}`;
+    } else {
+      updatedData.icon = existingSocials.icon; 
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingSocials);
+    }
+
+    const updatedSocial = await Socials.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          link: link,
-          icon: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updatedSocials) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedSocials);
+    return res.status(200).json(updatedSocial);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/socials/:deleteid", async (req, res) => {
   try {

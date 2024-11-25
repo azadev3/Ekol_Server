@@ -69,54 +69,105 @@ router.get("/equipments-description/:editid", async (req, res) => {
   }
 });
 
+// router.put("/equipments-description/:editid", uploadConfig.array("imgeq"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { description_az, description_en, description_ru } = req.body;
+
+//     // Img
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ error: "No images uploaded" });
+//     }
+
+//     const imageFilePaths = [];
+//     for (let file of files) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(file.buffer, imgOutputPath);
+
+//       imageFilePaths.push(`/public/${imgFileName}`);
+//     }
+
+//     const updateInnerEQ = await EquipmentsInnerDescription.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           images: imageFilePaths,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updateInnerEQ) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updateInnerEQ);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/equipments-description/:editid", uploadConfig.array("imgeq"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { description_az, description_en, description_ru } = req.body;
 
-    // Img
-    const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
+    const existingEquipment = await EquipmentsInnerDescription.findById(editid).exec();
+    if (!existingEquipment) {
+      return res.status(404).json({ error: "Description not found" });
     }
 
-    const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+    const updatedData = {};
 
-      await useSharp(file.buffer, imgOutputPath);
+    updatedData.description = {
+      az: description_az || existingEquipment.description.az,
+      en: description_en || existingEquipment.description.en,
+      ru: description_ru || existingEquipment.description.ru,
+    };
 
-      imageFilePaths.push(`/public/${imgFileName}`);
+    let imageFilePaths = existingEquipment.images || [];
+    if (req.files && req.files.length > 0) {
+      imageFilePaths = [];
+      for (let file of req.files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+        await useSharp(file.buffer, imgOutputPath);
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
     }
 
-    const updateInnerEQ = await EquipmentsInnerDescription.findByIdAndUpdate(
+    updatedData.images = imageFilePaths; 
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingEquipment);
+    }
+
+    const updatedEquipment = await EquipmentsInnerDescription.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          images: imageFilePaths,
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updateInnerEQ) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updateInnerEQ);
+    return res.status(200).json(updatedEquipment);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/equipments-description/:deleteid", async (req, res) => {
   try {

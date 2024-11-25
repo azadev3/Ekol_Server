@@ -66,6 +66,63 @@ router.get("/purchaseannouncement/:editid", async (req, res) => {
   }
 });
 
+// router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const {
+//       title_az,
+//       title_en,
+//       title_ru,
+//       description_az,
+//       description_en,
+//       description_ru,
+//       predmet_az,
+//       predmet_en,
+//       predmet_ru,
+//       end_date,
+//       status,
+//     } = req.body;
+
+//     const updatedPurchase = await PurchaseAnnouncement.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           predmet: {
+//             az: predmet_az,
+//             en: predmet_en,
+//             ru: predmet_ru,
+//           },
+//           end_date: end_date,
+//           status: status,
+//           pdf: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedPurchase) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedPurchase);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
@@ -83,45 +140,68 @@ router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, re
       status,
     } = req.body;
 
-    const updatedPurchase = await PurchaseAnnouncement.findByIdAndUpdate(
+    const existingAnnouncement = await PurchaseAnnouncement.findById(editid).exec();
+    if (!existingAnnouncement) {
+      return res.status(404).json({ error: "PurchaseAnnouncement not found" });
+    }
+
+    const updatedData = {};
+
+    if (title_az || title_en || title_ru) {
+      updatedData.title = {
+        az: title_az || existingAnnouncement.title.az,
+        en: title_en || existingAnnouncement.title.en,
+        ru: title_ru || existingAnnouncement.title.ru,
+      };
+    }
+
+    if (description_az || description_en || description_ru) {
+      updatedData.description = {
+        az: description_az || existingAnnouncement.description.az,
+        en: description_en || existingAnnouncement.description.en,
+        ru: description_ru || existingAnnouncement.description.ru,
+      };
+    }
+
+    if (predmet_az || predmet_en || predmet_ru) {
+      updatedData.predmet = {
+        az: predmet_az || existingAnnouncement.predmet.az,
+        en: predmet_en || existingAnnouncement.predmet.en,
+        ru: predmet_ru || existingAnnouncement.predmet.ru,
+      };
+    }
+
+    if (end_date) {
+      updatedData.end_date = end_date || existingAnnouncement.end_date;
+    }
+
+    if (status) {
+      updatedData.status = status || existingAnnouncement.status;
+    }
+    if (req.file) {
+      updatedData.pdf = `/public/${req.file.filename}`;
+    } else {
+      updatedData.pdf = existingAnnouncement.pdf; 
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingAnnouncement);
+    }
+    const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          predmet: {
-            az: predmet_az,
-            en: predmet_en,
-            ru: predmet_ru,
-          },
-          end_date: end_date,
-          status: status,
-          pdf: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updatedPurchase) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedPurchase);
+    return res.status(200).json(updatedPurchaseAnnouncement);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.put("/purch/status/:id", async (req, res) => {
   try {

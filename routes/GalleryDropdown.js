@@ -61,38 +61,85 @@ router.get("/gallerydropdown/:editid", async (req, res) => {
   }
 });
 
+// router.put("/gallerydropdown/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru } = req.body;
+
+//     const updatedGalleryDropdown = await GalleryDropdown.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           backgroundImage: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedGalleryDropdown) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedGalleryDropdown);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/gallerydropdown/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
-    const updatedGalleryDropdown = await GalleryDropdown.findByIdAndUpdate(
+    const existingGalleryDropdown = await GalleryDropdown.findById(editid).exec();
+    if (!existingGalleryDropdown) {
+      return res.status(404).json({ error: "GalleryDropdown not found" });
+    }
+    const updatedData = {};
+
+    updatedData.title = {
+      az: title_az || existingGalleryDropdown.title.az,
+      en: title_en || existingGalleryDropdown.title.en,
+      ru: title_ru || existingGalleryDropdown.title.ru,
+    };
+
+    let backgroundImage = existingGalleryDropdown.backgroundImage || "";
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+      await useSharp(req.file.buffer, imgOutputPath);
+      backgroundImage = `/public/${imgFileName}`;
+    }
+
+    updatedData.backgroundImage = backgroundImage; 
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingGalleryDropdown);
+    }
+
+    const updatedGallery = await GalleryDropdown.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          backgroundImage: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updatedGalleryDropdown) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedGalleryDropdown);
+    return res.status(200).json(updatedGallery);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/gallerydropdown/:deleteid", async (req, res) => {
   try {

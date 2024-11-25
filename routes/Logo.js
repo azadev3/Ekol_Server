@@ -48,23 +48,58 @@ router.get("/logo/:editid", async (req, res) => {
   }
 });
 
+// router.put("/logo/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const updatedLogo = await Logo.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           logo: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedLogo) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedLogo);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/logo/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
+
+    const existingLogo = await Logo.findById(editid).exec();
+    if (!existingLogo) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {};
+
+    if (req.file) {
+      updateData.logo = `/public/${req.file.filename}`;
+    }
+
     const updatedLogo = await Logo.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          logo: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updateData },
       { new: true }
     )
       .lean()
       .exec();
 
     if (!updatedLogo) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedLogo);
@@ -73,6 +108,7 @@ router.put("/logo/:editid", upload.single("imgback"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/logo/:deleteid", async (req, res) => {
   try {

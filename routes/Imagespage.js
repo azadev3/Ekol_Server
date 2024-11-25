@@ -70,6 +70,65 @@ router.get("/imagespage/:editid", async (req, res) => {
 
 
 
+// router.put(
+//   "/imagespage/:editid",
+//   upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]),
+//   async (req, res) => {
+//     try {
+//       const { editid } = req.params;
+//       const { categoryName_az, categoryName_en, categoryName_ru, imagesToDelete } = req.body;
+
+//       // New category image upload (if present)
+//       const categoryImgFile = req.files["imgback"] ? `/public/${req.files["imgback"][0].filename}` : undefined;
+
+//       // New images upload (if present)
+//       const images = req.files["images"]
+//         ? req.files["images"].map((file) => ({ image: `/public/${file.filename}` }))
+//         : [];
+
+//       // Find the existing page data
+//       const existingImagesPage = await Imagespage.findById(editid).exec();
+//       if (!existingImagesPage) {
+//         return res.status(404).json({ error: "Not found: editid" });
+//       }
+
+//       // Combine the existing images with the new ones
+//       const updatedImages = [
+//         ...existingImagesPage.images,
+//         ...images,
+//       ];
+
+//       // Remove images that are marked for deletion
+//       const filteredImages = updatedImages.filter((image) => !imagesToDelete.includes(image.image));
+
+//       // Prepare update data
+//       const updateData = {
+//         categoryName: {
+//           az: categoryName_az,
+//           en: categoryName_en,
+//           ru: categoryName_ru,
+//         },
+//         ...(categoryImgFile && { categoryImg: categoryImgFile }),
+//         images: filteredImages, // Updated image list
+//       };
+
+//       // Update the images page
+//       const updatedImagesPage = await Imagespage.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
+//         .lean()
+//         .exec();
+
+//       if (!updatedImagesPage) {
+//         return res.status(404).json({ error: "Not found: editid" });
+//       }
+
+//       return res.status(200).json(updatedImagesPage);
+//     } catch (error) {
+//       console.error("Error updating data:", error);
+//       return res.status(500).json({ error: error.message });
+//     }
+//   }
+// );
+
 router.put(
   "/imagespage/:editid",
   upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]),
@@ -78,42 +137,44 @@ router.put(
       const { editid } = req.params;
       const { categoryName_az, categoryName_en, categoryName_ru, imagesToDelete } = req.body;
 
-      // New category image upload (if present)
-      const categoryImgFile = req.files["imgback"] ? `/public/${req.files["imgback"][0].filename}` : undefined;
-
-      // New images upload (if present)
-      const images = req.files["images"]
-        ? req.files["images"].map((file) => ({ image: `/public/${file.filename}` }))
-        : [];
-
-      // Find the existing page data
       const existingImagesPage = await Imagespage.findById(editid).exec();
       if (!existingImagesPage) {
         return res.status(404).json({ error: "Not found: editid" });
       }
 
-      // Combine the existing images with the new ones
-      const updatedImages = [
-        ...existingImagesPage.images,
-        ...images,
-      ];
+      const updateData = {};
 
-      // Remove images that are marked for deletion
-      const filteredImages = updatedImages.filter((image) => !imagesToDelete.includes(image.image));
+      if (req.files["imgback"]) {
+        const categoryImgFile = `/public/${req.files["imgback"][0].filename}`;
+        updateData.categoryImg = categoryImgFile;
+      }
 
-      // Prepare update data
-      const updateData = {
-        categoryName: {
-          az: categoryName_az,
-          en: categoryName_en,
-          ru: categoryName_ru,
-        },
-        ...(categoryImgFile && { categoryImg: categoryImgFile }),
-        images: filteredImages, // Updated image list
+      let updatedImages = [...existingImagesPage.images]; 
+
+      if (req.files["images"]) {
+        const newImages = req.files["images"].map((file) => ({
+          image: `/public/${file.filename}`,
+        }));
+        updatedImages = [...updatedImages, ...newImages]; 
+      }
+
+      const filteredImages = updatedImages.filter(
+        (image) => !imagesToDelete.includes(image.image)
+      );
+
+      updateData.categoryName = {
+        az: categoryName_az || existingImagesPage.categoryName.az,
+        en: categoryName_en || existingImagesPage.categoryName.en,
+        ru: categoryName_ru || existingImagesPage.categoryName.ru,
       };
 
-      // Update the images page
-      const updatedImagesPage = await Imagespage.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
+      updateData.images = filteredImages;
+
+      const updatedImagesPage = await Imagespage.findByIdAndUpdate(
+        editid,
+        { $set: updateData },
+        { new: true }
+      )
         .lean()
         .exec();
 
@@ -128,7 +189,6 @@ router.put(
     }
   }
 );
-
 
 
 

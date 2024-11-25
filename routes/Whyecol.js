@@ -66,43 +66,93 @@ router.get("/whyecol/:editid", async (req, res) => {
   }
 });
 
+// router.put("/whyecol/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+//     const updatedWhyEcolData = await WhyEcol.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           icon: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedWhyEcolData) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedWhyEcolData);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/whyecol/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-    const updatedWhyEcolData = await WhyEcol.findByIdAndUpdate(
+    const existingWhyEcolData = await WhyEcol.findById(editid).exec();
+    if (!existingWhyEcolData) {
+      return res.status(404).json({ error: "WhyEcol not found" });
+    }
+
+    const updatedData = {};
+
+    updatedData.title = {
+      az: title_az || existingWhyEcolData.title.az,
+      en: title_en || existingWhyEcolData.title.en,
+      ru: title_ru || existingWhyEcolData.title.ru,
+    };
+
+    updatedData.description = {
+      az: description_az || existingWhyEcolData.description.az,
+      en: description_en || existingWhyEcolData.description.en,
+      ru: description_ru || existingWhyEcolData.description.ru,
+    };
+
+    if (req.file) {
+      updatedData.icon = `/public/${req.file.filename}`;
+    } else {
+      updatedData.icon = existingWhyEcolData.icon; 
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingWhyEcolData);
+    }
+
+    const updatedWhyEcol = await WhyEcol.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          icon: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updatedWhyEcolData) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedWhyEcolData);
+    return res.status(200).json(updatedWhyEcol);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/whyecol/:deleteid", async (req, res) => {
   try {

@@ -71,55 +71,113 @@ router.get("/servicespage/:editid", async (req, res) => {
   }
 });
 
+// router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+//     // Img
+//     let imageFile = "";
+
+//     if (req.file) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(req.file.buffer, imgOutputPath);
+
+//       imageFile = `/public/${imgFileName}`;
+//     }
+
+//     const updatedservicespage = await ServicesPage.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           image: imageFile,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedservicespage) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedservicespage);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-    // Img
-    let imageFile = "";
+    const existingServicePage = await ServicesPage.findById(editid).exec();
+    if (!existingServicePage) {
+      return res.status(404).json({ error: "Service page not found" });
+    }
+
+    const updatedData = {};
+
+    if (title_az || title_en || title_ru) {
+      updatedData.title = {
+        az: title_az || existingServicePage.title.az,
+        en: title_en || existingServicePage.title.en,
+        ru: title_ru || existingServicePage.title.ru,
+      };
+    }
+
+    if (description_az || description_en || description_ru) {
+      updatedData.description = {
+        az: description_az || existingServicePage.description.az,
+        en: description_en || existingServicePage.description.en,
+        ru: description_ru || existingServicePage.description.ru,
+      };
+    }
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
-
       await useSharp(req.file.buffer, imgOutputPath);
 
-      imageFile = `/public/${imgFileName}`;
+      updatedData.image = `/public/${imgFileName}`;
+    } else {
+      updatedData.image = existingServicePage.image; 
     }
 
-    const updatedservicespage = await ServicesPage.findByIdAndUpdate(
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingServicePage);
+    }
+
+    const updatedServicePage = await ServicesPage.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          image: imageFile,
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
 
-    if (!updatedservicespage) {
-      return res.status(404).json({ error: "not found editid" });
-    }
-
-    return res.status(200).json(updatedservicespage);
+    return res.status(200).json(updatedServicePage);
   } catch (error) {
     console.error("Error updating data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/servicespage/:deleteid", async (req, res) => {
   try {

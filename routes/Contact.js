@@ -93,36 +93,80 @@ router.get("/contact/:editid", async (req, res) => {
   }
 });
 
+// router.put("/contact/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+//     const updatedContact = await Contact.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           image: req.file ? `/public/${req.file.filename}` : "",
+//           map: req.body.iframemap,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedContact) {
+//       return res.status(404).json({ error: "Not found editid" });
+//     }
+
+//     return res.status(200).json(updatedContact);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/contact/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru, iframemap } = req.body;
 
-    const updatedContact = await Contact.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          image: req.file ? `/public/${req.file.filename}` : "",
-          map: req.body.iframemap,
-        },
+    const existingContact = await Contact.findById(editid).exec();
+    if (!existingContact) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {
+      title: {
+        az: title_az,
+        en: title_en,
+        ru: title_ru,
       },
-      { new: true }
-    )
+      description: {
+        az: description_az,
+        en: description_en,
+        ru: description_ru,
+      },
+      map: iframemap,
+    };
+
+    if (req.file) {
+      updateData.image = `/public/${req.file.filename}`;
+    }
+
+    const updatedContact = await Contact.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
       .lean()
       .exec();
 
     if (!updatedContact) {
-      return res.status(404).json({ error: "Not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedContact);
@@ -131,6 +175,7 @@ router.put("/contact/:editid", upload.single("imgback"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/contact/:deleteid", async (req, res) => {
   try {

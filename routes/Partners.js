@@ -61,32 +61,68 @@ router.get("/partners/:editid", async (req, res) => {
   }
 });
 
+// router.put("/partners/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru } = req.body;
+
+//     const imgfile = req.file ? `/public/${req.file.filename}` : "";
+
+//     const updatedPartners = await Partners.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           logo: imgfile,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedPartners) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedPartners);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/partners/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
-    const imgfile = req.file ? `/public/${req.file.filename}` : "";
+    const existingPartner = await Partners.findById(editid).exec();
+    if (!existingPartner) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
 
-    const updatedPartners = await Partners.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          logo: imgfile,
-        },
+    const updateData = {
+      title: {
+        az: title_az,
+        en: title_en,
+        ru: title_ru,
       },
-      { new: true }
-    )
+    };
+
+    if (req.file) {
+      updateData.logo = `/public/${req.file.filename}`;
+    }
+    const updatedPartners = await Partners.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
       .lean()
       .exec();
 
     if (!updatedPartners) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedPartners);
@@ -95,6 +131,7 @@ router.put("/partners/:editid", upload.single("imgback"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/partners/:deleteid", async (req, res) => {
   try {

@@ -66,36 +66,90 @@ router.get("/services/:editid", async (req, res) => {
   }
 });
 
+// router.put("/services/:editid", upload.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+
+//     const updatedServices = await Services.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           description: {
+//             az: description_az,
+//             en: description_en,
+//             ru: description_ru,
+//           },
+//           image: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedServices) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedServices);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/services/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
+    const existingService = await Services.findById(editid).exec();
+    if (!existingService) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+
+    const updatedData = {};
+
+    if (title_az || title_en || title_ru) {
+      updatedData.title = {
+        az: title_az || existingService.title.az,
+        en: title_en || existingService.title.en,
+        ru: title_ru || existingService.title.ru,
+      };
+    }
+
+    if (description_az || description_en || description_ru) {
+      updatedData.description = {
+        az: description_az || existingService.description.az,
+        en: description_en || existingService.description.en,
+        ru: description_ru || existingService.description.ru,
+      };
+    }
+
+    if (req.file) {
+      updatedData.image = `/public/${req.file.filename}`;
+    } else {
+      updatedData.image = existingService.image; 
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingService);
+    }
+
     const updatedServices = await Services.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          image: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
-
-    if (!updatedServices) {
-      return res.status(404).json({ error: "not found editid" });
-    }
 
     return res.status(200).json(updatedServices);
   } catch (error) {

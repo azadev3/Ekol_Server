@@ -61,30 +61,71 @@ router.get("/calculations/:editid", async (req, res) => {
   }
 });
 
+// router.put("/calculations/:editid", upload.single("pdf"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru } = req.body;
+
+//     const updatedQuarterlyCalculations = await Calculations.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           pdf: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedQuarterlyCalculations) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedQuarterlyCalculations);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/calculations/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
+    const existingCalculation = await Calculations.findById(editid).exec();
+    if (!existingCalculation) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {
+      title: {
+        az: title_az,
+        en: title_en,
+        ru: title_ru,
+      },
+    };
+
+    if (req.file) {
+      updateData.pdf = `/public/${req.file.filename}`;
+    }
+
     const updatedQuarterlyCalculations = await Calculations.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          pdf: req.file ? `/public/${req.file.filename}` : "",
-        },
-      },
+      { $set: updateData },
       { new: true }
     )
       .lean()
       .exec();
 
     if (!updatedQuarterlyCalculations) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedQuarterlyCalculations);
@@ -93,6 +134,7 @@ router.put("/calculations/:editid", upload.single("pdf"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/calculations/:deleteid", async (req, res) => {
   try {

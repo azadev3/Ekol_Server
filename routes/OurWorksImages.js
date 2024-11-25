@@ -65,43 +65,90 @@ router.get("/ourworksimages/:editid", async (req, res) => {
   }
 });
 
+// router.put("/ourworksimages/:editid", uploadConfig.array("imgourworks"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { selected_ourworks } = req.body;
+
+//     // Img
+//     const files = req.files;
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ error: "No images uploaded" });
+//     }
+
+//     const imageFilePaths = [];
+//     for (let file of files) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+
+//       await useSharp(file.buffer, imgOutputPath);
+
+//       imageFilePaths.push(`/public/${imgFileName}`);
+//     }
+
+//     const updatedOurworksImages = await OurWorksImageModel.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           selected_ourworks: selected_ourworks,
+//           images: imageFilePaths,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedOurworksImages) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedOurworksImages);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
+
 router.put("/ourworksimages/:editid", uploadConfig.array("imgourworks"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { selected_ourworks } = req.body;
 
-    // Img
-    const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
+    const existingOurworksImages = await OurWorksImageModel.findById(editid).exec();
+
+    if (!existingOurworksImages) {
+      return res.status(404).json({ error: "Our works images not found" });
     }
 
-    const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+    const updatedData = {};
 
-      await useSharp(file.buffer, imgOutputPath);
+    if (selected_ourworks) {
+      updatedData.selected_ourworks = selected_ourworks;
+    }
 
-      imageFilePaths.push(`/public/${imgFileName}`);
+    if (req.files && req.files.length > 0) {
+      const imageFilePaths = [];
+      for (let file of req.files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+        await useSharp(file.buffer, imgOutputPath);
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
+
+      updatedData.images = imageFilePaths;
+    }
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingOurworksImages);
     }
 
     const updatedOurworksImages = await OurWorksImageModel.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          selected_ourworks: selected_ourworks,
-          images: imageFilePaths,
-        },
-      },
+      { $set: updatedData },
       { new: true }
-    )
-      .lean()
-      .exec();
-
-    if (!updatedOurworksImages) {
-      return res.status(404).json({ error: "not found editid" });
-    }
+    ).lean().exec();
 
     return res.status(200).json(updatedOurworksImages);
   } catch (error) {
@@ -109,6 +156,7 @@ router.put("/ourworksimages/:editid", uploadConfig.array("imgourworks"), async (
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/ourworksimages/:deleteid", async (req, res) => {
   try {

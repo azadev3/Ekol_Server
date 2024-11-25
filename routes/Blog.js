@@ -69,44 +69,99 @@ router.get("/blog/:editid", async (req, res) => {
   }
 });
 
+// router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     let imageFile = "";
+//     if (req.file) {
+//       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+//       const imgOutputPath = path.join(mountPath, imgFileName);
+//       await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
+//       imageFile = `/public/${imgFileName}`;
+//     }
+
+//     const updatedBlog = await Blog.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: req.body.title_az,
+//             en: req.body.title_en,
+//             ru: req.body.title_ru,
+//           },
+//           description: {
+//             az: req.body.description_az,
+//             en: req.body.description_en,
+//             ru: req.body.description_ru,
+//           },
+//           image: imageFile,
+//           created_at: req.body.created_at,
+//           updated: req.body.updated,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedBlog) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedBlog);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    let imageFile = "";
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru, created_at, updated } = req.body;
+
+    const existingBlog = await Blog.findById(editid).exec();
+    if (!existingBlog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    const updatedData = {};
+
+    updatedData.title = {
+      az: title_az || existingBlog.title.az,
+      en: title_en || existingBlog.title.en,
+      ru: title_ru || existingBlog.title.ru,
+    };
+
+    updatedData.description = {
+      az: description_az || existingBlog.description.az,
+      en: description_en || existingBlog.description.en,
+      ru: description_ru || existingBlog.description.ru,
+    };
+
+    updatedData.created_at = created_at || existingBlog.created_at;
+    updatedData.updated = updated || existingBlog.updated;
+
+    let imageFile = existingBlog.image; 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
       await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
       imageFile = `/public/${imgFileName}`;
     }
+    updatedData.image = imageFile; 
+
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(200).json(existingBlog);
+    }
 
     const updatedBlog = await Blog.findByIdAndUpdate(
       editid,
-      {
-        $set: {
-          title: {
-            az: req.body.title_az,
-            en: req.body.title_en,
-            ru: req.body.title_ru,
-          },
-          description: {
-            az: req.body.description_az,
-            en: req.body.description_en,
-            ru: req.body.description_ru,
-          },
-          image: imageFile,
-          created_at: req.body.created_at,
-          updated: req.body.updated,
-        },
-      },
+      { $set: updatedData },
       { new: true }
     )
       .lean()
       .exec();
-
-    if (!updatedBlog) {
-      return res.status(404).json({ error: "not found editid" });
-    }
 
     return res.status(200).json(updatedBlog);
   } catch (error) {
@@ -114,6 +169,7 @@ router.put("/blog/:editid", uploadConfig.single("imgback"), async (req, res) => 
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.put("/blog/status/:id", async (req, res) => {
   try {

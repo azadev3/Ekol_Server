@@ -61,30 +61,67 @@ router.get("/purchaserules/:editid", async (req, res) => {
   }
 });
 
+// router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
+//   try {
+//     const { editid } = req.params;
+//     const { title_az, title_en, title_ru } = req.body;
+
+//     const updatedPurchase = await PurchaseRules.findByIdAndUpdate(
+//       editid,
+//       {
+//         $set: {
+//           title: {
+//             az: title_az,
+//             en: title_en,
+//             ru: title_ru,
+//           },
+//           pdf: req.file ? `/public/${req.file.filename}` : "",
+//         },
+//       },
+//       { new: true }
+//     )
+//       .lean()
+//       .exec();
+
+//     if (!updatedPurchase) {
+//       return res.status(404).json({ error: "not found editid" });
+//     }
+
+//     return res.status(200).json(updatedPurchase);
+//   } catch (error) {
+//     console.error("Error updating data:", error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// });
+
 router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
-    const updatedPurchase = await PurchaseRules.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          pdf: req.file ? `/public/${req.file.filename}` : "",
-        },
+    const existingPurchaseRule = await PurchaseRules.findById(editid).exec();
+    if (!existingPurchaseRule) {
+      return res.status(404).json({ error: "Not found: editid" });
+    }
+
+    const updateData = {
+      title: {
+        az: title_az,
+        en: title_en,
+        ru: title_ru,
       },
-      { new: true }
-    )
+    };
+
+    if (req.file) {
+      updateData.pdf = `/public/${req.file.filename}`;
+    }
+
+    const updatedPurchase = await PurchaseRules.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
       .lean()
       .exec();
 
     if (!updatedPurchase) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Not found: editid" });
     }
 
     return res.status(200).json(updatedPurchase);
@@ -93,6 +130,7 @@ router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/purchaserules/:deleteid", async (req, res) => {
   try {
