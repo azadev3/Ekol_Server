@@ -57,8 +57,10 @@ router.post(
           <p><strong>Telefon:</strong> ${req.body.telephone}</p>
           <p><strong>Vakansiya adı:</strong> ${req.body.apply_vacation_name}</p>
           <p><strong>Müraciət tarixi:</strong> ${req.body.applyDate}</p>
-          <p><strong>Profil:</strong> <a href="${userProfile}">Göstər (varsa)</a></p>
-          <p><strong>CV:</strong> <a href="${cv}">Göstər</a></p>
+        <p>
+        <strong>CV:</strong>
+        ${req.file ? `https://ekol-server-1.onrender.com${cv}` : ""},
+        </p>
 
              <footer style="margin-top: 20px;">
           <p style="font-size: 16px; color: #777;">Bu mesaj avtomatik yaradıldı. Xahiş olunur cavablamayın.</p>
