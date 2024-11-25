@@ -70,31 +70,30 @@ router.put("/hero/:editid", uploadConfig.single("imgback"), async (req, res) => 
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-    // Img
-    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-    const imgOutputPath = path.join(mountPath, imgFileName);
-    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
-    const imageFile = `/public/${imgFileName}`;
+    const existingHero = await Hero.findById(editid).exec();
 
-    const updatedHero = await Hero.findByIdAndUpdate(
-      editid,
-      {
-        $set: {
-          title: {
-            az: title_az,
-            en: title_en,
-            ru: title_ru,
-          },
-          description: {
-            az: description_az,
-            en: description_en,
-            ru: description_ru,
-          },
-          image: imageFile,
-        },
-      },
-      { new: true }
-    )
+    if (!existingHero) {
+      return res.status(404).json({ error: "Hero not found" });
+    }
+
+    const updatedHeroData = {};
+
+    if (title_az) updatedHeroData["title.az"] = title_az;
+    if (title_en) updatedHeroData["title.en"] = title_en;
+    if (title_ru) updatedHeroData["title.ru"] = title_ru;
+
+    if (description_az) updatedHeroData["description.az"] = description_az;
+    if (description_en) updatedHeroData["description.en"] = description_en;
+    if (description_ru) updatedHeroData["description.ru"] = description_ru;
+
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+      await useSharp(req.file.buffer, imgOutputPath);
+      updatedHeroData.image = `/public/${imgFileName}`;
+    }
+
+    const updatedHero = await Hero.findByIdAndUpdate(editid, { $set: updatedHeroData }, { new: true })
       .lean()
       .exec();
 
@@ -104,10 +103,11 @@ router.put("/hero/:editid", uploadConfig.single("imgback"), async (req, res) => 
 
     return res.status(200).json(updatedHero);
   } catch (error) {
-    console.error("Error updating data:", error);
+    console.error("Error updating hero data:", error);
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 router.delete("/hero/:deleteid", async (req, res) => {
   try {
