@@ -77,7 +77,8 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "satinalmalar@ekol.az",
+      // to: "satinalmalar@ekol.az",
+      to: "kodingo593@gmail.com",
       subject: "Yeni Hüquqi Şəxs Form Məlumatları",
       html: `
       <div style="font-family: Arial, sans-serif; color: #333;">
