@@ -2,6 +2,18 @@ const express = require("express");
 const upload = require("../config/MulterConfig");
 const router = express.Router();
 const ApplyVacation = require("../models/ApplyVacationModel");
+const nodemailer = require("nodemailer");
+
+// Nodemailer configuration
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "azad.miri6@gmail.com",
+    pass: "xshk cxdb wgwx lxzk",
+  },
+});
 
 router.post(
   "/applyvacation",
@@ -33,7 +45,29 @@ router.post(
       });
 
       const savedData = await saveData.save();
-      return res.status(200).json({ savedUserData: savedData });
+
+      const mailOptions = {
+        from: "",
+        to: "kodingo593@gmail.com",
+        subject: "Vakansiya müraciəti",
+        html: `
+          <h1>Vakansiya müraciəti</h1>
+          <p><strong>Ad:</strong> ${req.body.name} ${req.body.surname}</p>
+          <p><strong>E-mail:</strong> ${req.body.email}</p>
+          <p><strong>Telefon:</strong> ${req.body.telephone}</p>
+          <p><strong>Vakansiya adı:</strong> ${req.body.apply_vacation_name}</p>
+          <p><strong>Müraciət tarixi:</strong> ${req.body.applyDate}</p>
+          <p><strong>Profil:</strong> <a href="${userProfile}">Göstər (varsa)</a></p>
+          <p><strong>CV:</strong> <a href="${cv}">Göstər</a></p>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      return res.status(200).json({
+        message: "Muraciet muveffeqiyyetle save olundu ve e-posta gönderildi.",
+        savedUserData: savedData,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: error.message });
