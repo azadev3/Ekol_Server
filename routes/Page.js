@@ -5,15 +5,18 @@ const PageModel = require("../models/PageModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
-
 router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    // Img
-    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-    const imgOutputPath = path.join(mountPath, imgFileName);
-    await useSharp(req.file ? req.file.buffer : "", imgOutputPath);
-    const imageFile = `/public/${imgFileName}`;
+    let imageFile = ""; // Varsayılan olarak boş bir değer atayın
 
+    if (req.file) {
+      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+      const imgOutputPath = path.join(mountPath, imgFileName);
+      await useSharp(req.file.buffer, imgOutputPath);
+      imageFile = `/public/${imgFileName}`;
+    }
+
+    // Yeni veri oluştur
     const createData = new PageModel({
       path: req.body.path,
       title: {
