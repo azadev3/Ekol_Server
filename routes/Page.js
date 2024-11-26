@@ -17,7 +17,11 @@ router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
     }
 
     const createData = new PageModel({
-      dropdown_name: req.body.dropdown_name,
+      dropdown_name: {
+        az: req.body.dropdown_name,
+        en: req.body.dropdown_name_en,
+        ru: req.body.dropdown_name_ru,
+      },
       path: req.body.path,
       title: {
         az: req.body.title_az,
@@ -72,7 +76,7 @@ router.get("/page/:editid", async (req, res) => {
 router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, path, dropdown_name } =
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru, path, dropdown_name, dropdown_name_en, dropdown_name_ru } =
       req.body;
 
     const existingPage = await PageModel.findById(editid).exec();
@@ -83,7 +87,9 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
 
     const updatedPageData = {};
 
-    if (dropdown_name) updatedPageData["dropdown_name"] = dropdown_name;
+    if (dropdown_name) updatedPageData["dropdown_name.az"] = dropdown_name;
+    if (dropdown_name_en) updatedPageData["dropdown_name.en"] = dropdown_name_en;
+    if (dropdown_name_ru) updatedPageData["dropdown_name.ru"] = dropdown_name_ru;
     if (path) updatedPageData["path"] = path;
     if (title_az) updatedPageData["title.az"] = title_az;
     if (title_en) updatedPageData["title.en"] = title_en;
@@ -141,7 +147,7 @@ router.get("/pagefront", async (req, res) => {
 
     const filteredData = datas.map((data) => ({
       _id: data._id,
-      dropdown_name: data.dropdown_name,
+      dropdown_name: data.dropdown_name[preferredLanguage],
       path: data.path,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
