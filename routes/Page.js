@@ -34,6 +34,7 @@ router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
         ru: req.body.description_ru,
       },
       image: imageFile,
+      status: req.body.status || true,
     });
 
     const savedData = await createData.save();
@@ -76,8 +77,23 @@ router.get("/page/:editid", async (req, res) => {
 router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, path, dropdown_name, dropdown_name_en, dropdown_name_ru } =
-      req.body;
+    const { status } = req.body;
+    const {
+      title_az,
+      title_en,
+      title_ru,
+      description_az,
+      description_en,
+      description_ru,
+      path,
+      dropdown_name,
+      dropdown_name_en,
+      dropdown_name_ru,
+    } = req.body;
+
+    if (typeof status !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
 
     const existingPage = await PageModel.findById(editid).exec();
 
@@ -94,10 +110,11 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
     if (title_az) updatedPageData["title.az"] = title_az;
     if (title_en) updatedPageData["title.en"] = title_en;
     if (title_ru) updatedPageData["title.ru"] = title_ru;
-
     if (description_az) updatedPageData["description.az"] = description_az;
     if (description_en) updatedPageData["description.en"] = description_en;
     if (description_ru) updatedPageData["description.ru"] = description_ru;
+
+    updatedPageData["status"] = status;
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;

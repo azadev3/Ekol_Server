@@ -22,6 +22,11 @@ const PageSchema = mongoose.Schema({
     required: false,
     default: "",
   },
+  status: {
+    type: Boolean,
+    default: true,
+    required: false,
+  },
 });
 
 const PageModel = mongoose.model("page", PageSchema);
