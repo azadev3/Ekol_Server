@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
 router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
   try {
-    let imageFile = ""; // Varsayılan olarak boş bir değer atayın
+    let imageFile = "";
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -16,8 +16,8 @@ router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
       imageFile = `/public/${imgFileName}`;
     }
 
-    // Yeni veri oluştur
     const createData = new PageModel({
+      dropdown_name: req.body.dropdown_name,
       path: req.body.path,
       title: {
         az: req.body.title_az,
@@ -72,7 +72,8 @@ router.get("/page/:editid", async (req, res) => {
 router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, path } = req.body;
+    const { title_az, title_en, title_ru, description_az, description_en, description_ru, path, dropdown_name } =
+      req.body;
 
     const existingPage = await PageModel.findById(editid).exec();
 
@@ -82,6 +83,7 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
 
     const updatedPageData = {};
 
+    if (dropdown_name) updatedPageData["dropdown_name"] = dropdown_name;
     if (path) updatedPageData["path"] = path;
     if (title_az) updatedPageData["title.az"] = title_az;
     if (title_en) updatedPageData["title.en"] = title_en;
@@ -139,6 +141,7 @@ router.get("/pagefront", async (req, res) => {
 
     const filteredData = datas.map((data) => ({
       _id: data._id,
+      dropdown_name: data.dropdown_name,
       path: data.path,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],

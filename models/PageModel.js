@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const PageSchema = mongoose.Schema({
+  dropdown_name: { type: String, required: false, default: "" },
   path: { type: String, required: true, default: "" },
   title: {
     az: { type: String, required: false, default: "" },
