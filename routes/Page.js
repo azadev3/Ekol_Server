@@ -138,6 +138,28 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
   }
 });
 
+router.put("/page/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (typeof status !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedPage = await PageModel.findByIdAndUpdate(id, { status: status }, { new: true }).lean().exec();
+
+    if (!updatedPage) {
+      return res.status(404).json({ error: "PageModel not found" });
+    }
+
+    return res.status(200).json(updatedPage);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 router.delete("/page/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
