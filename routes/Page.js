@@ -179,7 +179,7 @@ router.get("/pagefront", async (req, res) => {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await PageModel.find();
+    const datas = await PageModel.find({ status: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
