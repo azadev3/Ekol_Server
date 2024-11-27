@@ -6,6 +6,11 @@ const ServicesPageSchema = mongoose.Schema({
     en: { type: String, required: false, default: "" },
     ru: { type: String, required: false, default: "" },
   },
+  slogan: {
+    az: { type: String, required: false, default: "" },
+    en: { type: String, required: false, default: "" },
+    ru: { type: String, required: false, default: "" },
+  },
   description: {
     az: { type: String, required: false, default: "" },
     en: { type: String, required: false, default: "" },

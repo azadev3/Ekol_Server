@@ -26,6 +26,11 @@ router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) =>
         en: req.body.title_en,
         ru: req.body.title_ru,
       },
+      slogan: {
+        az: req.body.slogan_az,
+        en: req.body.slogan_en,
+        ru: req.body.slogan_ru,
+      },
       description: {
         az: req.body.description_az,
         en: req.body.description_en,
@@ -124,7 +129,17 @@ router.get("/servicespage/:editid", async (req, res) => {
 router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+    const {
+      title_az,
+      title_en,
+      title_ru,
+      description_az,
+      description_en,
+      description_ru,
+      slogan_az,
+      slogan_en,
+      slogan_ru,
+    } = req.body;
 
     const existingServicePage = await ServicesPage.findById(editid).exec();
     if (!existingServicePage) {
@@ -149,6 +164,14 @@ router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, 
       };
     }
 
+    if (slogan_az || slogan_en || slogan_ru) {
+      updatedData.slogan = {
+        az: slogan_az || existingServicePage.slogan.az,
+        en: slogan_en || existingServicePage.slogan.en,
+        ru: slogan_ru || existingServicePage.slogan.ru,
+      };
+    }
+
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
@@ -156,18 +179,14 @@ router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, 
 
       updatedData.image = `/public/${imgFileName}`;
     } else {
-      updatedData.image = existingServicePage.image; 
+      updatedData.image = existingServicePage.image;
     }
 
     if (Object.keys(updatedData).length === 0) {
       return res.status(200).json(existingServicePage);
     }
 
-    const updatedServicePage = await ServicesPage.findByIdAndUpdate(
-      editid,
-      { $set: updatedData },
-      { new: true }
-    )
+    const updatedServicePage = await ServicesPage.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
       .lean()
       .exec();
 
@@ -177,7 +196,6 @@ router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, 
     return res.status(500).json({ error: error.message });
   }
 });
-
 
 router.delete("/servicespage/:deleteid", async (req, res) => {
   try {
@@ -207,6 +225,7 @@ router.get("/servicespagefront", async (req, res) => {
       _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
+      slogan: data.slogan[preferredLanguage],
       image: data.image,
     }));
 
