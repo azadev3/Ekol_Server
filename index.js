@@ -63,6 +63,7 @@ const PageRoute = require("./routes/Page");
 // ROLES PERMISSIONS
 const RoleRoute = require("./routes/RoleRoute");
 const PermissionRoute = require("./routes/PermissionRoute");
+const CreateUserRoute = require("./routes/CreateUserRoute");
 
 //connect Database
 ConnectDB();
@@ -130,6 +131,7 @@ const apis = [
   // ROLES PERMISSIONS
   RoleRoute,
   PermissionRoute,
+  CreateUserRoute,
 ];
 
 apis.forEach((api) => {
