@@ -6,8 +6,10 @@ router.post("/create_role", async (req, res) => {
   try {
     const { role_name, role_description } = req.body;
 
+    console.log(req.body, 'reqbody')
+
     if (!role_name) {
-      res.status(500).json({ error: "Role name is required" });
+      res.status(400).json({ error: "Role name is required" });
     }
 
     const roleModel = new RoleModel({
