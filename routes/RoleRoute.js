@@ -6,7 +6,7 @@ router.post("/create_role", async (req, res) => {
   try {
     const { role_name, role_description } = req.body;
 
-    console.log(req.body, 'reqbody')
+    console.log(req.body, "reqbody");
 
     if (!role_name) {
       res.status(400).json({ error: "Role name is required" });
@@ -24,6 +24,15 @@ router.post("/create_role", async (req, res) => {
     console.log(error);
     return res.status(500).json({ error });
   }
+});
+
+router.get("/create_role", async (req, res) => {
+  const roles = await RoleModel.find();
+  if (!roles) {
+    return res.status(400).json({ msg: "roles is empty" });
+  }
+
+  return res.status(200).json(roles);
 });
 
 module.exports = router;
