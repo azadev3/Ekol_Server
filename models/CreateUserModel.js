@@ -4,7 +4,7 @@ const NewUserSchema = mongoose.Schema({
   name_surname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
+  user_role: { type: mongoose.Schema.Types.ObjectId, ref: "Permission" },
 });
 
 module.exports = mongoose.model("createdUser", NewUserSchema);
