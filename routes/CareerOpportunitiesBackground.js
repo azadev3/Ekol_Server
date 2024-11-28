@@ -94,7 +94,6 @@ router.get("/careerOpportunitiesBackground/:editid", async (req, res) => {
 //    }
 //  });
 
-
 router.put("/careerOpportunitiesBackground/:editid", upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
@@ -137,7 +136,6 @@ router.put("/careerOpportunitiesBackground/:editid", upload.single("imgback"), a
     return res.status(500).json({ error: error.message });
   }
 });
-
 
 router.delete("/careerOpportunitiesBackground/:deleteid", async (req, res) => {
   try {
