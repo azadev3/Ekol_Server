@@ -60,6 +60,10 @@ const ToolsInnerImagesRoute = require("./routes/ToolsInnerImages");
 const ShowHiddenRehberlik = require("./routes/ShowHiddenRehberlik");
 const StructureImgRoute = require("./routes/StructureRoute");
 const PageRoute = require("./routes/Page");
+// ROLES PERMISSIONS
+const RoleRoute = require("./routes/RoleRoute");
+const PermissionRoute = require("./routes/PermissionRoute");
+
 //connect Database
 ConnectDB();
 
@@ -123,6 +127,9 @@ const apis = [
   ShowHiddenRehberlik,
   StructureImgRoute,
   PageRoute,
+  // ROLES PERMISSIONS
+  RoleRoute,
+  PermissionRoute,
 ];
 
 apis.forEach((api) => {
