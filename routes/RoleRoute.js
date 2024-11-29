@@ -11,7 +11,7 @@ router.post("/create_role", async (req, res) => {
       return res.status(400).json({ error: "Role name and permissions are required" });
     }
 
-    const foundPermissions = await PermissionModel.find({ key: { $in: permissions } });
+    const foundPermissions = await PermissionModel.find({ name: { $in: permissions } });
 
     if (foundPermissions?.length !== permissions?.length) {
       return res.status(400).json({ error: "not found permissions" });
