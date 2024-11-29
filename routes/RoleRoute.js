@@ -1,20 +1,26 @@
 const express = require("express");
 const router = express.Router();
 const RoleModel = require("../models/RoleModel");
+const PermissionModel = require("../models/PermissionModel");
 
 router.post("/create_role", async (req, res) => {
   try {
-    const { role_name, role_description } = req.body;
+    const { role_name, role_description, permissions } = req.body;
 
-    console.log(req.body, "reqbody");
+    if (!role_name || !permissions || permissions.length === 0) {
+      return res.status(400).json({ error: "Role name and permissions are required" });
+    }
 
-    if (!role_name) {
-      res.status(400).json({ error: "Role name is required" });
+    const foundPermissions = await PermissionModel.find({ key: { $in: permissions } });
+
+    if (foundPermissions?.length !== permissions?.length) {
+      return res.status(400).json({ error: "not found permissions" });
     }
 
     const roleModel = new RoleModel({
       name: role_name,
       description: role_description || "",
+      permissions: foundPermissions.map((perm) => perm._id),
     });
 
     const savedata = await roleModel.save();
@@ -27,7 +33,8 @@ router.post("/create_role", async (req, res) => {
 });
 
 router.get("/create_role", async (req, res) => {
-  const roles = await RoleModel.find();
+  const roles = await RoleModel.find().populate("Permission");
+
   if (!roles) {
     return res.status(400).json({ msg: "roles is empty" });
   }
