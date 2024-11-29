@@ -48,4 +48,17 @@ router.post("/create_new_user", async (req, res) => {
   }
 });
 
+router.get("/create_new_user", async (req, res) => {
+  try {
+    const users = CreateUserModel.find();
+    if (!users) {
+      return res.status(400).json({ message: "Not found users" });
+    }
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;
