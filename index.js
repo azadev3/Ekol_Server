@@ -68,7 +68,7 @@ const CreateUserRoute = require("./routes/CreateUserRoute");
 //connect Database
 ConnectDB();
 
-app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] }));
+app.use(cors({ origin: "http://localhost:5174", methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] }));
 app.use(express.json());
 
 // app.use("/public", express.static(path.join(__dirname, "public")));
