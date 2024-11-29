@@ -55,6 +55,8 @@ router.get("/create_new_user", async (req, res) => {
       return res.status(400).json({ message: "Not found users" });
     }
 
+    console.log(users, 'users')
+
     return res.status(200).json(users);
   } catch (error) {
     console.log(error);
