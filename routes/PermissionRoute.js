@@ -12,7 +12,7 @@ router.post("/create_permission", async (req, res) => {
 
     const permissionModel = new PermissionModel({
       name: permission_name,
-      key: permission_key,
+      value: permission_key,
     });
 
     const savedata = await permissionModel.save();
