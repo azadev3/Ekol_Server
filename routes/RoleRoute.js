@@ -20,7 +20,7 @@ router.post("/create_role", async (req, res) => {
     const roleModel = new RoleModel({
       name: role_name,
       description: role_description || "",
-      permissions: foundPermissions.map((perm) => perm._id),
+      permissions: foundPermissions.map((perm) => perm.name),
     });
 
     const savedata = await roleModel.save();
