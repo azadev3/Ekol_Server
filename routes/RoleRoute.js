@@ -33,7 +33,7 @@ router.post("/create_role", async (req, res) => {
 });
 
 router.get("/create_role", async (req, res) => {
-  const roles = await RoleModel.find().populate("Permission");
+  const roles = await RoleModel.find().populate("permissions");
 
   if (!roles) {
     return res.status(400).json({ msg: "roles is empty" });
