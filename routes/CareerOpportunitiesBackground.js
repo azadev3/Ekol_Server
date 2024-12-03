@@ -2,47 +2,60 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const CareerOpportunitiesBackground = require("../models/CareerOpportunitiesBackground");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/careerOpportunitiesBackground", upload.single("imgback"), async (req, res) => {
-  try {
-    const requiredFields = ["title_az", "title_en", "title_ru"];
+router.post(
+  "/careerOpportunitiesBackground",
+  checkUser,
+  checkPermissions("create_karyeraimkanlari_arxafon_ve_basliq"),
+  upload.single("imgback"),
+  async (req, res) => {
+    try {
+      const requiredFields = ["title_az", "title_en", "title_ru"];
 
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
+      for (let field of requiredFields) {
+        if (!req.body[field]) {
+          return res.status(400).json({ error: `Missing field: ${field}` });
+        }
       }
+
+      const imageFile = req.file ? `/public/${req.file.filename}` : "";
+
+      const createData = new CareerOpportunitiesBackground({
+        title: {
+          az: req.body.title_az,
+          en: req.body.title_en,
+          ru: req.body.title_ru,
+        },
+        backgroundImage: imageFile,
+      });
+
+      const savedData = await createData.save();
+
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-
-    const imageFile = req.file ? `/public/${req.file.filename}` : "";
-
-    const createData = new CareerOpportunitiesBackground({
-      title: {
-        az: req.body.title_az,
-        en: req.body.title_en,
-        ru: req.body.title_ru,
-      },
-      backgroundImage: imageFile,
-    });
-
-    const savedData = await createData.save();
-
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.get("/careerOpportunitiesBackground", async (req, res) => {
-  try {
-    const datas = await CareerOpportunitiesBackground.find();
-    if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+router.get(
+  "/careerOpportunitiesBackground",
+  checkUser,
+  checkPermissions("list_karyeraimkanlari_arxafon_ve_basliq"),
+  async (req, res) => {
+    try {
+      const datas = await CareerOpportunitiesBackground.find();
+      if (!datas || datas.length === 0) {
+        return res.status(404).json({ message: "No data found" });
+      }
+      return res.status(200).json(datas);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-    return res.status(200).json(datas);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
 router.get("/careerOpportunitiesBackground/:editid", async (req, res) => {
   try {
@@ -94,61 +107,72 @@ router.get("/careerOpportunitiesBackground/:editid", async (req, res) => {
 //    }
 //  });
 
-router.put("/careerOpportunitiesBackground/:editid", upload.single("imgback"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { title_az, title_en, title_ru } = req.body;
+router.put(
+  "/careerOpportunitiesBackground/:editid",
+  checkUser,
+  checkPermissions("update_karyeraimkanlari_arxafon_ve_basliq"),
+  upload.single("imgback"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { title_az, title_en, title_ru } = req.body;
 
-    const existingCareer = await CareerOpportunitiesBackground.findById(editid).exec();
-    if (!existingCareer) {
-      return res.status(404).json({ error: "Career Opportunity not found" });
+      const existingCareer = await CareerOpportunitiesBackground.findById(editid).exec();
+      if (!existingCareer) {
+        return res.status(404).json({ error: "Career Opportunity not found" });
+      }
+
+      const updatedData = {};
+
+      updatedData.title = {
+        az: title_az || existingCareer.title.az,
+        en: title_en || existingCareer.title.en,
+        ru: title_ru || existingCareer.title.ru,
+      };
+
+      if (req.file) {
+        updatedData.backgroundImage = `/public/${req.file.filename}`;
+      } else {
+        updatedData.backgroundImage = existingCareer.backgroundImage;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingCareer);
+      }
+
+      const updatedCareer = await CareerOpportunitiesBackground.findByIdAndUpdate(
+        editid,
+        { $set: updatedData },
+        { new: true }
+      )
+        .lean()
+        .exec();
+
+      return res.status(200).json(updatedCareer);
+    } catch (error) {
+      console.error("Error updating data:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const updatedData = {};
-
-    updatedData.title = {
-      az: title_az || existingCareer.title.az,
-      en: title_en || existingCareer.title.en,
-      ru: title_ru || existingCareer.title.ru,
-    };
-
-    if (req.file) {
-      updatedData.backgroundImage = `/public/${req.file.filename}`;
-    } else {
-      updatedData.backgroundImage = existingCareer.backgroundImage;
-    }
-
-    if (Object.keys(updatedData).length === 0) {
-      return res.status(200).json(existingCareer);
-    }
-
-    const updatedCareer = await CareerOpportunitiesBackground.findByIdAndUpdate(
-      editid,
-      { $set: updatedData },
-      { new: true }
-    )
-      .lean()
-      .exec();
-
-    return res.status(200).json(updatedCareer);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.delete("/careerOpportunitiesBackground/:deleteid", async (req, res) => {
-  try {
-    const { deleteid } = req.params;
-    const deleteData = await CareerOpportunitiesBackground.findByIdAndDelete(deleteid);
+router.delete(
+  "/careerOpportunitiesBackground/:deleteid",
+  checkUser,
+  checkPermissions("delete_karyeraimkanlari_arxafon_ve_basliq"),
+  async (req, res) => {
+    try {
+      const { deleteid } = req.params;
+      const deleteData = await CareerOpportunitiesBackground.findByIdAndDelete(deleteid);
 
-    if (!deleteData) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
-    }
+      if (!deleteData) {
+        return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      }
 
-    return res.status(200).json({ message: "successfully deleted data" });
-  } catch (error) {}
-});
+      return res.status(200).json({ message: "successfully deleted data" });
+    } catch (error) {}
+  }
+);
 
 // for front
 router.get("/careerOpportunitiesBackgroundForFront", async (req, res) => {

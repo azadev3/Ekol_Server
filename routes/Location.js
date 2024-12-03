@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Location = require("../models/LocationModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/location", upload.none(), async (req, res) => {
+router.post("/location", checkUser, checkPermissions("create_location"), upload.none(), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru", "mapUrl"];
 
@@ -30,7 +32,7 @@ router.post("/location", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/location", async (req, res) => {
+router.get("/location", checkUser, checkPermissions("list_location"), async (req, res) => {
   try {
     const datas = await Location.find();
     if (!datas || datas.length === 0) {
@@ -59,7 +61,7 @@ router.get("/location/:editid", async (req, res) => {
   }
 });
 
-router.put("/location/:editid", upload.none(), async (req, res) => {
+router.put("/location/:editid", checkUser, checkPermissions("update_location"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, mapUrl } = req.body;
@@ -92,7 +94,7 @@ router.put("/location/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/location/:deleteid", async (req, res) => {
+router.delete("/location/:deleteid", checkUser, checkPermissions("delete_location"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Location.findByIdAndDelete(deleteid);

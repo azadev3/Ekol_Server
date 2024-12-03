@@ -5,38 +5,47 @@ const { uploadConfig, useSharp } = require("../config/MulterC");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
+
 // Multiple file handling
-router.post("/ourworksimages", uploadConfig.array("newImages"), async (req, res) => {
-  try {
-    const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
+router.post(
+  "/ourworksimages",
+  checkUser,
+  checkPermissions("create_gorduyumuzisler_sekiller"),
+  uploadConfig.array("newImages"),
+  async (req, res) => {
+    try {
+      const files = req.files;
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No images uploaded" });
+      }
+
+      const imageFilePaths = [];
+      for (let file of files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+
+        await useSharp(file.buffer, imgOutputPath);
+
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
+
+      const createData = new OurWorksImageModel({
+        selected_ourworks: req.body.selected_ourworks,
+        images: imageFilePaths,
+      });
+
+      const savedData = await createData.save();
+
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-
-    const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
-
-      await useSharp(file.buffer, imgOutputPath);
-
-      imageFilePaths.push(`/public/${imgFileName}`);
-    }
-
-    const createData = new OurWorksImageModel({
-      selected_ourworks: req.body.selected_ourworks,
-      images: imageFilePaths,
-    });
-
-    const savedData = await createData.save();
-
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.get("/ourworksimages", async (req, res) => {
+router.get("/ourworksimages", checkUser, checkPermissions("list_gorduyumuzisler_sekiller"), async (req, res) => {
   try {
     const datas = await OurWorksImageModel.find();
     if (!datas || datas.length === 0) {
@@ -110,66 +119,77 @@ router.get("/ourworksimages/:editid", async (req, res) => {
 //   }
 // });
 
+router.put(
+  "/ourworksimages/:editid",
+  checkUser,
+  checkPermissions("update_gorduyumuzisler_sekiller"),
+  uploadConfig.array("newImages"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { selected_ourworks } = req.body;
 
-router.put("/ourworksimages/:editid", uploadConfig.array("newImages"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { selected_ourworks } = req.body;
+      const existingOurworksImages = await OurWorksImageModel.findById(editid).exec();
 
-    const existingOurworksImages = await OurWorksImageModel.findById(editid).exec();
-
-    if (!existingOurworksImages) {
-      return res.status(404).json({ error: "Our works images not found" });
-    }
-
-    const updatedData = {};
-
-    if (selected_ourworks) {
-      updatedData.selected_ourworks = selected_ourworks;
-    }
-
-    if (req.files && req.files.length > 0) {
-      const imageFilePaths = [];
-      for (let file of req.files) {
-        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-        const imgOutputPath = path.join(mountPath, imgFileName);
-        await useSharp(file.buffer, imgOutputPath);
-        imageFilePaths.push(`/public/${imgFileName}`);
+      if (!existingOurworksImages) {
+        return res.status(404).json({ error: "Our works images not found" });
       }
 
-      updatedData.images = imageFilePaths;
+      const updatedData = {};
+
+      if (selected_ourworks) {
+        updatedData.selected_ourworks = selected_ourworks;
+      }
+
+      if (req.files && req.files.length > 0) {
+        const imageFilePaths = [];
+        for (let file of req.files) {
+          const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+          const imgOutputPath = path.join(mountPath, imgFileName);
+          await useSharp(file.buffer, imgOutputPath);
+          imageFilePaths.push(`/public/${imgFileName}`);
+        }
+
+        updatedData.images = imageFilePaths;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingOurworksImages);
+      }
+
+      const updatedOurworksImages = await OurWorksImageModel.findByIdAndUpdate(
+        editid,
+        { $set: updatedData },
+        { new: true }
+      )
+        .lean()
+        .exec();
+
+      return res.status(200).json(updatedOurworksImages);
+    } catch (error) {
+      console.error("Error updating data:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    if (Object.keys(updatedData).length === 0) {
-      return res.status(200).json(existingOurworksImages);
-    }
-
-    const updatedOurworksImages = await OurWorksImageModel.findByIdAndUpdate(
-      editid,
-      { $set: updatedData },
-      { new: true }
-    ).lean().exec();
-
-    return res.status(200).json(updatedOurworksImages);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
+router.delete(
+  "/ourworksimages/:deleteid",
+  checkUser,
+  checkPermissions("delete_gorduyumuzisler_sekiller"),
+  async (req, res) => {
+    try {
+      const { deleteid } = req.params;
+      const deleteData = await OurWorksImageModel.findByIdAndDelete(deleteid);
 
-router.delete("/ourworksimages/:deleteid", async (req, res) => {
-  try {
-    const { deleteid } = req.params;
-    const deleteData = await OurWorksImageModel.findByIdAndDelete(deleteid);
+      if (!deleteData) {
+        return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      }
 
-    if (!deleteData) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
-    }
-
-    return res.status(200).json({ message: "successfully deleted data" });
-  } catch (error) {}
-});
+      return res.status(200).json({ message: "successfully deleted data" });
+    } catch (error) {}
+  }
+);
 
 // for front
 router.get("/ourworksimagesfront", async (req, res) => {

@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Recruitment = require("../models/RecruitmentModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/recruitmentprocess", upload.none(), async (req, res) => {
+router.post("/recruitmentprocess", checkUser, checkPermissions("create_karyeraimkanlari_qebul_prosesi"), upload.none(), async (req, res) => {
   try {
     const requiredFields = [
       "title_az",
@@ -43,7 +45,7 @@ router.post("/recruitmentprocess", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/recruitmentprocess", async (req, res) => {
+router.get("/recruitmentprocess", checkUser, checkPermissions("list_karyeraimkanlari_qebul_prosesi"), async (req, res) => {
   try {
     const datas = await Recruitment.find();
     if (!datas || datas.length === 0) {
@@ -72,7 +74,7 @@ router.get("/recruitmentprocess/:editid", async (req, res) => {
   }
 });
 
-router.put("/recruitmentprocess/:editid", upload.none(), async (req, res) => {
+router.put("/recruitmentprocess/:editid", checkUser, checkPermissions("update_karyeraimkanlari_qebul_prosesi"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru, order } = req.body;
@@ -110,7 +112,7 @@ router.put("/recruitmentprocess/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/recruitmentprocess/:deleteid", async (req, res) => {
+router.delete("/recruitmentprocess/:deleteid", checkUser, checkPermissions("delete_karyeraimkanlari_qebul_prosesi"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Recruitment.findByIdAndDelete(deleteid);

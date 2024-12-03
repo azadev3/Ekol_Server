@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Calculations = require("../models/CalculationsModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/calculations", upload.single("pdf"), async (req, res) => {
+router.post("/calculations", checkUser, checkPermissions("create_rubluk_hesabatlar"), upload.single("pdf"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru"];
 
@@ -32,7 +34,7 @@ router.post("/calculations", upload.single("pdf"), async (req, res) => {
   }
 });
 
-router.get("/calculations", async (req, res) => {
+router.get("/calculations", checkUser, checkPermissions("list_rubluk_hesabatlar"), async (req, res) => {
   try {
     const datas = await Calculations.find();
     if (!datas || datas.length === 0) {
@@ -94,7 +96,7 @@ router.get("/calculations/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/calculations/:editid", upload.single("pdf"), async (req, res) => {
+router.put("/calculations/:editid", checkUser, checkPermissions("update_rubluk_hesabatlar"), upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
@@ -136,7 +138,7 @@ router.put("/calculations/:editid", upload.single("pdf"), async (req, res) => {
 });
 
 
-router.delete("/calculations/:deleteid", async (req, res) => {
+router.delete("/calculations/:deleteid", checkUser, checkPermissions("delete_rubluk_hesabatlar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Calculations.findByIdAndDelete(deleteid);

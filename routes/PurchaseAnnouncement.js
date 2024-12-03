@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const PurchaseAnnouncement = require("../models/PurchaseAnnouncementModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
+router.post("/purchaseannouncement", checkUser, checkPermissions("create_satinalma_elanlari"), upload.single("pdf"), async (req, res) => {
   try {
     const pdfFile = req.file ? `/public/${req.file.filename}` : "";
 
@@ -37,7 +39,7 @@ router.post("/purchaseannouncement", upload.single("pdf"), async (req, res) => {
   }
 });
 
-router.get("/purchaseannouncement", async (req, res) => {
+router.get("/purchaseannouncement", checkUser, checkPermissions("list_satinalma_elanlari"), async (req, res) => {
   try {
     const datas = await PurchaseAnnouncement.find();
     if (!datas || datas.length === 0) {
@@ -123,7 +125,7 @@ router.get("/purchaseannouncement/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/purchaseannouncement/:editid", upload.single("pdf"), async (req, res) => {
+router.put("/purchaseannouncement/:editid", checkUser, checkPermissions("update_satinalma_elanlari"), upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -225,7 +227,7 @@ router.put("/purch/status/:id", async (req, res) => {
   }
 });
 
-router.delete("/purchaseannouncement/:deleteid", async (req, res) => {
+router.delete("/purchaseannouncement/:deleteid", checkUser, checkPermissions("delete_satinalma_elanlari"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PurchaseAnnouncement.findByIdAndDelete(deleteid);

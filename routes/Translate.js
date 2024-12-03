@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Translate = require("../models/TranslatesModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/translates", async (req, res) => {
+router.post("/translates", checkUser, checkPermissions("create_translate"), async (req, res) => {
   try {
     const { key, azTitle, enTitle, ruTitle } = req.body;
 
@@ -26,7 +28,7 @@ router.post("/translates", async (req, res) => {
   }
 });
 
-router.get("/translates", async (req, res) => {
+router.get("/translates", checkUser, checkPermissions("list_translate"), async (req, res) => {
   try {
     const datas = await Translate.find();
     if (!datas || datas.length === 0) {
@@ -55,7 +57,7 @@ router.get("/translates/:editid", async (req, res) => {
   }
 });
 
-router.put("/translates/:editid", async (req, res) => {
+router.put("/translates/:editid", checkUser, checkPermissions("update_translate"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { azTitle, enTitle, ruTitle } = req.body;
@@ -85,7 +87,7 @@ router.put("/translates/:editid", async (req, res) => {
   }
 });
 
-router.delete("/translates/:deleteid", async (req, res) => {
+router.delete("/translates/:deleteid", checkUser, checkPermissions("delete_translate"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Translate.findByIdAndDelete(deleteid);

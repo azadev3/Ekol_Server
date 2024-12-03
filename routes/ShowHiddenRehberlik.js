@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const ShowHiddenRehberlikModel = require("../models/ShowHiddenRehberlikModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 router.post("/hidden-rehberlik", async (req, res) => {
   try {
@@ -19,7 +21,7 @@ router.post("/hidden-rehberlik", async (req, res) => {
   }
 });
 
-router.get("/hidden-rehberlik-front", async (req, res) => {
+router.get("/hidden-rehberlik-front", checkUser, checkPermissions("list_gizlet_goster_rehberlik"), async (req, res) => {
   try {
     const showState = await ShowHiddenRehberlikModel.findOne();
 

@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const SocialLifeCarousel = require("../models/SocialLifeCarouselModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/sociallifecarousel", upload.single("imgback"), async (req, res) => {
+router.post("/sociallifecarousel", checkUser, checkPermissions("create_sosialheyat_karusel"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru"];
 
@@ -32,7 +34,7 @@ router.post("/sociallifecarousel", upload.single("imgback"), async (req, res) =>
   }
 });
 
-router.get("/sociallifecarousel", async (req, res) => {
+router.get("/sociallifecarousel", checkUser, checkPermissions("list_sosialheyat_karusel"), async (req, res) => {
   try {
     const datas = await SocialLifeCarousel.find();
     if (!datas || datas.length === 0) {
@@ -94,7 +96,7 @@ router.get("/sociallifecarousel/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/sociallifecarousel/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/sociallifecarousel/:editid", checkUser, checkPermissions("update_sosialheyat_karusel"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
@@ -136,7 +138,7 @@ router.put("/sociallifecarousel/:editid", upload.single("imgback"), async (req, 
 });
 
 
-router.delete("/sociallifecarousel/:deleteid", async (req, res) => {
+router.delete("/sociallifecarousel/:deleteid", checkUser, checkPermissions("delete_sosialheyat_karusel"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await SocialLifeCarousel.findByIdAndDelete(deleteid);

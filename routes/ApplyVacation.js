@@ -3,6 +3,8 @@ const upload = require("../config/MulterConfig");
 const router = express.Router();
 const ApplyVacation = require("../models/ApplyVacationModel");
 const nodemailer = require("nodemailer");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -81,7 +83,7 @@ router.post(
   }
 );
 
-router.get("/applyvacation", async (req, res) => {
+router.get("/applyvacation", checkUser, checkPermissions("list_vakansiya_muracietleri"), async (req, res) => {
   try {
     const datas = await ApplyVacation.find().lean().exec();
     if (!datas) {
@@ -95,7 +97,7 @@ router.get("/applyvacation", async (req, res) => {
   }
 });
 
-router.delete("/applyvacation/:apply_id", async (req, res) => {
+router.delete("/applyvacation/:apply_id", checkUser, checkPermissions("delete_vakansiya_muracietleri"), async (req, res) => {
   try {
     const { apply_id } = req.params;
 

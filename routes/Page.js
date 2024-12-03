@@ -5,7 +5,10 @@ const PageModel = require("../models/PageModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
-router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
+
+router.post("/page", checkUser, checkPermissions("create_page"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     let imageFile = "";
 
@@ -45,7 +48,7 @@ router.post("/page", uploadConfig.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/page", async (req, res) => {
+router.get("/page", checkUser, checkPermissions("list_page"), async (req, res) => {
   try {
     const datas = await PageModel.find();
     if (!datas || datas.length === 0) {
@@ -74,7 +77,7 @@ router.get("/page/:editid", async (req, res) => {
   }
 });
 
-router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { status } = req.body;
@@ -160,7 +163,7 @@ router.put("/page/status/:id", async (req, res) => {
   }
 });
 
-router.delete("/page/:deleteid", async (req, res) => {
+router.delete("/page/:deleteid", checkUser, checkPermissions("delete_page"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PageModel.findByIdAndDelete(deleteid);

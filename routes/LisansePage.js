@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const LisansePage = require("../models/LisansePageModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/lisansepage", upload.none(), async (req, res) => {
+router.post("/lisansepage", checkUser, checkPermissions("create_lisenziyalar"), upload.none(), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
 
@@ -34,7 +36,7 @@ router.post("/lisansepage", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/lisansepage", async (req, res) => {
+router.get("/lisansepage", checkUser, checkPermissions("list_lisenziyalar"), async (req, res) => {
   try {
     const datas = await LisansePage.find();
     if (!datas || datas.length === 0) {
@@ -63,7 +65,7 @@ router.get("/lisansepage/:editid", async (req, res) => {
   }
 });
 
-router.put("/lisansepage/:editid", upload.none(), async (req, res) => {
+router.put("/lisansepage/:editid", checkUser, checkPermissions("update_lisenziyalar"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -100,7 +102,7 @@ router.put("/lisansepage/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/lisansepage/:deleteid", async (req, res) => {
+router.delete("/lisansepage/:deleteid", checkUser, checkPermissions("delete_lisenziyalar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await LisansePage.findByIdAndDelete(deleteid);

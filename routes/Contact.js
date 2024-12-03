@@ -2,9 +2,13 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Contact = require("../models/ContactModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 router.post(
   "/contact",
+  checkUser,
+  checkPermissions("create_contact"),
   upload.fields([{ name: "telephone_logo" }, { name: "faks_logo" }, { name: "location_logo" }, { name: "email_logo" }]),
   async (req, res) => {
     try {
@@ -65,7 +69,7 @@ router.post(
   }
 );
 
-router.get("/contact", async (req, res) => {
+router.get("/contact", checkUser, checkPermissions("list_contact"), async (req, res) => {
   try {
     const datas = await Contact.find();
     if (!datas || datas.length === 0) {
@@ -132,52 +136,54 @@ router.get("/contact/:editid", async (req, res) => {
 //   }
 // });
 
+router.put(
+  "/contact/:editid",
+  checkUser,
+  checkPermissions("update_contact"),
+  upload.single("imgback"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { title_az, title_en, title_ru, description_az, description_en, description_ru, iframemap } = req.body;
 
-router.put("/contact/:editid", upload.single("imgback"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, iframemap } = req.body;
+      const existingContact = await Contact.findById(editid).exec();
+      if (!existingContact) {
+        return res.status(404).json({ error: "Not found: editid" });
+      }
 
-    const existingContact = await Contact.findById(editid).exec();
-    if (!existingContact) {
-      return res.status(404).json({ error: "Not found: editid" });
+      const updateData = {
+        title: {
+          az: title_az,
+          en: title_en,
+          ru: title_ru,
+        },
+        description: {
+          az: description_az,
+          en: description_en,
+          ru: description_ru,
+        },
+        map: iframemap,
+      };
+
+      if (req.file) {
+        updateData.image = `/public/${req.file.filename}`;
+      }
+
+      const updatedContact = await Contact.findByIdAndUpdate(editid, { $set: updateData }, { new: true }).lean().exec();
+
+      if (!updatedContact) {
+        return res.status(404).json({ error: "Not found: editid" });
+      }
+
+      return res.status(200).json(updatedContact);
+    } catch (error) {
+      console.error("Error updating data:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const updateData = {
-      title: {
-        az: title_az,
-        en: title_en,
-        ru: title_ru,
-      },
-      description: {
-        az: description_az,
-        en: description_en,
-        ru: description_ru,
-      },
-      map: iframemap,
-    };
-
-    if (req.file) {
-      updateData.image = `/public/${req.file.filename}`;
-    }
-
-    const updatedContact = await Contact.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
-      .lean()
-      .exec();
-
-    if (!updatedContact) {
-      return res.status(404).json({ error: "Not found: editid" });
-    }
-
-    return res.status(200).json(updatedContact);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-
-router.delete("/contact/:deleteid", async (req, res) => {
+router.delete("/contact/:deleteid", checkUser, checkPermissions("delete_contact"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Contact.findByIdAndDelete(deleteid);

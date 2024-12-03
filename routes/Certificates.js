@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Certificates = require("../models/CertificatesModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/certificates", upload.none(), async (req, res) => {
+router.post("/certificates", checkUser, checkPermissions("create_sertifikatlar"), upload.none(), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
 
@@ -34,7 +36,7 @@ router.post("/certificates", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/certificates", async (req, res) => {
+router.get("/certificates", checkUser, checkPermissions("list_sertifikatlar"), async (req, res) => {
   try {
     const datas = await Certificates.find();
     if (!datas || datas.length === 0) {
@@ -63,7 +65,7 @@ router.get("/certificates/:editid", async (req, res) => {
   }
 });
 
-router.put("/certificates/:editid", upload.none(), async (req, res) => {
+router.put("/certificates/:editid", checkUser, checkPermissions("update_sertifikatlar"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -100,7 +102,7 @@ router.put("/certificates/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/certificates/:deleteid", async (req, res) => {
+router.delete("/certificates/:deleteid", checkUser, checkPermissions("delete_sertifikatlar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Certificates.findByIdAndDelete(deleteid);

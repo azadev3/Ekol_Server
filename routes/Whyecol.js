@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const WhyEcol = require("../models/WhyEcolModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/whyecol", upload.single("imgback"), async (req, res) => {
+router.post("/whyecol", checkUser, checkPermissions("create_niye_ekol"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
 
@@ -37,7 +39,7 @@ router.post("/whyecol", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/whyecol", async (req, res) => {
+router.get("/whyecol", checkUser, checkPermissions("list_niye_ekol"), async (req, res) => {
   try {
     const datas = await WhyEcol.find();
     if (!datas || datas.length === 0) {
@@ -104,7 +106,7 @@ router.get("/whyecol/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/whyecol/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/whyecol/:editid", checkUser, checkPermissions("update_niye_ekol"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -154,7 +156,7 @@ router.put("/whyecol/:editid", upload.single("imgback"), async (req, res) => {
 });
 
 
-router.delete("/whyecol/:deleteid", async (req, res) => {
+router.delete("/whyecol/:deleteid", checkUser, checkPermissions("delete_niye_ekol"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await WhyEcol.findByIdAndDelete(deleteid);

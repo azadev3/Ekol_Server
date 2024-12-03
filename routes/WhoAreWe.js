@@ -3,8 +3,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const WhoAreWe = require("../models/WhoareweModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/whoarewe", upload.single("imgback"), async (req, res) => {
+router.post("/whoarewe", checkUser, checkPermissions("create_bizkimik"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru", "description_az", "description_en", "description_ru"];
 
@@ -38,7 +40,7 @@ router.post("/whoarewe", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/whoarewe", async (req, res) => {
+router.get("/whoarewe", checkUser, checkPermissions("list_bizkimik"), async (req, res) => {
   try {
     const datas = await WhoAreWe.find();
     if (!datas || datas.length === 0) {
@@ -67,7 +69,7 @@ router.get("/whoarewe/:editid", async (req, res) => {
   }
 });
 
-router.put("/whoarewe/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/whoarewe/:editid", checkUser, checkPermissions("update_bizkimik"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -105,7 +107,7 @@ router.put("/whoarewe/:editid", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.delete("/whoarewe/:deleteid", async (req, res) => {
+router.delete("/whoarewe/:deleteid", checkUser, checkPermissions("delete_bizkimik"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await WhoAreWe.findByIdAndDelete(deleteid);

@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Videos = require("../models/VideosModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/videos", upload.none(), async (req, res) => {
+router.post("/videos", checkUser, checkPermissions("create_qalereya_videolar"), upload.none(), async (req, res) => {
   try {
     const { video } = req.body;
 
@@ -23,7 +25,7 @@ router.post("/videos", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/videos", async (req, res) => {
+router.get("/videos", checkUser, checkPermissions("list_qalereya_videolar"), async (req, res) => {
   try {
     const datas = await Videos.find();
     if (!datas || datas.length === 0) {
@@ -52,7 +54,7 @@ router.get("/videos/:editid", async (req, res) => {
   }
 });
 
-router.put("/videos/:editid", upload.none(), async (req, res) => {
+router.put("/videos/:editid", checkUser, checkPermissions("update_qalereya_videolar"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { video } = req.body;
@@ -80,7 +82,7 @@ router.put("/videos/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/videos/:deleteid", async (req, res) => {
+router.delete("/videos/:deleteid", checkUser, checkPermissions("delete_qalereya_videolar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Videos.findByIdAndDelete(deleteid);

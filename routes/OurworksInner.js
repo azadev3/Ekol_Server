@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const OurWorksInner = require("../models/OurworksinnerModel");
 const upload = require("../config/MulterConfig");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/ourworksinner", upload.none(), async (req, res) => {
+router.post("/ourworksinner", checkUser, checkPermissions("create_gorduyumuzisler_daxili"), upload.none(), async (req, res) => {
   try {
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
@@ -32,7 +34,7 @@ router.post("/ourworksinner", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/ourworksinner", async (req, res) => {
+router.get("/ourworksinner", checkUser, checkPermissions("list_gorduyumuzisler_daxili"), async (req, res) => {
   try {
     const datas = await OurWorksInner.find();
     if (!datas || datas.length === 0) {
@@ -61,7 +63,7 @@ router.get("/ourworksinner/:editid", async (req, res) => {
   }
 });
 
-router.put("/ourworksinner/:editid", upload.none(), async (req, res) => {
+router.put("/ourworksinner/:editid", checkUser, checkPermissions("update_gorduyumuzisler_daxili"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -98,7 +100,7 @@ router.put("/ourworksinner/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/ourworksinner/:deleteid", async (req, res) => {
+router.delete("/ourworksinner/:deleteid", checkUser, checkPermissions("delete_gorduyumuzisler_daxili"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await OurWorksInner.findByIdAndDelete(deleteid);

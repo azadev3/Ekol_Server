@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Emails = require("../models/EmailModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 router.post("/emails", async (req, res) => {
   try {
@@ -22,7 +24,7 @@ router.post("/emails", async (req, res) => {
   }
 });
 
-router.get("/emails", async (req, res) => {
+router.get("/emails", checkUser, checkPermissions("list_emails"), async (req, res) => {
   try {
     const emails = await Emails.find();
     return res.status(200).json({ emails: emails });

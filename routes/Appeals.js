@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Appeals = require("../models/AppealsModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 router.post("/appeals", upload.none(), async (req, res) => {
   try {
@@ -29,7 +31,7 @@ router.post("/appeals", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/appeals/:deleteid", async (req, res) => {
+router.delete("/appeals/:deleteid", checkUser, checkPermissions("delete_muracietler"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Appeals.findByIdAndDelete(deleteid);
@@ -43,7 +45,7 @@ router.delete("/appeals/:deleteid", async (req, res) => {
 });
 
 // for front
-router.get("/appealsfront", async (req, res) => {
+router.get("/appealsfront", checkUser, checkPermissions("list_muracietler"), async (req, res) => {
   try {
     const datas = await Appeals.find();
     if (!datas || datas.length === 0) {

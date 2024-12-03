@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const SocialLife = require("../models/SocialLifeModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/sociallife", upload.none(), async (req, res) => {
+router.post("/sociallife", checkUser, checkPermissions("create_sosial_heyat"), upload.none(), async (req, res) => {
   try {
     const requiredFields = ["description_az", "description_en", "description_ru"];
 
@@ -29,7 +31,7 @@ router.post("/sociallife", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/sociallife", async (req, res) => {
+router.get("/sociallife", checkUser, checkPermissions("list_sosial_heyat"), async (req, res) => {
   try {
     const datas = await SocialLife.find();
     if (!datas || datas.length === 0) {
@@ -58,7 +60,7 @@ router.get("/sociallife/:editid", async (req, res) => {
   }
 });
 
-router.put("/sociallife/:editid", upload.none(), async (req, res) => {
+router.put("/sociallife/:editid", checkUser, checkPermissions("update_sosial_heyat"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const { description_az, description_en, description_ru } = req.body;
@@ -90,7 +92,7 @@ router.put("/sociallife/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/sociallife/:deleteid", async (req, res) => {
+router.delete("/sociallife/:deleteid", checkUser, checkPermissions("delete_sosial_heyat"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await SocialLife.findByIdAndDelete(deleteid);

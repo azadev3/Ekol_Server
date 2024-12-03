@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Imagespage = require("../models/ImagesPageModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
 // POST endpoint
-router.post("/imagespage", upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]), async (req, res) => {
+router.post("/imagespage", checkUser, checkPermissions("create_qalereya_sekil_ve_kateqoriya"),  upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]), async (req, res) => {
   try {
     const requiredFields = ["categoryName_az", "categoryName_en", "categoryName_ru"];
 
@@ -39,7 +41,7 @@ router.post("/imagespage", upload.fields([{ name: "imgback", maxCount: 1 }, { na
   }
 });
 
-router.get("/imagespage", async (req, res) => {
+router.get("/imagespage", checkUser, checkPermissions("list_qalereya_sekil_ve_kateqoriya"), async (req, res) => {
   try {
     const datas = await Imagespage.find();
     if (!datas || datas.length === 0) {
@@ -67,8 +69,6 @@ router.get("/imagespage/:editid", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // router.put(
 //   "/imagespage/:editid",
@@ -131,6 +131,7 @@ router.get("/imagespage/:editid", async (req, res) => {
 
 router.put(
   "/imagespage/:editid",
+  checkUser, checkPermissions("update_qalereya_sekil_ve_kateqoriya"),
   upload.fields([{ name: "imgback", maxCount: 1 }, { name: "images" }]),
   async (req, res) => {
     try {
@@ -192,7 +193,7 @@ router.put(
 
 
 
-router.delete("/imagespage/:deleteid", async (req, res) => {
+router.delete("/imagespage/:deleteid", checkUser, checkPermissions("delete_qalereya_sekil_ve_kateqoriya"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Imagespage.findByIdAndDelete(deleteid);

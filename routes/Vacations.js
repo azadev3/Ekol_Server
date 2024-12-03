@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Vacations = require("../models/VacationsModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/vacations", upload.none(), async (req, res) => {
+router.post("/vacations", checkUser, checkPermissions("create_vakansiyalar"), upload.none(), async (req, res) => {
   try {
     const requiredFields = [
       "title_az",
@@ -60,7 +62,7 @@ router.post("/vacations", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/vacations", async (req, res) => {
+router.get("/vacations", checkUser, checkPermissions("list_vakansiyalar"), async (req, res) => {
   try {
     const datas = await Vacations.find();
     if (!datas || datas.length === 0) {
@@ -89,7 +91,7 @@ router.get("/vacations/:editid", async (req, res) => {
   }
 });
 
-router.put("/vacations/:editid", upload.none(), async (req, res) => {
+router.put("/vacations/:editid", checkUser, checkPermissions("update_vakansiyalar"), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -153,7 +155,7 @@ router.put("/vacations/:editid", upload.none(), async (req, res) => {
   }
 });
 
-router.delete("/vacations/:deleteid", async (req, res) => {
+router.delete("/vacations/:deleteid", checkUser, checkPermissions("delete_vakansiyalar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Vacations.findByIdAndDelete(deleteid);

@@ -5,8 +5,11 @@ const { uploadConfig, useSharp } = require("../config/MulterC");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
+
 // Multiple file handling
-router.post("/toolsinnerimages", uploadConfig.array("imgtools"), async (req, res) => {
+router.post("/toolsinnerimages", checkUser, checkPermissions("create_avadanliqlar_sekiller"), uploadConfig.array("imgtools"), async (req, res) => {
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -36,7 +39,7 @@ router.post("/toolsinnerimages", uploadConfig.array("imgtools"), async (req, res
   }
 });
 
-router.get("/toolsinnerimages", async (req, res) => {
+router.get("/toolsinnerimages", checkUser, checkPermissions("list_avadanliqlar_sekiller"), async (req, res) => {
   try {
     const datas = await ToolsInnerImagesModel.find();
     if (!datas || datas.length === 0) {
@@ -159,7 +162,7 @@ router.get("/toolsinnerimages/:editid", async (req, res) => {
 // });
 
 
-router.put("/toolsinnerimages/:editid", uploadConfig.array("newImages"), async (req, res) => {
+router.put("/toolsinnerimages/:editid", checkUser, checkPermissions("update_avadanliqlar_sekiller"), uploadConfig.array("newImages"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { selected_tools, deletedImages } = req.body;
@@ -203,7 +206,7 @@ router.put("/toolsinnerimages/:editid", uploadConfig.array("newImages"), async (
 
 
 
-router.delete("/toolsinnerimages/:deleteid", async (req, res) => {
+router.delete("/toolsinnerimages/:deleteid", checkUser, checkPermissions("delete_avadanliqlar_sekiller"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await ToolsInnerImagesModel.findByIdAndDelete(deleteid);

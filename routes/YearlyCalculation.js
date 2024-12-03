@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const YearlyCalculations = require("../models/YearlyCalculationsModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/yearly_calculations", upload.single("pdf"), async (req, res) => {
+router.post("/yearly_calculations", checkUser, checkPermissions("create_illik_hesabatlar"), upload.single("pdf"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru"];
 
@@ -32,7 +34,7 @@ router.post("/yearly_calculations", upload.single("pdf"), async (req, res) => {
   }
 });
 
-router.get("/yearly_calculations", async (req, res) => {
+router.get("/yearly_calculations", checkUser, checkPermissions("list_illik_hesabatlar"), async (req, res) => {
   try {
     const datas = await YearlyCalculations.find();
     if (!datas || datas.length === 0) {
@@ -61,7 +63,7 @@ router.get("/yearly_calculations/:editid", async (req, res) => {
   }
 });
 
-router.put("/yearly_calculations/:editid", upload.single("pdf"), async (req, res) => {
+router.put("/yearly_calculations/:editid", checkUser, checkPermissions("update_illik_hesabatlar"), upload.single("pdf"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
@@ -94,7 +96,7 @@ router.put("/yearly_calculations/:editid", upload.single("pdf"), async (req, res
   }
 });
 
-router.delete("/yearly_calculations/:deleteid", async (req, res) => {
+router.delete("/yearly_calculations/:deleteid", checkUser, checkPermissions("delete_illik_hesabatlar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await YearlyCalculations.findByIdAndDelete(deleteid);

@@ -4,15 +4,14 @@ const PermissionModel = require("../models/PermissionModel");
 
 router.post("/create_permission", async (req, res) => {
   try {
-    const { permission_name, permission_key } = req.body;
+    const { permission_name } = req.body;
 
-    if (!permission_name || !permission_key) {
-      res.status(500).json({ error: "permission name and key is required" });
+    if (!permission_name) {
+      res.status(500).json({ error: "permission name is required" });
     }
 
     const permissionModel = new PermissionModel({
       name: permission_name,
-      value: permission_key,
     });
 
     const savedata = await permissionModel.save();
@@ -34,3 +33,4 @@ router.get("/create_permission", async (req, res) => {
 });
 
 module.exports = router;
+

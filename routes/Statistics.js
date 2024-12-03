@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Statistics = require("../models/StatisticsModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermission = require("../middlewares/checkPermissions");
 
-router.post("/statistics", upload.none(), async (req, res) => {
+router.post("/statistics", checkUser, checkPermission("create_statistikalar"), upload.none(), async (req, res) => {
   try {
     const { title_az, title_en, title_ru, count } = req.body;
     if (!title_az || !title_en || !title_ru || !count) {
@@ -29,7 +31,7 @@ router.post("/statistics", upload.none(), async (req, res) => {
   }
 });
 
-router.get("/statistics", async (req, res) => {
+router.get("/statistics", checkUser, checkPermission("list_statistikalar"), async (req, res) => {
   try {
     const datas = await Statistics.find();
     if (!datas || datas.length === 0) {
@@ -58,7 +60,7 @@ router.get("/statistics/:editid", async (req, res) => {
   }
 });
 
-router.put("/statistics/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/statistics/:editid", checkUser, checkPermission("update_statistikalar"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, count } = req.body;
@@ -91,7 +93,7 @@ router.put("/statistics/:editid", upload.single("imgback"), async (req, res) => 
   }
 });
 
-router.delete("/statistics/:deleteid", async (req, res) => {
+router.delete("/statistics/:deleteid", checkUser, checkPermission("delete_statistikalar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Statistics.findByIdAndDelete(deleteid);

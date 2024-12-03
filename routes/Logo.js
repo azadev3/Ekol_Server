@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Logo = require("../models/LogoModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/logo", upload.single("imgback"), async (req, res) => {
+router.post("/logo", checkUser, checkPermissions("create_logo"), upload.single("imgback"), async (req, res) => {
   try {
     const imageFile = req.file ? `/public/${req.file.filename}` : "";
 
@@ -19,7 +21,7 @@ router.post("/logo", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/logo", async (req, res) => {
+router.get("/logo", checkUser, checkPermissions("list_logo"), async (req, res) => {
   try {
     const datas = await Logo.find();
     if (!datas || datas.length === 0) {
@@ -75,7 +77,7 @@ router.get("/logo/:editid", async (req, res) => {
 // });
 
 
-router.put("/logo/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/logo/:editid", checkUser, checkPermissions("update_logo"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
 
@@ -110,7 +112,7 @@ router.put("/logo/:editid", upload.single("imgback"), async (req, res) => {
 });
 
 
-router.delete("/logo/:deleteid", async (req, res) => {
+router.delete("/logo/:deleteid", checkUser, checkPermissions("delete_logo"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Logo.findByIdAndDelete(deleteid);

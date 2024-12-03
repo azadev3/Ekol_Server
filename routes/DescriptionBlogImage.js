@@ -5,40 +5,49 @@ const { uploadConfig, useSharp } = require("../config/MulterC");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermission = require("../middlewares/checkPermissions");
+
 // Multiple file handling
-router.post("/blogimage", uploadConfig.array("imgback"), async (req, res) => {
-  try {
-    const files = req.files;
-    const selected_blog = req.body.selected_blog;
+router.post(
+  "/blogimage",
+  checkUser,
+  checkPermission("create_xebersekilleri"),
+  uploadConfig.array("imgback"),
+  async (req, res) => {
+    try {
+      const files = req.files;
+      const selected_blog = req.body.selected_blog;
 
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No images uploaded" });
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No images uploaded" });
+      }
+
+      const imageFilePaths = [];
+      for (let file of files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+
+        await useSharp(file.buffer, imgOutputPath);
+
+        imageFilePaths.push(`/public/${imgFileName}`);
+      }
+
+      const createData = new BlogDescriptionImageModel({
+        selected_blog,
+        images: imageFilePaths,
+      });
+
+      const savedData = await createData.save();
+
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-
-    const imageFilePaths = [];
-    for (let file of files) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
-
-      await useSharp(file.buffer, imgOutputPath);
-
-      imageFilePaths.push(`/public/${imgFileName}`);
-    }
-
-    const createData = new BlogDescriptionImageModel({
-      selected_blog,
-      images: imageFilePaths,
-    });
-
-    const savedData = await createData.save();
-
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.get("/blogimage", async (req, res) => {
+router.get("/blogimage", checkUser, checkPermission("list_xebersekilleri"), async (req, res) => {
   try {
     const datas = await BlogDescriptionImageModel.find();
     if (!datas || datas.length === 0) {
@@ -114,48 +123,54 @@ router.get("/blogimage/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/blogimage/:editid", uploadConfig.array("newImages"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { selected_blog, deletedImages } = req.body;
+router.put(
+  "/blogimage/:editid",
+  checkUser,
+  checkPermission("update_xebersekilleri"),
+  uploadConfig.array("newImages"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { selected_blog, deletedImages } = req.body;
 
-    const imagesToDelete = JSON.parse(deletedImages || "[]");
+      const imagesToDelete = JSON.parse(deletedImages || "[]");
 
-    const files = req.files;
-    const imageFilePaths = [];
-    if (files && files.length > 0) {
-      for (let file of files) {
-        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-        const imgOutputPath = path.join(mountPath, imgFileName);
-        await useSharp(file.buffer, imgOutputPath);
-        imageFilePaths.push(`/public/${imgFileName}`);
+      const files = req.files;
+      const imageFilePaths = [];
+      if (files && files.length > 0) {
+        for (let file of files) {
+          const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+          const imgOutputPath = path.join(mountPath, imgFileName);
+          await useSharp(file.buffer, imgOutputPath);
+          imageFilePaths.push(`/public/${imgFileName}`);
+        }
       }
+
+      const existingBlog = await BlogDescriptionImageModel.findById(editid).exec();
+      if (!existingBlog) {
+        return res.status(404).json({ error: "Blog not found" });
+      }
+
+      const updatedImages = existingBlog.images.filter(
+        (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
+      );
+
+      const finalImages = [...updatedImages, ...imageFilePaths];
+      existingBlog.images = finalImages;
+      existingBlog.selected_blog = selected_blog;
+
+      // Save the updated blog
+      const updatedBlog = await existingBlog.save();
+
+      return res.status(200).json(updatedBlog);
+    } catch (error) {
+      console.error("Error updating blog images:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const existingBlog = await BlogDescriptionImageModel.findById(editid).exec();
-    if (!existingBlog) {
-      return res.status(404).json({ error: "Blog not found" });
-    }
-
-    const updatedImages = existingBlog.images.filter(
-      (img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`)
-    );
-
-    const finalImages = [...updatedImages, ...imageFilePaths];
-    existingBlog.images = finalImages;
-    existingBlog.selected_blog = selected_blog;
-
-    // Save the updated blog
-    const updatedBlog = await existingBlog.save();
-
-    return res.status(200).json(updatedBlog);
-  } catch (error) {
-    console.error("Error updating blog images:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.delete("/blogimage/:deleteid", async (req, res) => {
+router.delete("/blogimage/:deleteid", checkUser, checkPermission("delete_xebersekilleri"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await BlogDescriptionImageModel.findByIdAndDelete(deleteid);

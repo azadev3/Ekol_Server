@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const GalleryDropdown = require("../models/GalleryDropdownModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/gallerydropdown", upload.single("imgback"), async (req, res) => {
+router.post("/gallerydropdown", checkUser, checkPermissions("create_qalereya_sehifesi"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru"];
 
@@ -32,7 +34,7 @@ router.post("/gallerydropdown", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/gallerydropdown", async (req, res) => {
+router.get("/gallerydropdown", checkUser, checkPermissions("list_qalereya_sehifesi"), async (req, res) => {
   try {
     const datas = await GalleryDropdown.find();
     if (!datas || datas.length === 0) {
@@ -94,7 +96,7 @@ router.get("/gallerydropdown/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/gallerydropdown/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/gallerydropdown/:editid", checkUser, checkPermissions("update_qalereya_sehifesi"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
@@ -141,7 +143,7 @@ router.put("/gallerydropdown/:editid", upload.single("imgback"), async (req, res
 });
 
 
-router.delete("/gallerydropdown/:deleteid", async (req, res) => {
+router.delete("/gallerydropdown/:deleteid", checkUser, checkPermissions("delete_qalereya_sehifesi"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await GalleryDropdown.findByIdAndDelete(deleteid);

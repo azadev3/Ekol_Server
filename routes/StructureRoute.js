@@ -5,8 +5,10 @@ const StructureModel = require("../models/StructureModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/structure", uploadConfig.single("imgback"), async (req, res) => {
+router.post("/structure", checkUser, checkPermissions("create_struktur"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     // Img
     const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -26,7 +28,7 @@ router.post("/structure", uploadConfig.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/structure", async (req, res) => {
+router.get("/structure", checkUser, checkPermissions("list_struktur"), async (req, res) => {
   try {
     const datas = await StructureModel.find();
     if (!datas || datas.length === 0) {
@@ -55,7 +57,7 @@ router.get("/structure/:editid", async (req, res) => {
   }
 });
 
-router.put("/structure/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/structure/:editid", checkUser, checkPermissions("update_struktur"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     // Img
@@ -87,7 +89,7 @@ router.put("/structure/:editid", uploadConfig.single("imgback"), async (req, res
   }
 });
 
-router.delete("/structure/:deleteid", async (req, res) => {
+router.delete("/structure/:deleteid", checkUser, checkPermissions("delete_struktur"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await StructureModel.findByIdAndDelete(deleteid);

@@ -5,47 +5,54 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { uploadConfig, useSharp } = require("../config/MulterC");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermission = require("../middlewares/checkPermissions");
 
-router.post("/newblogs", uploadConfig.single("imgback"), async (req, res) => {
-  try {
-    // Img
-    let imageFile = "";
+router.post(
+  "/newblogs",
+  checkUser,
+  checkPermission("create_blog"),
+  uploadConfig.single("imgback"),
+  async (req, res) => {
+    try {
+      // Img
+      let imageFile = "";
 
-    if (req.file) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+      if (req.file) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
 
-      await useSharp(req.file.buffer, imgOutputPath);
+        await useSharp(req.file.buffer, imgOutputPath);
 
-      imageFile = `/public/${imgFileName}`;
+        imageFile = `/public/${imgFileName}`;
+      }
+
+      const createData = new NewBlogs({
+        title: {
+          az: req.body.title_az,
+          en: req.body.title_en,
+          ru: req.body.title_ru,
+        },
+        description: {
+          az: req.body.description_az,
+          en: req.body.description_en,
+          ru: req.body.description_ru,
+        },
+        created_at: req.body.created_at,
+        updated: req.body.updated,
+        image: imageFile,
+      });
+
+      const savedData = await createData.save();
+
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-    
-
-    const createData = new NewBlogs({
-      title: {
-        az: req.body.title_az,
-        en: req.body.title_en,
-        ru: req.body.title_ru,
-      },
-      description: {
-        az: req.body.description_az,
-        en: req.body.description_en,
-        ru: req.body.description_ru,
-      },
-      created_at: req.body.created_at,
-      updated: req.body.updated,
-      image: imageFile,
-    });
-
-    const savedData = await createData.save();
-
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-router.get("/newblogs", async (req, res) => {
+router.get("/newblogs", checkUser, checkPermission("list_blog"), async (req, res) => {
   try {
     const datas = await NewBlogs.find();
     if (!datas || datas.length === 0) {
@@ -125,58 +132,62 @@ router.get("/newblogs/:editid", async (req, res) => {
 //   }
 // });
 
+router.put(
+  "/newblogs/:editid",
+  checkUser,
+  checkPermission("update_blog"),
+  uploadConfig.single("imgback"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { title_az, title_en, title_ru, description_az, description_en, description_ru, created_at, updated } =
+        req.body;
 
+      const existingBlog = await NewBlogs.findById(editid).lean();
+      if (!existingBlog) {
+        return res.status(404).json({ error: "Blog not found" });
+      }
 
-router.put("/newblogs/:editid", uploadConfig.single("imgback"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, created_at, updated } = req.body;
+      let imageFile = existingBlog.image;
 
-    const existingBlog = await NewBlogs.findById(editid).lean();
-    if (!existingBlog) {
-      return res.status(404).json({ error: "Blog not found" });
+      if (req.file) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+
+        await useSharp(req.file.buffer, imgOutputPath);
+
+        imageFile = `/public/${imgFileName}`;
+      }
+
+      const updatedData = {
+        title: {
+          az: title_az || existingBlog.title.az,
+          en: title_en || existingBlog.title.en,
+          ru: title_ru || existingBlog.title.ru,
+        },
+        description: {
+          az: description_az || existingBlog.description.az,
+          en: description_en || existingBlog.description.en,
+          ru: description_ru || existingBlog.description.ru,
+        },
+        created_at: created_at || existingBlog.created_at,
+        updated: updated || existingBlog.updated,
+        image: imageFile,
+      };
+
+      const updatedNewBlog = await NewBlogs.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
+        .lean()
+        .exec();
+
+      return res.status(200).json(updatedNewBlog);
+    } catch (error) {
+      console.error("Error updating data:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    let imageFile = existingBlog.image;
-
-    if (req.file) {
-      const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
-
-      await useSharp(req.file.buffer, imgOutputPath);
-
-      imageFile = `/public/${imgFileName}`;
-    }
-
-    const updatedData = {
-      title: {
-        az: title_az || existingBlog.title.az,
-        en: title_en || existingBlog.title.en,
-        ru: title_ru || existingBlog.title.ru,
-      },
-      description: {
-        az: description_az || existingBlog.description.az,
-        en: description_en || existingBlog.description.en,
-        ru: description_ru || existingBlog.description.ru,
-      },
-      created_at: created_at || existingBlog.created_at,
-      updated: updated || existingBlog.updated,
-      image: imageFile,
-    };
-
-    const updatedNewBlog = await NewBlogs.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
-
-    return res.status(200).json(updatedNewBlog);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-
-
-
-router.delete("/newblogs/:deleteid", async (req, res) => {
+router.delete("/newblogs/:deleteid", checkUser, checkPermission("delete_blog"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await NewBlogs.findByIdAndDelete(deleteid);

@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Socials = require("../models/SocialModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/socials", upload.single("imgback"), async (req, res) => {
+router.post("/socials", checkUser, checkPermissions("create_socials"), upload.single("imgback"), async (req, res) => {
   try {
     const { link } = req.body;
 
@@ -25,7 +27,7 @@ router.post("/socials", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/socials", async (req, res) => {
+router.get("/socials", checkUser, checkPermissions("list_socials"), async (req, res) => {
   try {
     const datas = await Socials.find();
     if (!datas || datas.length === 0) {
@@ -83,52 +85,50 @@ router.get("/socials/:editid", async (req, res) => {
 //   }
 // });
 
+router.put(
+  "/socials/:editid",
+  checkUser,
+  checkPermissions("update_socials"),
+  upload.single("imgback"),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { link } = req.body;
 
-router.put("/socials/:editid", upload.single("imgback"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { link } = req.body;
+      const existingSocials = await Socials.findById(editid).exec();
+      if (!existingSocials) {
+        return res.status(404).json({ error: "Social not found" });
+      }
 
-    const existingSocials = await Socials.findById(editid).exec();
-    if (!existingSocials) {
-      return res.status(404).json({ error: "Social not found" });
+      const updatedData = {};
+
+      if (link) {
+        updatedData.link = link;
+      } else {
+        updatedData.link = existingSocials.link;
+      }
+
+      if (req.file) {
+        updatedData.icon = `/public/${req.file.filename}`;
+      } else {
+        updatedData.icon = existingSocials.icon;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingSocials);
+      }
+
+      const updatedSocial = await Socials.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
+
+      return res.status(200).json(updatedSocial);
+    } catch (error) {
+      console.error("Error updating data:", error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const updatedData = {};
-
-    if (link) {
-      updatedData.link = link;
-    } else {
-      updatedData.link = existingSocials.link; 
-    }
-
-    if (req.file) {
-      updatedData.icon = `/public/${req.file.filename}`;
-    } else {
-      updatedData.icon = existingSocials.icon; 
-    }
-
-    if (Object.keys(updatedData).length === 0) {
-      return res.status(200).json(existingSocials);
-    }
-
-    const updatedSocial = await Socials.findByIdAndUpdate(
-      editid,
-      { $set: updatedData },
-      { new: true }
-    )
-      .lean()
-      .exec();
-
-    return res.status(200).json(updatedSocial);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
   }
-});
+);
 
-
-router.delete("/socials/:deleteid", async (req, res) => {
+router.delete("/socials/:deleteid", checkUser, checkPermissions("delete_socials"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Socials.findByIdAndDelete(deleteid);

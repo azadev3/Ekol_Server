@@ -5,8 +5,10 @@ const Hero = require("../models/HeroModel");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const mountPath = require("../config/mountPath");
+const checkPermission = require("../middlewares/checkPermissions");
+const checkUser = require("../middlewares/checkUser");
 
-router.post("/hero", uploadConfig.single("imgback"), async (req, res) => {
+router.post("/hero", checkUser, checkPermission('create_hero'), uploadConfig.single("imgback"), async (req, res) => {
   try {
     // Img
     const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -36,7 +38,7 @@ router.post("/hero", uploadConfig.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/hero", async (req, res) => {
+router.get("/hero", checkUser, checkPermission("list_hero"), async (req, res) => {
   try {
     const datas = await Hero.find();
     if (!datas || datas.length === 0) {
@@ -65,7 +67,7 @@ router.get("/hero/:editid", async (req, res) => {
   }
 });
 
-router.put("/hero/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/hero/:editid", checkUser, checkPermission("update_hero"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
@@ -108,8 +110,7 @@ router.put("/hero/:editid", uploadConfig.single("imgback"), async (req, res) => 
   }
 });
 
-
-router.delete("/hero/:deleteid", async (req, res) => {
+router.delete("/hero/:deleteid", checkUser, checkPermission("delete_hero"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Hero.findByIdAndDelete(deleteid);
@@ -144,4 +145,5 @@ router.get("/herofront", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = router;

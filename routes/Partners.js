@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Partners = require("../models/PartnersModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/partners", upload.single("imgback"), async (req, res) => {
+router.post("/partners", checkUser, checkPermissions("create_partnyorlar"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = ["title_az", "title_en", "title_ru"];
 
@@ -32,7 +34,7 @@ router.post("/partners", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/partners", async (req, res) => {
+router.get("/partners", checkUser, checkPermissions("list_partnyorlar"), async (req, res) => {
   try {
     const datas = await Partners.find();
     if (!datas || datas.length === 0) {
@@ -96,7 +98,7 @@ router.get("/partners/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/partners/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/partners/:editid", checkUser, checkPermissions("update_partnyorlar"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
@@ -133,7 +135,7 @@ router.put("/partners/:editid", upload.single("imgback"), async (req, res) => {
 });
 
 
-router.delete("/partners/:deleteid", async (req, res) => {
+router.delete("/partners/:deleteid", checkUser, checkPermissions("delete_partnyorlar"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Partners.findByIdAndDelete(deleteid);

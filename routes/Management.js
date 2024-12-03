@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/MulterConfig");
 const Management = require("../models/ManagementModel");
+const checkUser = require("../middlewares/checkUser");
+const checkPermissions = require("../middlewares/checkPermissions");
 
-router.post("/management", upload.single("imgback"), async (req, res) => {
+router.post("/management", checkUser, checkPermissions("create_rehberlik"), upload.single("imgback"), async (req, res) => {
   try {
     const requiredFields = [
       "nameSurname_az",
@@ -60,7 +62,7 @@ router.post("/management", upload.single("imgback"), async (req, res) => {
   }
 });
 
-router.get("/management", async (req, res) => {
+router.get("/management", checkUser, checkPermissions("list_rehberlik"), async (req, res) => {
   try {
     const datas = await Management.find();
     if (!datas || datas.length === 0) {
@@ -150,7 +152,7 @@ router.get("/management/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/management/:editid", upload.single("imgback"), async (req, res) => {
+router.put("/management/:editid", checkUser, checkPermissions("update_rehberlik"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -216,7 +218,7 @@ router.put("/management/:editid", upload.single("imgback"), async (req, res) => 
 });
 
 
-router.delete("/management/:deleteid", async (req, res) => {
+router.delete("/management/:deleteid", checkUser, checkPermissions("delete_rehberlik"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Management.findByIdAndDelete(deleteid);

@@ -5,8 +5,10 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { uploadConfig, useSharp } = require("../config/MulterC");
 const mountPath = require("../config/mountPath");
+const checkUser = require("../middlewares/checkUser");
+const checkPermission = require("../middlewares/checkPermissions"); 
 
-router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) => {
+router.post("/servicespage", checkUser, checkPermission("create_xidmetler_daxili"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     // Img
     let imageFile = "";
@@ -47,7 +49,7 @@ router.post("/servicespage", uploadConfig.single("imgback"), async (req, res) =>
   }
 });
 
-router.get("/servicespage", async (req, res) => {
+router.get("/servicespage", checkUser, checkPermission("list_xidmetler_daxili"), async (req, res) => {
   try {
     const datas = await ServicesPage.find();
     if (!datas || datas.length === 0) {
@@ -126,7 +128,7 @@ router.get("/servicespage/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/servicespage/:editid", checkUser, checkPermission("update_xidmetler_daxili"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -197,7 +199,7 @@ router.put("/servicespage/:editid", uploadConfig.single("imgback"), async (req, 
   }
 });
 
-router.delete("/servicespage/:deleteid", async (req, res) => {
+router.delete("/servicespage/:deleteid", checkUser, checkPermission("delete_xidmetler_daxili"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await ServicesPage.findByIdAndDelete(deleteid);
