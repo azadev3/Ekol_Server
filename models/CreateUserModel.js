@@ -8,4 +8,4 @@ const NewUserSchema = mongoose.Schema({
   status: { type: Boolean, required: false, default: true }, 
 });
 
-module.exports = mongoose.model("createdUser", NewUserSchema);
+module.exports = mongoose.model("createduser", NewUserSchema);
