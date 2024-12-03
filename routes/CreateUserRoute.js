@@ -67,9 +67,13 @@ router.post("/login_new_user", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Password invalid!" });
     }
+
+    console.log("Gelen Şifre:", password); // Kullanıcının gönderdiği düz şifre
+console.log("Veritabanındaki Hash:", user.password); // MongoDB'deki şifre
 
     const token = jwt.sign({ user_id: user._id, user_role: user.user_role }, process.env.JWT_SECRET);
 
