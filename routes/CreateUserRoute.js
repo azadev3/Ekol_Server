@@ -71,9 +71,6 @@ router.post("/login_new_user", async (req, res) => {
       return res.status(401).json({ message: "Password invalid!" });
     }
 
-    console.log("Gelen Şifre:", password); // Kullanıcının gönderdiği düz şifre
-console.log("Veritabanındaki Hash:", user.password); // MongoDB'deki şifre
-
     const token = jwt.sign({ user_id: user._id, user_role: user.user_role }, process.env.JWT_SECRET);
 
     return res.status(200).json({
@@ -113,7 +110,7 @@ router.post("/login_new_user/status_update/:id", async (req, res) => {
   }
 });
 
-router.get("/create_new_user",  async (req, res) => {
+router.get("/create_new_user", async (req, res) => {
   try {
     const users = await CreateUserModel.find();
     if (!users) {
