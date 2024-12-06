@@ -14,7 +14,9 @@ router.post("/create_new_user", async (req, res) => {
 
     const existingUser = await CreateUserModel.findOne({ email: email });
     if (existingUser) {
-      return res.status(401).json({ message: "User has already been declared" });
+      return res
+        .status(401)
+        .json({ message: "User has already been declared" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -29,7 +31,10 @@ router.post("/create_new_user", async (req, res) => {
 
     await savedata.save();
 
-    const token = jwt.sign({ user_id: savedata._id, user_role: savedata.user_role }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { user_id: savedata._id, user_role: savedata.user_role },
+      process.env.JWT_SECRET
+    );
 
     const userData = {
       name_surname: savedata.name_surname,
@@ -53,7 +58,9 @@ router.post("/login_new_user", async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password is required!" });
+      return res
+        .status(400)
+        .json({ message: "Email and password is required!" });
     }
 
     const user = await CreateUserModel.findOne({ email });
@@ -66,12 +73,14 @@ router.post("/login_new_user", async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Password invalid!" });
     }
 
-    const token = jwt.sign({ user_id: user._id, user_role: user.user_role }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { user_id: user._id, user_role: user.user_role },
+      process.env.JWT_SECRET
+    );
 
     return res.status(200).json({
       message: "Login success!",
@@ -103,7 +112,9 @@ router.post("/login_new_user/status_update/:id", async (req, res) => {
 
     await user.save();
 
-    return res.status(200).json({ msg: "User status updated successfully", user });
+    return res
+      .status(200)
+      .json({ msg: "User status updated successfully", user });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
@@ -145,13 +156,19 @@ router.put("/create_new_user/update_role/:id", async (req, res) => {
     const { id } = req.params;
     const { user_role } = req.body;
 
-    const user = await CreateUserModel.findByIdAndUpdate(id, { $set: { user_role } }, { new: true });
+    const user = await CreateUserModel.findByIdAndUpdate(
+      id,
+      { $set: { user_role } },
+      { new: true }
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }
 
-    return res.status(200).json({ message: "User role updated successfully!", user });
+    return res
+      .status(200)
+      .json({ message: "User role updated successfully!", user });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "updated role error on the user" });
