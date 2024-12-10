@@ -39,7 +39,7 @@ router.post('/appeals', upload.none(), async (req, res) => {
 
   const mailOptions = {
    from: process.env.EMAIL_USER,
-   to: 'kodingo593@gmail.com',
+   to: 'info@ekol.az',
    subject: 'Yeni Müraciət',
    html: `
       <p><strong>Ad & Soyad:</strong> ${req.body.name_surname}</p>
