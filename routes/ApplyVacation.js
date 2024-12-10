@@ -49,7 +49,7 @@ router.post(
       const savedData = await saveData.save();
 
       const mailOptions = {
-        from: "",
+        from: process.env.EMAIL_USER,
         to: "hr@ekol.az",
         subject: "Vakansiya müraciəti",
         html: `
@@ -69,7 +69,6 @@ router.post(
         </footer>
         `,
       };
-      console.log(cv);
       await transporter.sendMail(mailOptions);
 
       return res.status(200).json({
