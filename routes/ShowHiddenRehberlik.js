@@ -21,7 +21,7 @@ router.post("/hidden-rehberlik", async (req, res) => {
   }
 });
 
-router.get("/hidden-rehberlik-front", checkUser, checkPermissions("list_gizlet_goster_rehberlik"), async (req, res) => {
+router.get("/hidden-rehberlik-front", async (req, res) => {
   try {
     const showState = await ShowHiddenRehberlikModel.findOne();
 
