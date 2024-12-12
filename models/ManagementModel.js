@@ -22,6 +22,11 @@ const ManagementSchema = mongoose.Schema({
     en: { type: String, required: true },
     ru: { type: String, required: true },
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const ManagementModel = mongoose.model("managementmodel", ManagementSchema);

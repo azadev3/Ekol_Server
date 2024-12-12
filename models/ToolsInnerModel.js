@@ -15,6 +15,11 @@ const ToolsInnerModelSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const ToolsInnerModel = mongoose.model("tool", ToolsInnerModelSchema);

@@ -9,6 +9,11 @@ const SocialSchema = mongoose.Schema({
           type: String,
           required: true,
      },
+     statusActive: {
+          type: Boolean,
+          default: true,
+          required: false,
+         },
 });
 
 const SocialModel = mongoose.model("socialmodel", SocialSchema);

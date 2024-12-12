@@ -12,8 +12,6 @@ router.post("/statistics", checkUser, checkPermission("create_statistikalar"), u
       return res.status(400).json({ error: "Missing field" });
     }
 
-    console.log(title_az, title_en, title_ru, count);
-
     const createData = new Statistics({
       title: {
         az: title_az,
@@ -21,6 +19,7 @@ router.post("/statistics", checkUser, checkPermission("create_statistikalar"), u
         ru: title_ru,
       },
       count: count,
+   statusActive: req.body.statusActive || true,
     });
 
     const savedData = await createData.save();
@@ -109,13 +108,35 @@ router.delete("/statistics/:deleteid", checkUser, checkPermission("delete_statis
   }
 });
 
+router.put('/statistics/status/:id', async (req, res) => {
+  try {
+   const { id } = req.params;
+   const { statusActive } = req.body;
+ 
+   if (typeof statusActive !== 'boolean') {
+    return res.status(400).json({ error: 'Status must be a boolean value' });
+   }
+ 
+   const updatedPurch = await Statistics.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+ 
+   if (!updatedPurch) {
+    return res.status(404).json({ error: ' not found' });
+   }
+ 
+   return res.status(200).json(updatedPurch);
+  } catch (error) {
+   console.error('Error updating status:', error);
+   return res.status(500).json({ error: error.message });
+  }
+ });
+
 // for front
 router.get("/statisticsfront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await Statistics.find();
+    const datas = await Statistics.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }

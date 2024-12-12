@@ -30,6 +30,7 @@ router.post('/whoarewe', checkUser, checkPermissions('create_bizkimik'), upload.
     ru: req.body.description_ru,
    },
    image: imageFile,
+   statusActive: req.body.statusActive || true,
   });
 
   const savedData = await createData.save();
@@ -69,50 +70,56 @@ router.get('/whoarewe/:editid', async (req, res) => {
  }
 });
 
-router.put('/whoarewe/:editid', checkUser, checkPermissions('update_bizkimik'), upload.single('imgback'), async (req, res) => {
- try {
-  const { editid } = req.params;
-  const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+router.put(
+ '/whoarewe/:editid',
+ checkUser,
+ checkPermissions('update_bizkimik'),
+ upload.single('imgback'),
+ async (req, res) => {
+  try {
+   const { editid } = req.params;
+   const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
 
-  const existingWhoAreWe = await WhoAreWe.findById(editid).lean();
-  if (!existingWhoAreWe) {
-   return res.status(404).json({ error: 'Document not found with given ID' });
-  }
+   const existingWhoAreWe = await WhoAreWe.findById(editid).lean();
+   if (!existingWhoAreWe) {
+    return res.status(404).json({ error: 'Document not found with given ID' });
+   }
 
-  const imagePath = req.file ? `/public/${req.file.filename}` : existingWhoAreWe.image;
+   const imagePath = req.file ? `/public/${req.file.filename}` : existingWhoAreWe.image;
 
-  const updatedWhoAreWe = await WhoAreWe.findByIdAndUpdate(
-   editid,
-   {
-    $set: {
-     title: {
-      az: title_az,
-      en: title_en,
-      ru: title_ru,
+   const updatedWhoAreWe = await WhoAreWe.findByIdAndUpdate(
+    editid,
+    {
+     $set: {
+      title: {
+       az: title_az,
+       en: title_en,
+       ru: title_ru,
+      },
+      description: {
+       az: description_az,
+       en: description_en,
+       ru: description_ru,
+      },
+      image: imagePath,
      },
-     description: {
-      az: description_az,
-      en: description_en,
-      ru: description_ru,
-     },
-     image: imagePath,
     },
-   },
-   { new: true }
-  )
-   .lean()
-   .exec();
+    { new: true }
+   )
+    .lean()
+    .exec();
 
-  if (!updatedWhoAreWe) {
-   return res.status(404).json({ error: 'Not found editid' });
+   if (!updatedWhoAreWe) {
+    return res.status(404).json({ error: 'Not found editid' });
+   }
+
+   return res.status(200).json(updatedWhoAreWe);
+  } catch (error) {
+   console.error('Error updating data:', error);
+   return res.status(500).json({ error: error.message });
   }
-
-  return res.status(200).json(updatedWhoAreWe);
- } catch (error) {
-  console.error('Error updating data:', error);
-  return res.status(500).json({ error: error.message });
  }
-});
+);
 
 router.delete('/whoarewe/:deleteid', checkUser, checkPermissions('delete_bizkimik'), async (req, res) => {
  try {
@@ -127,14 +134,37 @@ router.delete('/whoarewe/:deleteid', checkUser, checkPermissions('delete_bizkimi
  } catch (error) {}
 });
 
-// for front
+router.put('/whoarewe/status/:id', async (req, res) => {
+ try {
+  const { id } = req.params;
+  const { statusActive } = req.body;
 
+  if (typeof statusActive !== 'boolean') {
+   return res.status(400).json({ error: 'Status must be a boolean value' });
+  }
+
+  const updatedPurch = await WhoAreWe.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true })
+   .lean()
+   .exec();
+
+  if (!updatedPurch) {
+   return res.status(404).json({ error: ' not found' });
+  }
+
+  return res.status(200).json(updatedPurch);
+ } catch (error) {
+  console.error('Error updating status:', error);
+  return res.status(500).json({ error: error.message });
+ }
+});
+
+// for front
 router.get('/whoarewefront', async (req, res) => {
  try {
   const acceptLanguage = req.headers['accept-language'];
   const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-  const datas = await WhoAreWe.find();
+  const datas = await WhoAreWe.find({ statusActive: true });
   if (!datas || datas.length === 0) {
    return res.status(404).json({ message: 'No data found' });
   }

@@ -1,27 +1,27 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const OurWorksSchema = mongoose.Schema({
-  title: {
-    az: String,
-    en: String,
-    ru: String,
-  },
-  description: {
-    az: String,
-    en: String,
-    ru: String,
-  },
-  image: {
-    type: String,
-    required: false,
-  },
-  statusActive: {
-    type: Boolean,
-    default: true,
-    required: false,
-   },
+ title: {
+  az: String,
+  en: String,
+  ru: String,
+ },
+ description: {
+  az: String,
+  en: String,
+  ru: String,
+ },
+ image: {
+  type: String,
+  required: false,
+ },
+ statusActive: {
+  type: Boolean,
+  default: true,
+  required: false,
+ },
 });
 
-const OurWorksModel = mongoose.model("ourworks", OurWorksSchema);
+const OurWorksModel = mongoose.model('ourworks', OurWorksSchema);
 
 module.exports = OurWorksModel;

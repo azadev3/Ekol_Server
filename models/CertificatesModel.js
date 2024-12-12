@@ -11,6 +11,11 @@ const CertificateSchema = mongoose.Schema({
     en: String,
     ru: String,
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const CertificatesModel = mongoose.model("certificate", CertificateSchema);

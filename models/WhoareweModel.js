@@ -15,6 +15,11 @@ const WhoAreWeSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const WhoAreWeModel = mongoose.model("whoarewemodel", WhoAreWeSchema);

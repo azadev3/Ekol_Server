@@ -11,6 +11,11 @@ const LisansePageModelSchema = mongoose.Schema({
     en: String,
     ru: String,
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const LisansePageModel = mongoose.model("lisansepagemodel", LisansePageModelSchema);

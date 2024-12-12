@@ -16,6 +16,11 @@ const ContactSchema = new mongoose.Schema({
   faks: SimpleFieldSchema,
   location: SimpleFieldSchema,
   email: SimpleFieldSchema,
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const ContactModel = mongoose.model("ContactModel", ContactSchema);

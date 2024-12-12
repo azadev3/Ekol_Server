@@ -7,6 +7,11 @@ const PartnersSchema = mongoose.Schema({
     ru: String,
   },
   logo: { type: String, required: true },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const PartnersModel = mongoose.model("partnersmodel", PartnersSchema);

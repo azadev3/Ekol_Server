@@ -56,6 +56,8 @@ router.post(
           },
           value: req.body.email_value,
           logo: emailLogo,
+      statusActive: req.body.statusActive || true,
+
         },
       };
 
@@ -199,12 +201,34 @@ router.delete("/contact/:deleteid", checkUser, checkPermissions("delete_contact"
   }
 });
 
+router.put("/contact/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusActive } = req.body;
+
+    if (typeof statusActive !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedPurch = await Contact.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+
+    if (!updatedPurch) {
+      return res.status(404).json({ error: " not found" });
+    }
+
+    return res.status(200).json(updatedPurch);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 router.get("/contactfront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await Contact.find();
+    const datas = await Contact.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
