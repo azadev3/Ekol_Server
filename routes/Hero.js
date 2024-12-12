@@ -28,6 +28,7 @@ router.post("/hero", checkUser, checkPermission('create_hero'), uploadConfig.sin
         ru: req.body.description_ru,
       },
       image: imageFile,
+      statusActive: req.body.statusActive || true,
     });
 
     const savedData = await createData.save();
@@ -123,13 +124,36 @@ router.delete("/hero/:deleteid", checkUser, checkPermission("delete_hero"), asyn
   } catch (error) {}
 });
 
+
+router.put("/hero/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusActive } = req.body;
+
+    if (typeof statusActive !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedPurch = await Hero.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+
+    if (!updatedPurch) {
+      return res.status(404).json({ error: " not found" });
+    }
+
+    return res.status(200).json(updatedPurch);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // for front
 router.get("/herofront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await Hero.find();
+    const datas = await Hero.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }
