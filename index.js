@@ -58,6 +58,7 @@ const EqInnerDescription = require('./routes/EqInnerDescription');
 const ToolsInnerRoute = require('./routes/ToolsInnerRoute');
 const ToolsInnerImagesRoute = require('./routes/ToolsInnerImages');
 const ShowHiddenRehberlik = require('./routes/ShowHiddenRehberlik');
+const ShowHiddenPurchase = require('./routes/ShowHiddenPurchase');
 const StructureImgRoute = require('./routes/StructureRoute');
 const PageRoute = require('./routes/Page');
 // ROLES PERMISSIONS
@@ -133,6 +134,7 @@ const apis = [
  RoleRoute,
  PermissionRoute,
  CreateUserRoute,
+ ShowHiddenPurchase,
 ];
 
 apis.forEach((api) => {
