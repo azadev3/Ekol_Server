@@ -29,6 +29,7 @@ router.post("/ourworks", checkUser, checkPermission("create_gorduyumuz_isler"), 
         ru: req.body.description_ru,
       },
       image: imageFile ? imageFile : "",
+      statusActive: req.body.statusActive || true,
     });
 
     const savedData = await createData.save();
@@ -163,13 +164,36 @@ router.delete("/ourworks/:deleteid", checkUser, checkPermission("delete_gorduyum
   } catch (error) {}
 });
 
+
+router.put("/ourworks/status/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusActive } = req.body;
+
+    if (typeof statusActive !== "boolean") {
+      return res.status(400).json({ error: "Status must be a boolean value" });
+    }
+
+    const updatedPurch = await OurWorks.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+
+    if (!updatedPurch) {
+      return res.status(404).json({ error: " not found" });
+    }
+
+    return res.status(200).json(updatedPurch);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // for front
 router.get("/ourworksfront", async (req, res) => {
   try {
     const acceptLanguage = req.headers["accept-language"];
     const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
 
-    const datas = await OurWorks.find();
+    const datas = await OurWorks.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: "No data found" });
     }

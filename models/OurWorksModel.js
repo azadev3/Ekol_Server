@@ -15,6 +15,11 @@ const OurWorksSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+   },
 });
 
 const OurWorksModel = mongoose.model("ourworks", OurWorksSchema);
