@@ -142,7 +142,7 @@ router.delete('/socials/:deleteid', checkUser, checkPermissions('delete_socials'
  } catch (error) {}
 });
 
-router.put('/ourworks/status/:id', async (req, res) => {
+router.put('/socials/status/:id', async (req, res) => {
  try {
   const { id } = req.params;
   const { statusActive } = req.body;
@@ -163,6 +163,7 @@ router.put('/ourworks/status/:id', async (req, res) => {
   return res.status(500).json({ error: error.message });
  }
 });
+
 
 // for front
 router.get('/socialsfront', async (req, res) => {
