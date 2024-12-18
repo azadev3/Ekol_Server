@@ -67,6 +67,7 @@ const RoleRoute = require('./routes/RoleRoute');
 const PermissionRoute = require('./routes/PermissionRoute');
 const CreateUserRoute = require('./routes/CreateUserRoute');
 const EnterpriseRoute = require('./routes/EnterpriseRoute');
+const StageRoute = require('./routes/StageRoute');
 
 //connect Database
 ConnectDB();
@@ -139,6 +140,7 @@ const apis = [
  ShowHiddenPurchase,
  ShowHiddenCarier,
  EnterpriseRoute,
+ StageRoute,
 ];
 
 apis.forEach((api) => {
