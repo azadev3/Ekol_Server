@@ -5,8 +5,6 @@ const { uploadConfig, useSharp } = require('../config/MulterC');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const mountPath = require('../config/mountPath');
-const checkUser = require('../middlewares/checkUser');
-const checkPermission = require('../middlewares/checkPermissions');
 
 // Multiple file handling
 router.post('/newblogimage', uploadConfig.array('imgback'), async (req, res) => {
@@ -119,8 +117,6 @@ router.get('/newblogimage/:editid', async (req, res) => {
 
 router.put(
   '/newblogimage/:editid',
-  checkUser,
-  checkPermission('update_bloqsekilleri'),
   uploadConfig.array('newImages'),
   async (req, res) => {
     try {
@@ -200,4 +196,5 @@ router.get('/newblogimagefront', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = router;
