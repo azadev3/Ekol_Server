@@ -1,13 +1,13 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../config/MulterConfig");
-const PurchaseAnnouncement = require("../models/PurchaseAnnouncementModel");
-const checkUser = require("../middlewares/checkUser");
-const checkPermissions = require("../middlewares/checkPermissions");
+const upload = require('../config/MulterConfig');
+const PurchaseAnnouncement = require('../models/PurchaseAnnouncementModel');
+const checkUser = require('../middlewares/checkUser');
+const checkPermissions = require('../middlewares/checkPermissions');
 
-router.post("/purchaseannouncement", checkUser, checkPermissions("create_satinalma_elanlari"), upload.single("pdf"), async (req, res) => {
+router.post('/purchaseannouncement', checkUser, checkPermissions('create_satinalma_elanlari'), upload.single('pdf'), async (req, res) => {
   try {
-    const pdfFile = req.file ? `/public/${req.file.filename}` : "";
+    const pdfFile = req.file ? `/public/${req.file.filename}` : '';
 
     const createData = new PurchaseAnnouncement({
       title: {
@@ -39,11 +39,11 @@ router.post("/purchaseannouncement", checkUser, checkPermissions("create_satinal
   }
 });
 
-router.get("/purchaseannouncement", checkUser, checkPermissions("list_satinalma_elanlari"), async (req, res) => {
+router.get('/purchaseannouncement', checkUser, checkPermissions('list_satinalma_elanlari'), async (req, res) => {
   try {
     const datas = await PurchaseAnnouncement.find();
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
     return res.status(200).json(datas);
   } catch (error) {
@@ -51,19 +51,19 @@ router.get("/purchaseannouncement", checkUser, checkPermissions("list_satinalma_
   }
 });
 
-router.get("/purchaseannouncement/:editid", async (req, res) => {
+router.get('/purchaseannouncement/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
 
     const datasForId = await PurchaseAnnouncement.findById(editid).lean().exec();
 
     if (!datasForId) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: 'not found editid' });
     }
 
     return res.status(200).json(datasForId);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -125,130 +125,131 @@ router.get("/purchaseannouncement/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/purchaseannouncement/:editid", checkUser, checkPermissions("update_satinalma_elanlari"), upload.single("pdf"), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const {
-      title_az,
-      title_en,
-      title_ru,
-      description_az,
-      description_en,
-      description_ru,
-      predmet_az,
-      predmet_en,
-      predmet_ru,
-      end_date,
-      status,
-    } = req.body;
+router.put(
+  '/purchaseannouncement/:editid',
+  checkUser,
+  checkPermissions('update_satinalma_elanlari'),
+  upload.single('pdf'),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const {
+        title_az,
+        title_en,
+        title_ru,
+        description_az,
+        description_en,
+        description_ru,
+        predmet_az,
+        predmet_en,
+        predmet_ru,
+        end_date,
+        status,
+      } = req.body;
 
-    const existingAnnouncement = await PurchaseAnnouncement.findById(editid).exec();
-    if (!existingAnnouncement) {
-      return res.status(404).json({ error: "PurchaseAnnouncement not found" });
+      const existingAnnouncement = await PurchaseAnnouncement.findById(editid).exec();
+      if (!existingAnnouncement) {
+        return res.status(404).json({ error: 'PurchaseAnnouncement not found' });
+      }
+
+      const updatedData = {};
+
+      if (title_az || title_en || title_ru) {
+        updatedData.title = {
+          az: title_az || existingAnnouncement.title.az,
+          en: title_en || existingAnnouncement.title.en,
+          ru: title_ru || existingAnnouncement.title.ru,
+        };
+      }
+
+      if (description_az || description_en || description_ru) {
+        updatedData.description = {
+          az: description_az || existingAnnouncement.description.az,
+          en: description_en || existingAnnouncement.description.en,
+          ru: description_ru || existingAnnouncement.description.ru,
+        };
+      }
+
+      if (predmet_az || predmet_en || predmet_ru) {
+        updatedData.predmet = {
+          az: predmet_az || existingAnnouncement.predmet.az,
+          en: predmet_en || existingAnnouncement.predmet.en,
+          ru: predmet_ru || existingAnnouncement.predmet.ru,
+        };
+      }
+
+      if (end_date) {
+        updatedData.end_date = end_date || existingAnnouncement.end_date;
+      }
+
+      if (status) {
+        updatedData.status = status || existingAnnouncement.status;
+      }
+      if (req.file) {
+        updatedData.pdf = `/public/${req.file.filename}`;
+      } else {
+        updatedData.pdf = existingAnnouncement.pdf;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingAnnouncement);
+      }
+      const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
+        .lean()
+        .exec();
+
+      return res.status(200).json(updatedPurchaseAnnouncement);
+    } catch (error) {
+      console.error('Error updating data:', error);
+      return res.status(500).json({ error: error.message });
     }
+  },
+);
 
-    const updatedData = {};
-
-    if (title_az || title_en || title_ru) {
-      updatedData.title = {
-        az: title_az || existingAnnouncement.title.az,
-        en: title_en || existingAnnouncement.title.en,
-        ru: title_ru || existingAnnouncement.title.ru,
-      };
-    }
-
-    if (description_az || description_en || description_ru) {
-      updatedData.description = {
-        az: description_az || existingAnnouncement.description.az,
-        en: description_en || existingAnnouncement.description.en,
-        ru: description_ru || existingAnnouncement.description.ru,
-      };
-    }
-
-    if (predmet_az || predmet_en || predmet_ru) {
-      updatedData.predmet = {
-        az: predmet_az || existingAnnouncement.predmet.az,
-        en: predmet_en || existingAnnouncement.predmet.en,
-        ru: predmet_ru || existingAnnouncement.predmet.ru,
-      };
-    }
-
-    if (end_date) {
-      updatedData.end_date = end_date || existingAnnouncement.end_date;
-    }
-
-    if (status) {
-      updatedData.status = status || existingAnnouncement.status;
-    }
-    if (req.file) {
-      updatedData.pdf = `/public/${req.file.filename}`;
-    } else {
-      updatedData.pdf = existingAnnouncement.pdf; 
-    }
-
-    if (Object.keys(updatedData).length === 0) {
-      return res.status(200).json(existingAnnouncement);
-    }
-    const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(
-      editid,
-      { $set: updatedData },
-      { new: true }
-    )
-      .lean()
-      .exec();
-
-    return res.status(200).json(updatedPurchaseAnnouncement);
-  } catch (error) {
-    console.error("Error updating data:", error);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-
-router.put("/purch/status/:id", async (req, res) => {
+router.put('/purch/status/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { statusActive } = req.body;
 
-    if (typeof statusActive !== "boolean") {
-      return res.status(400).json({ error: "Status must be a boolean value" });
+    if (typeof statusActive !== 'boolean') {
+      return res.status(400).json({ error: 'Status must be a boolean value' });
     }
 
     const updatedPurch = await PurchaseAnnouncement.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
 
     if (!updatedPurch) {
-      return res.status(404).json({ error: "PurchaseAnnouncement not found" });
+      return res.status(404).json({ error: 'PurchaseAnnouncement not found' });
     }
 
     return res.status(200).json(updatedPurch);
   } catch (error) {
-    console.error("Error updating status:", error);
+    console.error('Error updating status:', error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-router.delete("/purchaseannouncement/:deleteid", checkUser, checkPermissions("delete_satinalma_elanlari"), async (req, res) => {
+router.delete('/purchaseannouncement/:deleteid', checkUser, checkPermissions('delete_satinalma_elanlari'), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PurchaseAnnouncement.findByIdAndDelete(deleteid);
 
     if (!deleteData) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      return res.status(404).json({ message: 'dont delete data or not found data or another error' });
     }
 
-    return res.status(200).json({ message: "successfully deleted data" });
+    return res.status(200).json({ message: 'successfully deleted data' });
   } catch (error) {}
 });
 
 // for front
-router.get("/purchaseannouncementfront", async (req, res) => {
+router.get('/purchaseannouncementfront', async (req, res) => {
   try {
-    const acceptLanguage = req.headers["accept-language"];
-    const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
+    const acceptLanguage = req.headers['accept-language'];
+    const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
     const datas = await PurchaseAnnouncement.find({ statusActive: true });
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
 
     const filteredData = datas.map((data) => ({

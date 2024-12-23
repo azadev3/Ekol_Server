@@ -1,31 +1,31 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const PurchaseAnnouncementSchema = mongoose.Schema(
   {
     title: {
-      az: { type: String, required: false, default: "" },
-      en: { type: String, required: false, default: "" },
-      ru: { type: String, required: false, default: "" },
+      az: { type: String, required: false, default: '' },
+      en: { type: String, required: false, default: '' },
+      ru: { type: String, required: false, default: '' },
     },
     description: {
-      az: { type: String, required: false, default: "" },
-      en: { type: String, required: false, default: "" },
-      ru: { type: String, required: false, default: "" },
+      az: { type: String, required: false, default: '' },
+      en: { type: String, required: false, default: '' },
+      ru: { type: String, required: false, default: '' },
     },
     predmet: {
-      az: { type: String, required: false, default: "" },
-      en: { type: String, required: false, default: "" },
-      ru: { type: String, required: false, default: "" },
+      az: { type: String, required: false, default: '' },
+      en: { type: String, required: false, default: '' },
+      ru: { type: String, required: false, default: '' },
     },
     pdf: {
       type: String,
       required: false,
-      default: "",
+      default: '',
     },
     end_date: {
       type: String,
       required: false,
-      default: "",
+      default: '',
     },
     status: {
       type: String,
@@ -36,9 +36,9 @@ const PurchaseAnnouncementSchema = mongoose.Schema(
       required: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const PurchaseAnnouncementModel = mongoose.model("purchase_announcement", PurchaseAnnouncementSchema);
+const PurchaseAnnouncementModel = mongoose.model('purchase_announcement', PurchaseAnnouncementSchema);
 
 module.exports = PurchaseAnnouncementModel;
