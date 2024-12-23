@@ -9,7 +9,7 @@ const checkUser = require('../middlewares/checkUser');
 const checkPermission = require('../middlewares/checkPermissions');
 
 // Multiple file handling
-router.post('/newblogimage', checkUser, checkPermission('create_bloqsekilleri'), uploadConfig.array('imgback'), async (req, res) => {
+router.post('/newblogimage', uploadConfig.array('imgback'), async (req, res) => {
   try {
     const files = req.files;
     const selected_new_blog = req.body.selected_new_blog;
@@ -41,7 +41,7 @@ router.post('/newblogimage', checkUser, checkPermission('create_bloqsekilleri'),
   }
 });
 
-router.get('/newblogimage', checkUser, checkPermission('list_bloqsekilleri'), async (req, res) => {
+router.get('/newblogimage', async (req, res) => {
   try {
     const datas = await NewBlogDescriptionImageModel.find();
     if (!datas || datas.length === 0) {
@@ -162,7 +162,7 @@ router.put(
   },
 );
 
-router.delete('/newblogimage/:deleteid', checkUser, checkPermission('delete_bloqsekilleri'), async (req, res) => {
+router.delete('/newblogimage/:deleteid', async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await NewBlogDescriptionImageModel.findByIdAndDelete(deleteid);
