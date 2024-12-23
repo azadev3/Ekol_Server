@@ -70,6 +70,7 @@ const CreateUserRoute = require('./routes/CreateUserRoute');
 const EnterpriseRoute = require('./routes/EnterpriseRoute');
 const StageRoute = require('./routes/StageRoute');
 const ProcedureRoute = require('./routes/ProcedureRoute');
+const NewBlogImages = require('./routes/DescriptionNewBlogImage');
 
 //connect Database
 ConnectDB();
@@ -84,90 +85,91 @@ app.use('/public', express.static('/var/data'));
 
 // routes
 const apis = [
- Hero,
- OurWorks,
- Statistics,
- Services,
- Blog,
- NewBlog,
- Contact,
- Socials,
- Logo,
- Translate,
- WhoAreWe,
- Management,
- // Structures,
- Partners,
- GalleryDropdown,
- Imagespage,
- OurWorksInner,
- CareerOpportunitiesBackground,
- WhyEcol,
- RecruitmentProcess,
- Vacations,
- ApplyVacation,
- Equipments,
- ServicesPage,
- RichtTextUpload,
- SocialLifeCarousel,
- SocialLife,
- Purchase,
- Certificates,
- LisansePage,
- Location,
- Appeals,
- Videos,
- User,
- Emails,
- PurchaseAnnouncement,
- PurchaseRules,
- PurchaseLegalForm,
- PurchaseNaturalForm,
- PurchaseCountries,
- YearlyCalculations,
- QuarterlyCalculations,
- BlogImages,
- OurWorksImagesRoute,
- // StructureCategories,
- EqInnerDescription,
- ToolsInnerRoute,
- ToolsInnerImagesRoute,
- ShowHiddenRehberlik,
- StructureImgRoute,
- PageRoute,
- // ROLES PERMISSIONS
- RoleRoute,
- PermissionRoute,
- CreateUserRoute,
- ShowHiddenPurchase,
- ShowHiddenCarier,
- EnterpriseRoute,
- StageRoute,
- ShowHiddenSocial,
- ProcedureRoute
+  Hero,
+  OurWorks,
+  Statistics,
+  Services,
+  Blog,
+  NewBlog,
+  Contact,
+  Socials,
+  Logo,
+  Translate,
+  WhoAreWe,
+  Management,
+  // Structures,
+  Partners,
+  GalleryDropdown,
+  Imagespage,
+  OurWorksInner,
+  CareerOpportunitiesBackground,
+  WhyEcol,
+  RecruitmentProcess,
+  Vacations,
+  ApplyVacation,
+  Equipments,
+  ServicesPage,
+  RichtTextUpload,
+  SocialLifeCarousel,
+  SocialLife,
+  Purchase,
+  Certificates,
+  LisansePage,
+  Location,
+  Appeals,
+  Videos,
+  User,
+  Emails,
+  PurchaseAnnouncement,
+  PurchaseRules,
+  PurchaseLegalForm,
+  PurchaseNaturalForm,
+  PurchaseCountries,
+  YearlyCalculations,
+  QuarterlyCalculations,
+  BlogImages,
+  OurWorksImagesRoute,
+  // StructureCategories,
+  EqInnerDescription,
+  ToolsInnerRoute,
+  ToolsInnerImagesRoute,
+  ShowHiddenRehberlik,
+  StructureImgRoute,
+  PageRoute,
+  // ROLES PERMISSIONS
+  RoleRoute,
+  PermissionRoute,
+  CreateUserRoute,
+  ShowHiddenPurchase,
+  ShowHiddenCarier,
+  EnterpriseRoute,
+  StageRoute,
+  ShowHiddenSocial,
+  ProcedureRoute,
+  NewBlogImages,
 ];
 
 apis.forEach((api) => {
- app.use('/api', api);
+  app.use('/api', api);
 });
 
 //get api length count
 app.get('/api/apilength', async (req, res) => {
- res.json({ apiLength: apis.length });
+  res.json({ apiLength: apis.length });
 });
 
 //get db collection count
 app.get('/api/collectionlength', async (req, res) => {
- try {
-  const db = await mongoose.connection.db.listCollections().toArray();
-  res.json({ collectionLength: db.length });
- } catch (error) {
-  console.log(error);
-  res.status(500).json({ error: error.message });
- }
+  try {
+    const db = await mongoose.connection.db.listCollections().toArray();
+    res.json({ collectionLength: db.length });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
- console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
