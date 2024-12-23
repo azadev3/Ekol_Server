@@ -9,7 +9,7 @@ const checkUser = require('../middlewares/checkUser');
 const checkPermission = require('../middlewares/checkPermissions');
 
 // Multiple file handling
-router.post('/newblogimage', checkUser, checkPermission('create_bloqsekilleri'), uploadConfig.array('imgback'), async (req, res) => {
+router.post('/newblogimage', uploadConfig.array('imgback'), async (req, res) => {
   try {
     const files = req.files;
     const selected_new_blog = req.body.selected_new_blog;
@@ -41,7 +41,7 @@ router.post('/newblogimage', checkUser, checkPermission('create_bloqsekilleri'),
   }
 });
 
-router.get('/newblogimage', checkUser, checkPermission('list_bloqsekilleri'), async (req, res) => {
+router.get('/newblogimage', async (req, res) => {
   try {
     const datas = await NewBlogDescriptionImageModel.find();
     if (!datas || datas.length === 0) {
@@ -117,52 +117,46 @@ router.get('/newblogimage/:editid', async (req, res) => {
 //   }
 // });
 
-router.put(
-  '/newblogimage/:editid',
-  checkUser,
-  checkPermission('update_bloqsekilleri'),
-  uploadConfig.array('newImages'),
-  async (req, res) => {
-    try {
-      const { editid } = req.params;
-      const { selected_new_blog, deletedImages } = req.body;
+router.put('/newblogimage/:editid', uploadConfig.array('newImages'), async (req, res) => {
+  try {
+    const { editid } = req.params;
+    const { selected_new_blog, deletedImages } = req.body;
 
-      const imagesToDelete = JSON.parse(deletedImages || '[]');
+    const imagesToDelete = JSON.parse(deletedImages || '[]');
 
-      const files = req.files;
-      const imageFilePaths = [];
-      if (files && files.length > 0) {
-        for (let file of files) {
-          const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-          const imgOutputPath = path.join(mountPath, imgFileName);
-          await useSharp(file.buffer, imgOutputPath);
-          imageFilePaths.push(`/public/${imgFileName}`);
-        }
+    const files = req.files;
+    const imageFilePaths = [];
+    if (files && files.length > 0) {
+      for (let file of files) {
+        const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+        const imgOutputPath = path.join(mountPath, imgFileName);
+        await useSharp(file.buffer, imgOutputPath);
+        imageFilePaths.push(`/public/${imgFileName}`);
       }
-
-      const existingBlog = await NewBlogDescriptionImageModel.findById(editid).exec();
-      if (!existingBlog) {
-        return res.status(404).json({ error: 'Blog not found' });
-      }
-
-      const updatedImages = existingBlog.images.filter((img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`));
-
-      const finalImages = [...updatedImages, ...imageFilePaths];
-      existingBlog.images = finalImages;
-      existingBlog.selected_new_blog = selected_new_blog;
-
-      // Save the updated blog
-      const updatedBlog = await existingBlog.save();
-
-      return res.status(200).json(updatedBlog);
-    } catch (error) {
-      console.error('Error updating blog images:', error);
-      return res.status(500).json({ error: error.message });
     }
-  },
-);
 
-router.delete('/newblogimage/:deleteid', checkUser, checkPermission('delete_bloqsekilleri'), async (req, res) => {
+    const existingBlog = await NewBlogDescriptionImageModel.findById(editid).exec();
+    if (!existingBlog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    const updatedImages = existingBlog.images.filter((img) => !imagesToDelete.includes(`https://ekol-server-1.onrender.com${img}`));
+
+    const finalImages = [...updatedImages, ...imageFilePaths];
+    existingBlog.images = finalImages;
+    existingBlog.selected_new_blog = selected_new_blog;
+
+    // Save the updated blog
+    const updatedBlog = await existingBlog.save();
+
+    return res.status(200).json(updatedBlog);
+  } catch (error) {
+    console.error('Error updating blog images:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/newblogimage/:deleteid', async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await NewBlogDescriptionImageModel.findByIdAndDelete(deleteid);
@@ -172,7 +166,10 @@ router.delete('/newblogimage/:deleteid', checkUser, checkPermission('delete_bloq
     }
 
     return res.status(200).json({ message: 'successfully deleted data' });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error });
+  }
 });
 
 // for front
