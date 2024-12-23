@@ -212,6 +212,7 @@ router.get("/newblogfront", async (req, res) => {
     }
 
     const filteredData = datas.map((data) => ({
+      _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
