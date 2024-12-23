@@ -236,6 +236,7 @@ router.get("/lastnewblog", async (req, res) => {
       return res.status(404).json({ message: "No data found" });
     }
     const filteredData = lastnewblog.map((data) => ({
+      _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
