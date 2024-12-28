@@ -18,9 +18,9 @@ const PurchaseAnnouncementSchema = mongoose.Schema(
       ru: { type: String, required: false, default: '' },
     },
     pdf: {
-      type: String,
-      required: false,
-      default: '',
+      az: { type: String, required: false, default: '' },
+      en: { type: String, required: false, default: '' },
+      ru: { type: String, required: false, default: '' },
     },
     end_date: {
       type: String,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const CalculationsSchema = mongoose.Schema(
   {
@@ -8,13 +8,14 @@ const CalculationsSchema = mongoose.Schema(
       ru: { type: String, required: true },
     },
     pdf: {
-      type: String,
-      required: true,
+      az: { type: String, required: true },
+      en: { type: String, required: true },
+      ru: { type: String, required: true },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const CalculationsModel = mongoose.model("quarterly_calculation", CalculationsSchema);
+const CalculationsModel = mongoose.model('quarterly_calculation', CalculationsSchema);
 
 module.exports = CalculationsModel;

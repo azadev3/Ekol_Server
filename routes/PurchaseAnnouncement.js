@@ -5,39 +5,55 @@ const PurchaseAnnouncement = require('../models/PurchaseAnnouncementModel');
 const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
 
-router.post('/purchaseannouncement', checkUser, checkPermissions('create_satinalma_elanlari'), upload.single('pdf'), async (req, res) => {
-  try {
-    const pdfFile = req.file ? `/public/${req.file.filename}` : '';
+router.post(
+  '/purchaseannouncement',
+  checkUser,
+  checkPermissions('create_satinalma_elanlari'),
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : '';
+      const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : '';
+      const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : '';
 
-    const createData = new PurchaseAnnouncement({
-      title: {
-        az: req.body.title_az,
-        en: req.body.title_en,
-        ru: req.body.title_ru,
-      },
-      description: {
-        az: req.body.description_az,
-        en: req.body.description_en,
-        ru: req.body.description_ru,
-      },
-      predmet: {
-        az: req.body.predmet_az,
-        en: req.body.predmet_en,
-        ru: req.body.predmet_ru,
-      },
-      end_date: req.body.end_date,
-      pdf: pdfFile,
-      status: req.body?.status,
-      statusActive: req.body.statusActive || true,
-    });
+      const createData = new PurchaseAnnouncement({
+        title: {
+          az: req.body.title_az,
+          en: req.body.title_en,
+          ru: req.body.title_ru,
+        },
+        description: {
+          az: req.body.description_az,
+          en: req.body.description_en,
+          ru: req.body.description_ru,
+        },
+        predmet: {
+          az: req.body.predmet_az,
+          en: req.body.predmet_en,
+          ru: req.body.predmet_ru,
+        },
+        pdf: {
+          az: pdfAzPath,
+          en: pdfEnPath,
+          ru: pdfRuPath,
+        },
+        end_date: req.body.end_date,
+        status: req.body?.status,
+        statusActive: req.body.statusActive || true,
+      });
 
-    const savedData = await createData.save();
+      const savedData = await createData.save();
 
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 router.get('/purchaseannouncement', checkUser, checkPermissions('list_satinalma_elanlari'), async (req, res) => {
   try {
@@ -129,7 +145,11 @@ router.put(
   '/purchaseannouncement/:editid',
   checkUser,
   checkPermissions('update_satinalma_elanlari'),
-  upload.single('pdf'),
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
   async (req, res) => {
     try {
       const { editid } = req.params;
@@ -186,9 +206,13 @@ router.put(
         updatedData.status = status || existingAnnouncement.status;
       }
       if (req.file) {
-        updatedData.pdf = `/public/${req.file.filename}`;
+        updatedData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
+        updatedData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
+        updatedData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
       } else {
-        updatedData.pdf = existingAnnouncement.pdf;
+        updatedData.pdf.az = existingAnnouncement.pdf.az;
+        updatedData.pdf.en = existingAnnouncement.pdf.en;
+        updatedData.pdf.ru = existingAnnouncement.pdf.ru;
       }
 
       if (Object.keys(updatedData).length === 0) {
@@ -259,7 +283,7 @@ router.get('/purchaseannouncementfront', async (req, res) => {
       predmet: data.predmet[preferredLanguage],
       createdAt: data.createdAt,
       end_date: data.end_date,
-      pdf: data.pdf,
+      pdf: data.pdf[preferredLanguage],
       status: data.status,
     }));
 
