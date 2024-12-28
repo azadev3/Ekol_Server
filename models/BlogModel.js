@@ -21,6 +21,7 @@ const BlogSchema = mongoose.Schema({
     default: true,
     required: false,
   },
+  view: { type: Number, required: false, default: 0 },
   created_at: { type: String, required: false, default: "" },
   updated: { type: String, required: false, default: "" },
 });
