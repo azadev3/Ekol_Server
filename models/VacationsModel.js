@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const VacationSchema = mongoose.Schema({
   title: {
@@ -23,8 +23,13 @@ const VacationSchema = mongoose.Schema({
   },
   endDate: { type: String, required: false, default: '' },
   startDate: { type: String, required: false, default: '' },
+  statusActive: {
+    type: Boolean,
+    default: true,
+    required: false,
+  },
 });
 
-const VacationModel = mongoose.model("vacationsmodel", VacationSchema);
+const VacationModel = mongoose.model('vacationsmodel', VacationSchema);
 
 module.exports = VacationModel;

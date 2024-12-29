@@ -1,11 +1,11 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../config/MulterConfig");
-const Vacations = require("../models/VacationsModel");
-const checkUser = require("../middlewares/checkUser");
-const checkPermissions = require("../middlewares/checkPermissions");
+const upload = require('../config/MulterConfig');
+const Vacations = require('../models/VacationsModel');
+const checkUser = require('../middlewares/checkUser');
+const checkPermissions = require('../middlewares/checkPermissions');
 
-router.post("/vacations", checkUser, checkPermissions("create_vakansiyalar"), upload.none(), async (req, res) => {
+router.post('/vacations', checkUser, checkPermissions('create_vakansiyalar'), upload.none(), async (req, res) => {
   try {
     const createData = new Vacations({
       title: {
@@ -30,6 +30,7 @@ router.post("/vacations", checkUser, checkPermissions("create_vakansiyalar"), up
       },
       endDate: req.body.end_date,
       startDate: req.body.start_date,
+      statusActive: req.body.statusActive || true,
     });
 
     const savedData = await createData.save();
@@ -40,11 +41,11 @@ router.post("/vacations", checkUser, checkPermissions("create_vakansiyalar"), up
   }
 });
 
-router.get("/vacations", checkUser, checkPermissions("list_vakansiyalar"), async (req, res) => {
+router.get('/vacations', checkUser, checkPermissions('list_vakansiyalar'), async (req, res) => {
   try {
     const datas = await Vacations.find();
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
     return res.status(200).json(datas);
   } catch (error) {
@@ -52,24 +53,24 @@ router.get("/vacations", checkUser, checkPermissions("list_vakansiyalar"), async
   }
 });
 
-router.get("/vacations/:editid", async (req, res) => {
+router.get('/vacations/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
 
     const datasForId = await Vacations.findById(editid).lean().exec();
 
     if (!datasForId) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: 'not found editid' });
     }
 
     return res.status(200).json(datasForId);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-router.put("/vacations/:editid", checkUser, checkPermissions("update_vakansiyalar"), upload.none(), async (req, res) => {
+router.put('/vacations/:editid', checkUser, checkPermissions('update_vakansiyalar'), upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -117,44 +118,66 @@ router.put("/vacations/:editid", checkUser, checkPermissions("update_vakansiyala
           endDate: end_date,
         },
       },
-      { new: true }
+      { new: true },
     )
       .lean()
       .exec();
 
     if (!updatedVacations) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: 'not found editid' });
     }
 
     return res.status(200).json(updatedVacations);
   } catch (error) {
-    console.error("Error updating data:", error);
+    console.error('Error updating data:', error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-router.delete("/vacations/:deleteid", checkUser, checkPermissions("delete_vakansiyalar"), async (req, res) => {
+router.put('/vacations/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { statusActive } = req.body;
+
+    if (typeof statusActive !== 'boolean') {
+      return res.status(400).json({ error: 'Status must be a boolean value' });
+    }
+
+    const updatedPurch = await Vacations.findByIdAndUpdate(id, { statusActive: statusActive }, { new: true }).lean().exec();
+
+    if (!updatedPurch) {
+      return res.status(404).json({ error: ' not found' });
+    }
+
+    return res.status(200).json(updatedPurch);
+  } catch (error) {
+    console.error('Error updating status:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/vacations/:deleteid', checkUser, checkPermissions('delete_vakansiyalar'), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await Vacations.findByIdAndDelete(deleteid);
 
     if (!deleteData) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      return res.status(404).json({ message: 'dont delete data or not found data or another error' });
     }
 
-    return res.status(200).json({ message: "successfully deleted data" });
+    return res.status(200).json({ message: 'successfully deleted data' });
   } catch (error) {}
 });
 
 // for front
-router.get("/vacationsfront", async (req, res) => {
+router.get('/vacationsfront', async (req, res) => {
   try {
-    const acceptLanguage = req.headers["accept-language"];
-    const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
+    const acceptLanguage = req.headers['accept-language'];
+    const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const datas = await Vacations.find();
+    const datas = await Vacations.find({ statusActive: true });
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
 
     const filteredData = datas.map((data) => ({
@@ -171,4 +194,5 @@ router.get("/vacationsfront", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = router;
