@@ -7,28 +7,6 @@ const checkPermissions = require("../middlewares/checkPermissions");
 
 router.post("/vacations", checkUser, checkPermissions("create_vakansiyalar"), upload.none(), async (req, res) => {
   try {
-    const requiredFields = [
-      "title_az",
-      "title_en",
-      "title_ru",
-      "description_az",
-      "description_en",
-      "description_ru",
-      "location_az",
-      "location_en",
-      "location_ru",
-      "workRegime_az",
-      "workRegime_en",
-      "workRegime_ru",
-      "end_date",
-      "start_date",
-    ];
-
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
-      }
-    }
     const createData = new Vacations({
       title: {
         az: req.body.title_az,

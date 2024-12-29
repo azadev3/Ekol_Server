@@ -2,27 +2,27 @@ const mongoose = require("mongoose");
 
 const VacationSchema = mongoose.Schema({
   title: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   description: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   location: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   workRegime: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
-  endDate: { type: String, required: true },
-  startDate: { type: String, required: true },
+  endDate: { type: String, required: false, default: '' },
+  startDate: { type: String, required: false, default: '' },
 });
 
 const VacationModel = mongoose.model("vacationsmodel", VacationSchema);
