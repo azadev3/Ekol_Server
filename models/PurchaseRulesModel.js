@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const PurchaseRulesSchema = mongoose.Schema(
   {
@@ -8,13 +8,14 @@ const PurchaseRulesSchema = mongoose.Schema(
       ru: { type: String, required: true },
     },
     pdf: {
-      type: String,
-      required: true,
+      az: { type: String, required: false, default: '' },
+      en: { type: String, required: false, default: '' },
+      ru: { type: String, required: false, default: '' },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const PurchaseRulesModel = mongoose.model("purchase_rules", PurchaseRulesSchema);
+const PurchaseRulesModel = mongoose.model('purchase_rules', PurchaseRulesSchema);
 
 module.exports = PurchaseRulesModel;

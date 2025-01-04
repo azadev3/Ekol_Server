@@ -2,25 +2,37 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/MulterConfig');
 const ProcedureModel = require('../models/ProcedureModel');
-const checkUser = require('../middlewares/checkUser');
-const checkPermissions = require('../middlewares/checkPermissions');
 
-router.post('/procedure', upload.single('pdf'), async (req, res) => {
-  try {
-    const pdfFile = req.file ? `/public/${req.file.filename}` : '';
+router.post(
+  '/procedure',
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : '';
+      const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : '';
+      const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : '';
 
-    const createData = new ProcedureModel({
-      pdf: pdfFile,
-      statusActive: req.body.statusActive || true,
-    });
+      const createData = new ProcedureModel({
+        pdf: {
+          az: pdfAzPath,
+          en: pdfEnPath,
+          ru: pdfRuPath,
+        },
+        statusActive: req.body.statusActive || true,
+      });
 
-    const savedData = await createData.save();
+      const savedData = await createData.save();
 
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 router.get('/procedure', async (req, res) => {
   try {
@@ -108,34 +120,46 @@ router.get('/procedure/:editid', async (req, res) => {
 //   }
 // });
 
-router.put('/procedure/:editid', upload.single('pdf'), async (req, res) => {
-  try {
-    const { editid } = req.params;
+router.put(
+  '/procedure/:editid',
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
 
-    const existingAnnouncement = await ProcedureModel.findById(editid).exec();
-    if (!existingAnnouncement) {
-      return res.status(404).json({ error: 'ProcedureModel not found' });
+      const existingAnnouncement = await ProcedureModel.findById(editid).exec();
+      if (!existingAnnouncement) {
+        return res.status(404).json({ error: 'ProcedureModel not found' });
+      }
+
+      const updatedData = {};
+
+      if (req.file) {
+        updatedData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
+        updatedData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
+        updatedData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
+      } else {
+        updatedData.pdf.az = existingAnnouncement.pdf.az;
+        updatedData.pdf.en = existingAnnouncement.pdf.en;
+        updatedData.pdf.ru = existingAnnouncement.pdf.ru;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingAnnouncement);
+      }
+      const updateProcedure = await ProcedureModel.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
+
+      return res.status(200).json(updateProcedure);
+    } catch (error) {
+      console.error('Error updating data:', error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const updatedData = {};
-
-    if (req.file) {
-      updatedData.pdf = `/public/${req.file.filename}`;
-    } else {
-      updatedData.pdf = existingAnnouncement.pdf;
-    }
-
-    if (Object.keys(updatedData).length === 0) {
-      return res.status(200).json(existingAnnouncement);
-    }
-    const updateProcedure = await ProcedureModel.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
-
-    return res.status(200).json(updateProcedure);
-  } catch (error) {
-    console.error('Error updating data:', error);
-    return res.status(500).json({ error: error.message });
-  }
-});
+  },
+);
 
 router.put('/procedure/status/:id', async (req, res) => {
   try {
@@ -175,13 +199,16 @@ router.delete('/procedure/:deleteid', async (req, res) => {
 // for front
 router.get('/procedurefront', async (req, res) => {
   try {
+    const acceptLanguage = req.headers['accept-language'];
+    const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
     const datas = await ProcedureModel.find({ statusActive: true });
+
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
 
     const filteredData = datas.map((data) => ({
-      pdf: data.pdf,
+      pdf: data.pdf[preferredLanguage],
       status: data.status,
     }));
 

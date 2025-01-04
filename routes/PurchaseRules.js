@@ -1,42 +1,57 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../config/MulterConfig");
-const PurchaseRules = require("../models/PurchaseRulesModel");
+const upload = require('../config/MulterConfig');
+const PurchaseRules = require('../models/PurchaseRulesModel');
 
-router.post("/purchaserules", upload.single("pdf"), async (req, res) => {
-  try {
-    const requiredFields = ["title_az", "title_en", "title_ru"];
+router.post(
+  '/purchaserules',
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const requiredFields = ['title_az', 'title_en', 'title_ru'];
+      const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : '';
+      const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : '';
+      const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : '';
 
-    for (let field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ error: `Missing field: ${field}` });
+      for (let field of requiredFields) {
+        if (!req.body[field]) {
+          return res.status(400).json({ error: `Missing field: ${field}` });
+        }
       }
+
+      const pdfFile = req.file ? `/public/${req.file.filename}` : '';
+
+      const createData = new PurchaseRules({
+        title: {
+          az: req.body.title_az,
+          en: req.body.title_en,
+          ru: req.body.title_ru,
+        },
+        pdf: {
+          az: pdfAzPath,
+          en: pdfEnPath,
+          ru: pdfRuPath,
+        },
+      });
+
+      const savedData = await createData.save();
+
+      return res.status(200).json(savedData);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
+  },
+);
 
-    const pdfFile = req.file ? `/public/${req.file.filename}` : "";
-
-    const createData = new PurchaseRules({
-      title: {
-        az: req.body.title_az,
-        en: req.body.title_en,
-        ru: req.body.title_ru,
-      },
-      pdf: pdfFile,
-    });
-
-    const savedData = await createData.save();
-
-    return res.status(200).json(savedData);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-router.get("/purchaserules", async (req, res) => {
+router.get('/purchaserules', async (req, res) => {
   try {
     const datas = await PurchaseRules.find();
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
     return res.status(200).json(datas);
   } catch (error) {
@@ -44,19 +59,19 @@ router.get("/purchaserules", async (req, res) => {
   }
 });
 
-router.get("/purchaserules/:editid", async (req, res) => {
+router.get('/purchaserules/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
 
     const datasForId = await PurchaseRules.findById(editid).lean().exec();
 
     if (!datasForId) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: 'not found editid' });
     }
 
     return res.status(200).json(datasForId);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error('Error fetching data:', error);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -94,14 +109,14 @@ router.get("/purchaserules/:editid", async (req, res) => {
 //   }
 // });
 
-router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
+router.put('/purchaserules/:editid', upload.single('pdf'), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
     const existingPurchaseRule = await PurchaseRules.findById(editid).exec();
     if (!existingPurchaseRule) {
-      return res.status(404).json({ error: "Not found: editid" });
+      return res.status(404).json({ error: 'Not found: editid' });
     }
 
     const updateData = {
@@ -113,53 +128,52 @@ router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
     };
 
     if (req.file) {
-      updateData.pdf = `/public/${req.file.filename}`;
+      updateData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
+      updateData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
+      updateData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
     }
 
-    const updatedPurchase = await PurchaseRules.findByIdAndUpdate(editid, { $set: updateData }, { new: true })
-      .lean()
-      .exec();
+    const updatedPurchase = await PurchaseRules.findByIdAndUpdate(editid, { $set: updateData }, { new: true }).lean().exec();
 
     if (!updatedPurchase) {
-      return res.status(404).json({ error: "Not found: editid" });
+      return res.status(404).json({ error: 'Not found: editid' });
     }
 
     return res.status(200).json(updatedPurchase);
   } catch (error) {
-    console.error("Error updating data:", error);
+    console.error('Error updating data:', error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-
-router.delete("/purchaserules/:deleteid", async (req, res) => {
+router.delete('/purchaserules/:deleteid', async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PurchaseRules.findByIdAndDelete(deleteid);
 
     if (!deleteData) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      return res.status(404).json({ message: 'dont delete data or not found data or another error' });
     }
 
-    return res.status(200).json({ message: "successfully deleted data" });
+    return res.status(200).json({ message: 'successfully deleted data' });
   } catch (error) {}
 });
 
 // for front
-router.get("/purchaserulesfront", async (req, res) => {
+router.get('/purchaserulesfront', async (req, res) => {
   try {
-    const acceptLanguage = req.headers["accept-language"];
-    const preferredLanguage = acceptLanguage.split(",")[0].split(";")[0];
+    const acceptLanguage = req.headers['accept-language'];
+    const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
     const datas = await PurchaseRules.find();
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
 
     const filteredData = datas.map((data) => ({
       _id: data._id,
       title: data.title[preferredLanguage],
-      pdf: data.pdf,
+      pdf: data.pdf[preferredLanguage],
     }));
 
     return res.status(200).json(filteredData);
