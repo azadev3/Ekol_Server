@@ -5,36 +5,30 @@ const upload = require('../config/MulterConfig');
 
 router.post('/meta-tags-home', upload.none(), async (req, res) => {
   try {
-    const existingData = await MetaTagsHomeModel.findOne();
-
     const updateData = {
       meta_title: {
-        az: req.body.meta_title_az || existingData?.meta_title?.az || '',
-        en: req.body.meta_title_en || existingData?.meta_title?.en || '',
-        ru: req.body.meta_title_ru || existingData?.meta_title?.ru || '',
+        az: req.body.meta_title_az || '',
+        en: req.body.meta_title_en || '',
+        ru: req.body.meta_title_ru || '',
       },
       meta_description: {
-        az: req.body.meta_description_az || existingData?.meta_description?.az || '',
-        en: req.body.meta_description_en || existingData?.meta_description?.en || '',
-        ru: req.body.meta_description_ru || existingData?.meta_description?.ru || '',
+        az: req.body.meta_description_az || '',
+        en: req.body.meta_description_en || '',
+        ru: req.body.meta_description_ru || '',
       },
       meta_author: {
-        az: req.body.meta_author_az || existingData?.meta_author?.az || '',
-        en: req.body.meta_author_en || existingData?.meta_author?.en || '',
-        ru: req.body.meta_author_ru || existingData?.meta_author?.ru || '',
+        az: req.body.meta_author_az || '',
+        en: req.body.meta_author_en || '',
+        ru: req.body.meta_author_ru || '',
       },
       meta_generator: {
-        az: req.body.meta_generator_az || existingData?.meta_generator?.az || '',
-        en: req.body.meta_generator_en || existingData?.meta_generator?.en || '',
-        ru: req.body.meta_generator_ru || existingData?.meta_generator?.ru || '',
+        az: req.body.meta_generator_az || '',
+        en: req.body.meta_generator_en || '',
+        ru: req.body.meta_generator_ru || '',
       },
     };
 
-    const savedData = await MetaTagsHomeModel.findOneAndUpdate(
-      {},
-      updateData,
-      { new: true, upsert: true }, //
-    );
+    const savedData = await MetaTagsHomeModel.findOneAndUpdate({}, updateData, { new: true, upsert: true });
 
     return res.status(200).json(savedData);
   } catch (error) {
