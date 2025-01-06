@@ -29,6 +29,11 @@ router.post('/blog', checkUser, checkPermission('create_xeberler'), uploadConfig
         en: req.body.description_en,
         ru: req.body.description_ru,
       },
+      slogan: {
+        az: req.body.slogan_az,
+        en: req.body.slogan_en,
+        ru: req.body.slogan_ru,
+      },
       created_at: req.body.created_at,
       updated: req.body.updated,
       image: imageFile,
@@ -120,7 +125,19 @@ router.get('/blog/:editid', async (req, res) => {
 router.put('/blog/:editid', checkUser, checkPermission('update_xeberler'), uploadConfig.single('imgback'), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru, created_at, updated } = req.body;
+    const {
+      title_az,
+      title_en,
+      title_ru,
+      description_az,
+      description_en,
+      description_ru,
+      created_at,
+      updated,
+      slogan_az,
+      slogan_en,
+      slogan_ru,
+    } = req.body;
 
     const existingBlog = await Blog.findById(editid).exec();
     if (!existingBlog) {
@@ -139,6 +156,12 @@ router.put('/blog/:editid', checkUser, checkPermission('update_xeberler'), uploa
       az: description_az || existingBlog.description.az,
       en: description_en || existingBlog.description.en,
       ru: description_ru || existingBlog.description.ru,
+    };
+
+    updatedData.slogan = {
+      az: slogan_az || existingBlog.slogan.az,
+      en: slogan_en || existingBlog.slogan.en,
+      ru: slogan_ru || existingBlog.slogan.ru,
     };
 
     updatedData.created_at = created_at || existingBlog.created_at;
@@ -216,6 +239,7 @@ router.get('/blogfront', async (req, res) => {
       _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
+      slogan: data.slogan[preferredLanguage],
       image: data.image,
       created_at: data.created_at,
       updated: data.updated,
