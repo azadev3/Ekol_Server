@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const MetaTagsHomeModel = require('../models/MetaTagsHome');
+const upload = require('../config/MulterConfig');
 
-router.post('/meta-tags-home', async (req, res) => {
+router.post('/meta-tags-home', upload.none(), async (req, res) => {
   try {
     const createData = new MetaTagsHomeModel({
       meta_title: {
@@ -47,7 +48,7 @@ router.get('/meta-tags-home', async (req, res) => {
   }
 });
 
-router.put('/meta-tags-home/:editid', async (req, res) => {
+router.put('/meta-tags-home/:editid', upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
