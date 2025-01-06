@@ -76,6 +76,8 @@ const EnterpriseRoute = require('./routes/EnterpriseRoute');
 const StageRoute = require('./routes/StageRoute');
 const ProcedureRoute = require('./routes/ProcedureRoute');
 const NewBlogImages = require('./routes/DescriptionNewBlogImage');
+// SEO
+const MetaTagsHome = require('./routes/MetaTagsHomeRoute');
 
 //connect Database
 ConnectDB();
@@ -157,6 +159,8 @@ const apis = [
   ShowHiddenSocial,
   ProcedureRoute,
   NewBlogImages,
+  // SEO
+  MetaTagsHome,
 ];
 
 apis.forEach((api) => {
