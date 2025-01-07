@@ -2,20 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { uploadConfig } = require('../config/MulterC');
 const MetaFaviconModel = require('../models/MetaFaviconModel');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const mountPath = require('../config/mountPath');
 
-router.post('/upload-favicon', uploadConfig.single('imgback'), async (req, res) => {
+router.post('/upload-favicon', uploadConfig.single('favicon'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Please upload a file.' });
     }
-
-    const fileExtension = path.extname(req.file.originalname);
-    const imgFileName = `${uuidv4()}-${Date.now()}${fileExtension}`;
-    const imgOutputPath = path.join(mountPath, imgFileName);
-    const imageFile = `/public/${imgOutputPath}`;
+    const imageFile = req.file ? `/public/${req.file.filename}` : '';
 
     const existingFavicon = await MetaFaviconModel.findOne();
 
