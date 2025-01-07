@@ -114,9 +114,11 @@ router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadCo
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+      const imgOutputPath = path.join(mountPath, imgFileName); 
       await useSharp(req.file.buffer, imgOutputPath);
       updatedPageData.image = `/public/${imgFileName}`;
+    } else if (existingPage.image) {
+      updatedPageData.image = existingPage.image;
     }
 
     const updatedPage = await PageModel.findByIdAndUpdate(editid, { $set: updatedPageData }, { new: true })
@@ -124,7 +126,7 @@ router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadCo
       .exec();
 
     if (!updatedPage) {
-      return res.status(404).json({ error: "not found editid" });
+      return res.status(404).json({ error: "Page not found for the provided editid" });
     }
 
     return res.status(200).json(updatedPage);
@@ -133,6 +135,9 @@ router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadCo
     return res.status(500).json({ error: error.message });
   }
 });
+
+module.exports = router;
+
 
 router.put("/page/status/:id", async (req, res) => {
   try {
