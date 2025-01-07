@@ -170,7 +170,7 @@ const apis = [
   MetaTagsRehberlik,
   MetaTagsStruktur,
   MetaTagsSertifikatlar,
-  MetaTagsPartnyorlar
+  MetaTagsPartnyorlar,
 ];
 
 apis.forEach((api) => {
