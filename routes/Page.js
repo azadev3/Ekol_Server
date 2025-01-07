@@ -77,7 +77,7 @@ router.get("/page/:editid", async (req, res) => {
   }
 });
 
-router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadConfig.single("imgback"), async (req, res) => {
+router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { status } = req.body;
@@ -163,7 +163,7 @@ router.put("/page/status/:id", async (req, res) => {
   }
 });
 
-router.delete("/page/:deleteid", checkUser, checkPermissions("delete_page"), async (req, res) => {
+router.delete("/page/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PageModel.findByIdAndDelete(deleteid);
