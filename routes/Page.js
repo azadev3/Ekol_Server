@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { uploadConfig, useSharp } = require('../config/MulterC');
 const PageModel = require('../models/PageModel');
-const path = require('path');
+const pathForImg = require('path');
 const { v4: uuidv4 } = require('uuid');
 const mountPath = require('../config/mountPath');
 const checkUser = require('../middlewares/checkUser');
@@ -14,7 +14,7 @@ router.post('/page', checkUser, checkPermissions('create_page'), uploadConfig.si
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+      const imgOutputPath = pathForImg.join(mountPath, imgFileName);
       await useSharp(req.file.buffer, imgOutputPath);
       imageFile = `/public/${imgFileName}`;
     }
@@ -116,7 +116,7 @@ router.put('/page/:editid', checkUser, checkPermissions('update_page'), uploadCo
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName);
+      const imgOutputPath = pathForImg.join(mountPath, imgFileName);
       await useSharp(req.file.buffer, imgOutputPath);
       imageFile = `/public/${imgFileName}`;
       updatedPageData.image = imageFile;
