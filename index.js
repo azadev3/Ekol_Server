@@ -78,6 +78,7 @@ const ProcedureRoute = require('./routes/ProcedureRoute');
 const NewBlogImages = require('./routes/DescriptionNewBlogImage');
 // SEO
 const MetaTagsHome = require('./routes/MetaTagsHomeRoute');
+const MetaTagsBizKimik = require('./routes/MetaBizKimikRoute');
 
 //connect Database
 ConnectDB();
@@ -161,6 +162,7 @@ const apis = [
   NewBlogImages,
   // SEO
   MetaTagsHome,
+  MetaTagsBizKimik
 ];
 
 apis.forEach((api) => {

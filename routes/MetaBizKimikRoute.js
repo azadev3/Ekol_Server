@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const MetaTagsHomeModel = require('../models/MetaTagsHome');
+const MetaBizKimikModel = require('../models/MetaBizKimik');
 const upload = require('../config/MulterConfig');
 
-router.post('/meta-tags-home', upload.none(), async (req, res) => {
+router.post('/meta-tags-bizkimik', upload.none(), async (req, res) => {
   try {
     const updateData = {
       meta_title: {
@@ -28,7 +28,7 @@ router.post('/meta-tags-home', upload.none(), async (req, res) => {
       },
     };
 
-    const savedData = await MetaTagsHomeModel.findOneAndUpdate({}, updateData, { new: true, upsert: true });
+    const savedData = await MetaBizKimikModel.findOneAndUpdate({}, updateData, { new: true, upsert: true });
 
     return res.status(200).json(savedData);
   } catch (error) {
@@ -36,9 +36,9 @@ router.post('/meta-tags-home', upload.none(), async (req, res) => {
   }
 });
 
-router.get('/meta-tags-home', async (req, res) => {
+router.get('/meta-tags-bizkimik', async (req, res) => {
   try {
-    const datas = await MetaTagsHomeModel.find();
+    const datas = await MetaBizKimikModel.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
@@ -48,7 +48,7 @@ router.get('/meta-tags-home', async (req, res) => {
   }
 });
 
-router.put('/meta-tags-home/:editid', upload.none(), async (req, res) => {
+router.put('/meta-tags-bizkimik/:editid', upload.none(), async (req, res) => {
   try {
     const { editid } = req.params;
     const {
@@ -66,10 +66,10 @@ router.put('/meta-tags-home/:editid', upload.none(), async (req, res) => {
       meta_generator_ru,
     } = req.body;
 
-    const existingHero = await MetaTagsHomeModel.findById(editid).exec();
+    const existingHero = await MetaBizKimikModel.findById(editid).exec();
 
     if (!existingHero) {
-      return res.status(404).json({ error: 'MetaTagsHomeModel not found' });
+      return res.status(404).json({ error: 'MetaBizKimikModel not found' });
     }
 
     const updatedMetaData = {};
@@ -90,7 +90,7 @@ router.put('/meta-tags-home/:editid', upload.none(), async (req, res) => {
     if (meta_generator_en) updatedMetaData['meta_generator.en'] = meta_generator_en;
     if (meta_generator_ru) updatedMetaData['meta_generator.ru'] = meta_generator_ru;
 
-    const updatedMetaTags = await MetaTagsHomeModel.findByIdAndUpdate(editid, { $set: updatedMetaData }, { new: true }).lean().exec();
+    const updatedMetaTags = await MetaBizKimikModel.findByIdAndUpdate(editid, { $set: updatedMetaData }, { new: true }).lean().exec();
 
     if (!updatedMetaTags) {
       return res.status(404).json({ error: 'not found editid' });
@@ -104,12 +104,12 @@ router.put('/meta-tags-home/:editid', upload.none(), async (req, res) => {
 });
 
 // for front
-router.get('/meta-tags-home-front', async (req, res) => {
+router.get('/meta-tags-bizkimik-front', async (req, res) => {
   try {
     const acceptLanguage = req.headers['accept-language'];
     const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const datas = await MetaTagsHomeModel.find();
+    const datas = await MetaBizKimikModel.find();
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
