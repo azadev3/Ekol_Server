@@ -23,6 +23,6 @@ const MetaSertifikatlarSchema = mongoose.Schema({
   },
 });
 
-const MetaSertifikatlarModel = mongoose.model('meta_tags_struktur', MetaSertifikatlarSchema);
+const MetaSertifikatlarModel = mongoose.model('meta_tags_sertifikatlar', MetaSertifikatlarSchema);
 
 module.exports = MetaSertifikatlarModel;
