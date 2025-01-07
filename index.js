@@ -79,6 +79,7 @@ const NewBlogImages = require('./routes/DescriptionNewBlogImage');
 // SEO
 const MetaTagsHome = require('./routes/MetaTagsHomeRoute');
 const MetaTagsBizKimik = require('./routes/MetaBizKimikRoute');
+const MetaTagsRehberlik = require('./routes/MetaRehberlik');
 
 //connect Database
 ConnectDB();
@@ -162,7 +163,8 @@ const apis = [
   NewBlogImages,
   // SEO
   MetaTagsHome,
-  MetaTagsBizKimik
+  MetaTagsBizKimik,
+  MetaTagsRehberlik,
 ];
 
 apis.forEach((api) => {
