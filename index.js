@@ -82,6 +82,7 @@ const MetaTagsBizKimik = require('./routes/MetaBizKimikRoute');
 const MetaTagsRehberlik = require('./routes/MetaRehberlik');
 const MetaTagsStruktur = require('./routes/MetaStruktur');
 const MetaTagsSertifikatlar = require('./routes/MetaSertifikatlar');
+const MetaTagsPartnyorlar = require('./routes/MetaPartnyorlar');
 
 //connect Database
 ConnectDB();
@@ -169,6 +170,7 @@ const apis = [
   MetaTagsRehberlik,
   MetaTagsStruktur,
   MetaTagsSertifikatlar,
+  MetaTagsPartnyorlar
 ];
 
 apis.forEach((api) => {
