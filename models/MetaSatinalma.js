@@ -23,6 +23,6 @@ const MetaSatinalmaSchema = mongoose.Schema({
   },
 });
 
-const MetaSatinalmaModel = mongoose.model('meta_tags_xidmetler', MetaSatinalmaSchema);
+const MetaSatinalmaModel = mongoose.model('meta_tags_satinalmaelanlari', MetaSatinalmaSchema);
 
 module.exports = MetaSatinalmaModel;
