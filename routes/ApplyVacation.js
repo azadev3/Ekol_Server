@@ -7,15 +7,27 @@ const checkUser = require("../middlewares/checkUser");
 const checkPermissions = require("../middlewares/checkPermissions");
 
 // Nodemailer configuration
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: "azad.miri6@gmail.com",
+//     pass: "xshk cxdb wgwx lxzk",
+//   },
+// });
+
+// Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: 'smtp.yandex.ru',
   port: 465,
   secure: true,
   auth: {
-    user: "azad.miri6@gmail.com",
-    pass: "xshk cxdb wgwx lxzk",
+    user: 'website@ekol.az',
+    pass: 'dtyxmlsfrhaivojh',
   },
 });
+
 
 router.post(
   "/applyvacation",

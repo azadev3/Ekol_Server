@@ -1,35 +1,46 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../config/MulterConfig");
-const PurchaseNaturalForm = require("../models/PurchaseNaturalFormModel");
-const nodemailer = require("nodemailer");
+const upload = require('../config/MulterConfig');
+const PurchaseNaturalForm = require('../models/PurchaseNaturalFormModel');
+const nodemailer = require('nodemailer');
+
+// Nodemailer configuration
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: "azad.miri6@gmail.com",
+//     pass: "xshk cxdb wgwx lxzk",
+//   },
+// });
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: 'smtp.yandex.ru',
   port: 465,
   secure: true,
   auth: {
-    user: "azad.miri6@gmail.com",
-    pass: "xshk cxdb wgwx lxzk",
+    user: 'website@ekol.az',
+    pass: 'dtyxmlsfrhaivojh',
   },
 });
 
-router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res) => {
+router.post('/purchaseNaturalForm', upload.single('requestpdf'), async (req, res) => {
   try {
     const requiredFields = [
-      "voen",
-      "name",
-      "surname",
-      "mobtel",
-      "email",
-      "location",
-      "enterprisename",
-      "enterpriseNameOrTel",
-      "enterprisepart",
-      "typeofrequest",
-      "message",
-      "country",
+      'voen',
+      'name',
+      'surname',
+      'mobtel',
+      'email',
+      'location',
+      'enterprisename',
+      'enterpriseNameOrTel',
+      'enterprisepart',
+      'typeofrequest',
+      'message',
+      'country',
     ];
 
     for (let field of requiredFields) {
@@ -38,7 +49,7 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
       }
     }
 
-    const pdfFile = req.file ? `/public/${req.file.filename}` : "";
+    const pdfFile = req.file ? `/public/${req.file.filename}` : '';
 
     const savedData = new PurchaseNaturalForm({
       voen: req.body.voen,
@@ -60,8 +71,8 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "satinalmalar@ekol.az",
-      subject: "Yeni Fərdi Şəxs Form Məlumatları",
+      to: 'satinalmalar@ekol.az',
+      subject: 'Yeni Fərdi Şəxs Form Məlumatları',
       html: `
       <div style="font-family: Arial, sans-serif; color: #333;">
         <h2 style="color: #4CAF50;">Yeni Fərdi Şəxs Form Məlumatları</h2>
@@ -79,7 +90,7 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
         <p><strong>Mesaj:</strong> ${req.body.message}</p>
         <p>
         <strong>Fayl:</strong>
-        ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ""},
+        ${req.file ? `https://ekol-server-1.onrender.com/public/${req.file.filename}` : ''},
         </p>
         
         <footer style="margin-top: 20px;">
@@ -91,31 +102,31 @@ router.post("/purchaseNaturalForm", upload.single("requestpdf"), async (req, res
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ message: "Form saved and email sent.", data: save });
+    return res.status(200).json({ message: 'Form saved and email sent.', data: save });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
 
-router.delete("/deleteItemNat/:id", async (req, res) => {
+router.delete('/deleteItemNat/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const findDataById = await PurchaseNaturalForm.findByIdAndDelete(id);
     if (!findDataById) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ message: 'Item not found' });
     }
-    return res.status(200).json({ message: "Item deleted successfully!" });
+    return res.status(200).json({ message: 'Item deleted successfully!' });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
 
 // for front
-router.get("/purchaseNaturalFormFront", async (req, res) => {
+router.get('/purchaseNaturalFormFront', async (req, res) => {
   try {
     const datas = await PurchaseNaturalForm.find();
     if (!datas || datas.length === 0) {
-      return res.status(404).json({ message: "No data found" });
+      return res.status(404).json({ message: 'No data found' });
     }
 
     return res.status(200).json(datas);
