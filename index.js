@@ -66,6 +66,7 @@ const ShowHiddenOurWorksHome = require('./routes/ShowHiddenOurWorksHome');
 const ShowHiddenMedia = require('./routes/ShowHiddenMedia');
 const ShowHiddenAbout = require('./routes/ShowHiddenAbout');
 const ShowHiddenActivity = require('./routes/ShowHiddenActivity');
+const ShowHiddenContact = require('./routes/ShowHiddenContactRoute');
 const StructureImgRoute = require('./routes/StructureRoute');
 const PageRoute = require('./routes/Page');
 // ROLES PERMISSIONS
@@ -175,6 +176,7 @@ const apis = [
   ShowHiddenPurchase,
   ShowHiddenCarier,
   ShowHiddenOurWorksHome,
+  ShowHiddenContact,
   EnterpriseRoute,
   StageRoute,
   ShowHiddenSocial,
