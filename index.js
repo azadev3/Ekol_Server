@@ -94,6 +94,7 @@ const MetaTagsXeberler = require('./routes/MetaXeberler');
 const MetaTagsQalereya = require('./routes/MetaQalereya');
 const MetaTagsSosialHeyat = require('./routes/MetaSosialHeyat');
 const MetaTagsBloqlar = require('./routes/MetaBloqlar');
+const MetaTagsKaryeraImkanlariUmumiMelumat = require('./routes/MetaKaryeraMelumat');
 
 //connect Database
 ConnectDB();
@@ -193,6 +194,7 @@ const apis = [
   MetaTagsQalereya,
   MetaTagsSosialHeyat,
   MetaTagsBloqlar,
+  MetaTagsKaryeraImkanlariUmumiMelumat
 ];
 
 apis.forEach((api) => {
