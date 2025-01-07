@@ -97,6 +97,7 @@ const MetaTagsBloqlar = require('./routes/MetaBloqlar');
 const MetaTagsKaryeraImkanlariUmumiMelumat = require('./routes/MetaKaryeraMelumat');
 const MetaTagsKaryeraImkanlariVakansiyalar = require('./routes/MetaKaryeraVakansiyalar');
 const MetaTagsElaqe = require('./routes/MetaElaqe');
+const MetaTagsBloqlarDaxili = require('./routes/MetaBloqlarDaxili');
 
 //connect Database
 ConnectDB();
@@ -199,6 +200,7 @@ const apis = [
   MetaTagsKaryeraImkanlariUmumiMelumat,
   MetaTagsKaryeraImkanlariVakansiyalar,
   MetaTagsElaqe,
+  MetaTagsBloqlarDaxili,
 ];
 
 apis.forEach((api) => {
