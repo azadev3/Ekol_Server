@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { uploadConfig } = require('../config/MulterC');
+const upload = require('../config/MulterConfig');
 const MetaFaviconModel = require('../models/MetaFaviconModel');
 
-router.post('/upload-favicon', uploadConfig.single('favicon'), async (req, res) => {
+router.post('/upload-favicon', upload.single('favicon'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Please upload a file.' });
