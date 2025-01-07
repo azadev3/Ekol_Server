@@ -29,7 +29,7 @@ router.post('/upload-favicon', upload.single('favicon'), async (req, res) => {
   }
 });
 
-router.get('/upload-favicon', async (req, res) => {
+router.get('/get-favicon', async (req, res) => {
   const data = MetaFaviconModel.find();
   if (!data) {
     return res.status(404).json({ message: 'not found favicon' });
