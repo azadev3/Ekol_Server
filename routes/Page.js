@@ -112,18 +112,19 @@ router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadCo
     if (description_en) updatedPageData["description.en"] = description_en;
     if (description_ru) updatedPageData["description.ru"] = description_ru;
 
+    let imageFile = "";
+
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-      const imgOutputPath = path.join(mountPath, imgFileName); 
-      await useSharp(req.file.buffer, imgOutputPath);
-      updatedPageData.image = `/public/${imgFileName}`;
+      const imgOutputPath = path.join(mountPath, imgFileName);  
+      await useSharp(req.file.buffer, imgOutputPath); 
+      imageFile = `/public/${imgFileName}`;
+      updatedPageData.image = imageFile;
     } else if (existingPage.image) {
       updatedPageData.image = existingPage.image;
     }
 
-    const updatedPage = await PageModel.findByIdAndUpdate(editid, { $set: updatedPageData }, { new: true })
-      .lean()
-      .exec();
+    const updatedPage = await PageModel.findByIdAndUpdate(editid, { $set: updatedPageData }, { new: true }).exec();
 
     if (!updatedPage) {
       return res.status(404).json({ error: "Page not found for the provided editid" });
@@ -135,6 +136,7 @@ router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadCo
     return res.status(500).json({ error: error.message });
   }
 });
+
 
 module.exports = router;
 
