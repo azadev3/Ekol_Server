@@ -83,6 +83,7 @@ const MetaTagsRehberlik = require('./routes/MetaRehberlik');
 const MetaTagsStruktur = require('./routes/MetaStruktur');
 const MetaTagsSertifikatlar = require('./routes/MetaSertifikatlar');
 const MetaTagsPartnyorlar = require('./routes/MetaPartnyorlar');
+const MetaTagsGorduyumuzIsler = require('./routes/MetaGorduyumuzIsler');
 
 //connect Database
 ConnectDB();
@@ -171,6 +172,7 @@ const apis = [
   MetaTagsStruktur,
   MetaTagsSertifikatlar,
   MetaTagsPartnyorlar,
+  MetaTagsGorduyumuzIsler,
 ];
 
 apis.forEach((api) => {
