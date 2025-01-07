@@ -77,10 +77,9 @@ router.get("/page/:editid", async (req, res) => {
   }
 });
 
-router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => {
+router.put("/page/:editid", checkUser, checkPermissions("update_page"), uploadConfig.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
-    const { status } = req.body;
     const {
       title_az,
       title_en,
@@ -93,10 +92,6 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
       dropdown_name_en,
       dropdown_name_ru,
     } = req.body;
-
-    if (typeof status !== "boolean") {
-      return res.status(400).json({ error: "Status must be a boolean value" });
-    }
 
     const existingPage = await PageModel.findById(editid).exec();
 
@@ -116,8 +111,6 @@ router.put("/page/:editid", uploadConfig.single("imgback"), async (req, res) => 
     if (description_az) updatedPageData["description.az"] = description_az;
     if (description_en) updatedPageData["description.en"] = description_en;
     if (description_ru) updatedPageData["description.ru"] = description_ru;
-
-    updatedPageData["status"] = status;
 
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
@@ -163,7 +156,7 @@ router.put("/page/status/:id", async (req, res) => {
   }
 });
 
-router.delete("/page/:deleteid", async (req, res) => {
+router.delete("/page/:deleteid", checkUser, checkPermissions("delete_page"), async (req, res) => {
   try {
     const { deleteid } = req.params;
     const deleteData = await PageModel.findByIdAndDelete(deleteid);
