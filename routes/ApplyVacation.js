@@ -1,10 +1,10 @@
-const express = require("express");
-const upload = require("../config/MulterConfig");
+const express = require('express');
+const upload = require('../config/MulterConfig');
 const router = express.Router();
-const ApplyVacation = require("../models/ApplyVacationModel");
-const nodemailer = require("nodemailer");
-const checkUser = require("../middlewares/checkUser");
-const checkPermissions = require("../middlewares/checkPermissions");
+const ApplyVacation = require('../models/ApplyVacationModel');
+const nodemailer = require('nodemailer');
+const checkUser = require('../middlewares/checkUser');
+const checkPermissions = require('../middlewares/checkPermissions');
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -28,19 +28,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 router.post(
-  "/applyvacation",
+  '/applyvacation',
   upload.fields([
-    { name: "profile", maxCount: 1 },
-    { name: "cv", maxCount: 1 },
+    { name: 'profile', maxCount: 1 },
+    { name: 'cv', maxCount: 1 },
   ]),
   async (req, res) => {
     try {
-      const userProfile = req.files["profile"] ? `/public/${req.files["profile"][0].filename}` : "";
-      const cv = req.files["cv"] ? `/public/${req.files["cv"][0].filename}` : "";
+      const userProfile = req.files['profile'] ? `/public/${req.files['profile'][0].filename}` : '';
+      const cv = req.files['cv'] ? `/public/${req.files['cv'][0].filename}` : '';
 
-      const requiredFields = ["email", "name", "surname", "telephone", "apply_vacation_name", "applyDate"];
+      const requiredFields = ['email', 'name', 'surname', 'telephone', 'apply_vacation_name', 'applyDate'];
       for (let field of requiredFields) {
         if (!req.body[field]) {
           return res.status(400).json({ error: `Missing field: ${field}` });
@@ -62,8 +61,8 @@ router.post(
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: "hr@ekol.az",
-        subject: "Vakansiya müraciəti",
+        to: 'hr@ekol.az',
+        subject: 'Vakansiya müraciəti',
         html: `
           <h1>Vakansiya müraciəti</h1>
           <p><strong>Ad:</strong> ${req.body.name} ${req.body.surname}</p>
@@ -84,21 +83,21 @@ router.post(
       await transporter.sendMail(mailOptions);
 
       return res.status(200).json({
-        message: "Muraciet muveffeqiyyetle save olundu ve e-posta gönderildi.",
+        message: 'Muraciet muveffeqiyyetle save olundu ve e-posta gönderildi.',
         savedUserData: savedData,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: error.message });
     }
-  }
+  },
 );
 
-router.get("/applyvacation", checkUser, checkPermissions("list_vakansiya_muracietleri"), async (req, res) => {
+router.get('/applyvacation', checkUser, checkPermissions('list_vakansiya_muracietleri'), async (req, res) => {
   try {
     const datas = await ApplyVacation.find().lean().exec();
     if (!datas) {
-      return res.status(404).json({ message: "datas is null" });
+      return res.status(404).json({ message: 'datas is null' });
     }
 
     return res.status(200).json({ data: datas });
@@ -108,17 +107,17 @@ router.get("/applyvacation", checkUser, checkPermissions("list_vakansiya_muracie
   }
 });
 
-router.delete("/applyvacation/:apply_id", checkUser, checkPermissions("delete_vakansiya_muracietleri"), async (req, res) => {
+router.delete('/applyvacation/:apply_id', checkUser, checkPermissions('delete_vakansiya_muracietleri'), async (req, res) => {
   try {
     const { apply_id } = req.params;
 
     const removeApply = await ApplyVacation.findByIdAndDelete(apply_id);
 
     if (!removeApply) {
-      return res.status(404).json({ message: "dont delete data or not found data or another error" });
+      return res.status(404).json({ message: 'dont delete data or not found data or another error' });
     }
 
-    return res.status(200).json({ message: "successfully deleted data" });
+    return res.status(200).json({ message: 'successfully deleted data' });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
