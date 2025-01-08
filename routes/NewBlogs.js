@@ -236,7 +236,7 @@ router.get('/newblogfront', async (req, res) => {
     const acceptLanguage = req.headers['accept-language'];
     const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const datas = await NewBlogs.find();
+    const datas = await NewBlogs.find({ status: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
