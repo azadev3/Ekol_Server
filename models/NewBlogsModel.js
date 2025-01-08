@@ -23,6 +23,11 @@ const NewBlogSchema = mongoose.Schema({
   },
   created_at: { type: String, required: false, default: '' },
   updated: { type: String, required: false, default: '' },
+  status: {
+    type: Boolean,
+    default: true,
+    required: false,
+  },
 });
 
 const NewBlogModel = mongoose.model('newblogmodel', NewBlogSchema);

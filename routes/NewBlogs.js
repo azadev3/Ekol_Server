@@ -41,6 +41,7 @@ router.post('/newblogs', checkUser, checkPermission('create_blog'), uploadConfig
       created_at: req.body.created_at,
       updated: req.body.updated,
       image: imageFile,
+      status: req.body.status || true,
     });
 
     const savedData = await createData.save();
@@ -194,6 +195,28 @@ router.put('/newblogs/:editid', checkUser, checkPermission('update_blog'), uploa
   }
 });
 
+router.put('/blog/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (typeof status !== 'boolean') {
+      return res.status(400).json({ error: 'Status must be a boolean value' });
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(id, { status: status }, { new: true }).lean().exec();
+
+    if (!updatedBlog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    return res.status(200).json(updatedBlog);
+  } catch (error) {
+    console.error('Error updating status:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 router.delete('/newblogs/:deleteid', checkUser, checkPermission('delete_blog'), async (req, res) => {
   try {
     const { deleteid } = req.params;
@@ -239,7 +262,7 @@ router.get('/lastnewblog', async (req, res) => {
     const acceptLanguage = req.headers['accept-language'];
     const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const lastnewblog = await NewBlogs.find().sort({ created_at: -1 }).limit(5).lean();
+    const lastnewblog = await NewBlogs.find({ status: true }).sort({ created_at: -1 }).limit(5).lean();
     if (!lastnewblog || lastnewblog.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
