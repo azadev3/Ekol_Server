@@ -167,6 +167,7 @@ router.put(
         status,
       } = req.body;
 
+      // Find the existing announcement by ID
       const existingAnnouncement = await PurchaseAnnouncement.findById(editid).exec();
       if (!existingAnnouncement) {
         return res.status(404).json({ error: 'PurchaseAnnouncement not found' });
@@ -174,6 +175,7 @@ router.put(
 
       const updatedData = {};
 
+      // Update title if provided
       if (title_az || title_en || title_ru) {
         updatedData.title = {
           az: title_az || existingAnnouncement.title.az,
@@ -182,6 +184,7 @@ router.put(
         };
       }
 
+      // Update description if provided
       if (description_az || description_en || description_ru) {
         updatedData.description = {
           az: description_az || existingAnnouncement.description.az,
@@ -190,6 +193,7 @@ router.put(
         };
       }
 
+      // Update predmet if provided
       if (predmet_az || predmet_en || predmet_ru) {
         updatedData.predmet = {
           az: predmet_az || existingAnnouncement.predmet.az,
@@ -198,27 +202,47 @@ router.put(
         };
       }
 
+      // Update end_date if provided
       if (end_date) {
         updatedData.end_date = end_date || existingAnnouncement.end_date;
       }
 
+      // Update status if provided
       if (status) {
         updatedData.status = status || existingAnnouncement.status;
       }
-      if (req.file) {
-        updatedData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
-        updatedData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
-        updatedData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
+
+      // Handle PDF updates
+      if (req.files) {
+        // Check and update each language's PDF if a new file is uploaded
+        if (req.files['pdfaz']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
+        }
+        if (req.files['pdfen']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
+        }
+        if (req.files['pdfru']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
+        }
       } else {
-        updatedData.pdf.az = existingAnnouncement.pdf.az;
-        updatedData.pdf.en = existingAnnouncement.pdf.en;
-        updatedData.pdf.ru = existingAnnouncement.pdf.ru;
+        // Keep the existing PDF paths if no new files are uploaded
+        updatedData.pdf = existingAnnouncement.pdf;
       }
 
+      // If there are no changes to update, return the existing data
       if (Object.keys(updatedData).length === 0) {
         return res.status(200).json(existingAnnouncement);
       }
-      const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
+
+      // Update the announcement in the database
+      const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(
+        editid,
+        { $set: updatedData },
+        { new: true }
+      )
         .lean()
         .exec();
 
@@ -227,8 +251,9 @@ router.put(
       console.error('Error updating data:', error);
       return res.status(500).json({ error: error.message });
     }
-  },
+  }
 );
+
 
 router.put('/purch/status/:id', async (req, res) => {
   try {
