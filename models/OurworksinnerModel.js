@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const OurWorksInnerSchema = mongoose.Schema({
   title: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   description: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   statusActive: {
     type: Boolean,
