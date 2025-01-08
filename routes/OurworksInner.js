@@ -7,8 +7,6 @@ const checkPermissions = require('../middlewares/checkPermissions');
 
 router.post('/ourworksinner', checkUser, checkPermissions('create_gorduyumuzisler_daxili'), upload.none(), async (req, res) => {
   try {
-    const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
-
     const createData = new OurWorksInner({
       title: {
         az: req.body.title_az,
