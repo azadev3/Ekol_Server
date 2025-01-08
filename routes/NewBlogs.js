@@ -195,7 +195,7 @@ router.put('/newblogs/:editid', checkUser, checkPermission('update_blog'), uploa
   }
 });
 
-router.put('/blog/status/:id', async (req, res) => {
+router.put('/newblog/status/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
