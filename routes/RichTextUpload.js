@@ -1,11 +1,11 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../config/MulterConfig");
-const RichTextUpload = require("../models/RichTextUploadModel");
+const upload = require('../config/MulterConfig');
+const RichTextUpload = require('../models/RichTextUploadModel');
 
-router.post("/uploadForEditor", upload.single("file"), async (req, res) => {
+router.post('/uploadForEditor', upload.single('file'), async (req, res) => {
   try {
-    const imgfile = req.file ? `/public/${req.file.filename}` : "";
+    const imgfile = req.file ? `/public/${req.file.filename}` : '';
 
     const saveData = new RichTextUpload({
       url: imgfile,
@@ -19,7 +19,7 @@ router.post("/uploadForEditor", upload.single("file"), async (req, res) => {
   }
 });
 
-router.get("/getImageUrl", async (req, res) => {
+router.get('/getImageUrl', async (req, res) => {
   try {
     const sendData = await RichTextUpload.find();
 
