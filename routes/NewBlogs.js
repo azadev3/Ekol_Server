@@ -204,7 +204,7 @@ router.put('/newblog/status/:id', async (req, res) => {
       return res.status(400).json({ error: 'Status must be a boolean value' });
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, { status: status }, { new: true }).lean().exec();
+    const updatedBlog = await NewBlogs.findByIdAndUpdate(id, { status: status }, { new: true }).lean().exec();
 
     if (!updatedBlog) {
       return res.status(404).json({ error: 'Blog not found' });
