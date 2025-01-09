@@ -238,11 +238,7 @@ router.put(
       }
 
       // Update the announcement in the database
-      const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(
-        editid,
-        { $set: updatedData },
-        { new: true }
-      )
+      const updatedPurchaseAnnouncement = await PurchaseAnnouncement.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
         .lean()
         .exec();
 
@@ -251,9 +247,8 @@ router.put(
       console.error('Error updating data:', error);
       return res.status(500).json({ error: error.message });
     }
-  }
+  },
 );
-
 
 router.put('/purch/status/:id', async (req, res) => {
   try {
@@ -287,7 +282,9 @@ router.delete('/purchaseannouncement/:deleteid', checkUser, checkPermissions('de
     }
 
     return res.status(200).json({ message: 'successfully deleted data' });
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
 });
 
 // for front

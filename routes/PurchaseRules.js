@@ -76,75 +76,72 @@ router.get('/purchaserules/:editid', async (req, res) => {
   }
 });
 
-// router.put("/purchaserules/:editid", upload.single("pdf"), async (req, res) => {
-//   try {
-//     const { editid } = req.params;
-//     const { title_az, title_en, title_ru } = req.body;
+router.put(
+  '/purchaserules/:editid',
+  upload.fields([
+    { name: 'pdfaz', maxCount: 1 },
+    { name: 'pdfen', maxCount: 1 },
+    { name: 'pdfru', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { editid } = req.params;
+      const { title_az, title_en, title_ru } = req.body;
 
-//     const updatedPurchase = await PurchaseRules.findByIdAndUpdate(
-//       editid,
-//       {
-//         $set: {
-//           title: {
-//             az: title_az,
-//             en: title_en,
-//             ru: title_ru,
-//           },
-//           pdf: req.file ? `/public/${req.file.filename}` : "",
-//         },
-//       },
-//       { new: true }
-//     )
-//       .lean()
-//       .exec();
+      // Find the existing announcement by ID
+      const existingRules = await PurchaseRules.findById(editid).exec();
+      if (!existingRules) {
+        return res.status(404).json({ error: 'PurchaseRules not found' });
+      }
 
-//     if (!updatedPurchase) {
-//       return res.status(404).json({ error: "not found editid" });
-//     }
+      const updatedData = {};
 
-//     return res.status(200).json(updatedPurchase);
-//   } catch (error) {
-//     console.error("Error updating data:", error);
-//     return res.status(500).json({ error: error.message });
-//   }
-// });
+      // Update title if provided
+      if (title_az || title_en || title_ru) {
+        updatedData.title = {
+          az: title_az || existingRules.title.az,
+          en: title_en || existingRules.title.en,
+          ru: title_ru || existingRules.title.ru,
+        };
+      }
 
-router.put('/purchaserules/:editid', upload.single('pdf'), async (req, res) => {
-  try {
-    const { editid } = req.params;
-    const { title_az, title_en, title_ru } = req.body;
+      // Handle PDF updates
+      if (req.files) {
+        // Check and update each language's PDF if a new file is uploaded
+        if (req.files['pdfaz']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
+        }
+        if (req.files['pdfen']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
+        }
+        if (req.files['pdfru']) {
+          updatedData.pdf = updatedData.pdf || {};
+          updatedData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
+        }
+      } else {
+        // Keep the existing PDF paths if no new files are uploaded
+        updatedData.pdf = existingRules.pdf;
+      }
 
-    const existingPurchaseRule = await PurchaseRules.findById(editid).exec();
-    if (!existingPurchaseRule) {
-      return res.status(404).json({ error: 'Not found: editid' });
+      // If there are no changes to update, return the existing data
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(200).json(existingRules);
+      }
+
+      // Update the announcement in the database
+      const updatedPurchaseRules = await PurchaseRules.findByIdAndUpdate(editid, { $set: updatedData }, { new: true })
+        .lean()
+        .exec();
+
+      return res.status(200).json(updatedPurchaseRules);
+    } catch (error) {
+      console.error('Error updating data:', error);
+      return res.status(500).json({ error: error.message });
     }
-
-    const updateData = {
-      title: {
-        az: title_az,
-        en: title_en,
-        ru: title_ru,
-      },
-    };
-
-    if (req.file) {
-      updateData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
-      updateData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
-      updateData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
-    }
-
-    const updatedPurchase = await PurchaseRules.findByIdAndUpdate(editid, { $set: updateData }, { new: true }).lean().exec();
-
-    if (!updatedPurchase) {
-      return res.status(404).json({ error: 'Not found: editid' });
-    }
-
-    return res.status(200).json(updatedPurchase);
-  } catch (error) {
-    console.error('Error updating data:', error);
-    return res.status(500).json({ error: error.message });
-  }
-});
+  },
+);
 
 router.delete('/purchaserules/:deleteid', async (req, res) => {
   try {
