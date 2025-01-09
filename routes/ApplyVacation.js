@@ -5,6 +5,7 @@ const ApplyVacation = require('../models/ApplyVacationModel');
 const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
 const getTransporter = require("../middlewares/getTransporter");
+const MailConfigModel = require("../models/MailConfigModel");
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -59,8 +60,11 @@ router.post(
 
       const savedData = await saveData.save();
 
+      const config = await MailConfigModel.findOne();
+      const fromEmail = config.user;
+
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: fromEmail || 'website@ekol.az',
         to: 'hr@ekol.az',
         subject: 'Vakansiya müraciəti',
         html: `

@@ -5,7 +5,7 @@ const Appeals = require('../models/AppealsModel');
 const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
 const getTransporter = require('../middlewares/getTransporter');
-const MailConfigModel = require("../models/MailConfigModel");
+const MailConfigModel = require('../models/MailConfigModel');
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({

@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require("../config/MulterConfig");
 const PurchaseLegalForm = require("../models/PurchaseLegalFormModel");
 const getTransporter = require("../middlewares/getTransporter");
+const MailConfigModel = require("../models/MailConfigModel");
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -87,8 +88,11 @@ router.post("/purchaseLegalForm", upload.single("requestpdf"), async (req, res) 
 
     const save = await savedData.save();
 
+    const config = await MailConfigModel.findOne();
+    const fromEmail = config.user;
+
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: fromEmail || 'website@ekol.az',
       to: "satinalmalar@ekol.az",
       subject: "Yeni Hüquqi Şəxs Form Məlumatları",
       html: `

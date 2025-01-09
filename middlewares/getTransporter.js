@@ -3,7 +3,6 @@ const nodemailer = require('nodemailer');
 
 const getTransporter = async () => {
   const config = await MailConfigModel.findOne();
-  console.log(config, 'config!1!!!!');
   if (!config) {
     throw new Error('Mail config not found!');
   }
