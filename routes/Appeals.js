@@ -6,27 +6,26 @@ const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
 const nodemailer = require('nodemailer');
 
-// Nodemailer configuration
-// const transporter = nodemailer.createTransport({
-//  host: 'smtp.gmail.com',
-//  port: 465,
-//  secure: true,
-//  auth: {
-//   user: 'azad.miri6@gmail.com',
-//   pass: 'xshk cxdb wgwx lxzk',
-//  },
-// });
+const transporter = nodemailer.createTransport({
+ host: 'smtp.gmail.com',
+ port: 465,
+ secure: true,
+ auth: {
+  user: 'azad.miri6@gmail.com',
+  pass: 'xshk cxdb wgwx lxzk',
+ },
+});
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'website@ekol.az',
-    pass: 'dtyxmlsfrhaivojh',
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.yandex.ru',
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: 'website@ekol.az',
+//     pass: 'dtyxmlsfrhaivojh',
+//   },
+// });
 
 router.post('/appeals', upload.none(), async (req, res) => {
   try {
