@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'website@ekol.az',
-    pass: 'dtyx mlsf rhai vojh',
+    pass: 'dtyxmlsfrhaivojh',
   },
 });
 
