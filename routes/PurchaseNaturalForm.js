@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/MulterConfig');
 const PurchaseNaturalForm = require('../models/PurchaseNaturalFormModel');
-const nodemailer = require('nodemailer');
+const getTransporter = require('../middlewares/getTransporter');
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -16,15 +16,15 @@ const nodemailer = require('nodemailer');
 // });
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'website@ekol.az',
-    pass: 'dtyxmlsfrhaivojh',
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.yandex.ru',
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: 'website@ekol.az',
+//     pass: 'dtyxmlsfrhaivojh',
+//   },
+// });
 
 router.post('/purchaseNaturalForm', upload.single('requestpdf'), async (req, res) => {
   try {
@@ -100,6 +100,7 @@ router.post('/purchaseNaturalForm', upload.single('requestpdf'), async (req, res
     `,
     };
 
+    const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
 
     return res.status(200).json({ message: 'Form saved and email sent.', data: save });

@@ -2,9 +2,9 @@ const express = require('express');
 const upload = require('../config/MulterConfig');
 const router = express.Router();
 const ApplyVacation = require('../models/ApplyVacationModel');
-const nodemailer = require('nodemailer');
 const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
+const getTransporter = require("../middlewares/getTransporter");
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -18,15 +18,15 @@ const checkPermissions = require('../middlewares/checkPermissions');
 // });
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'website@ekol.az',
-    pass: 'dtyxmlsfrhaivojh',
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.yandex.ru',
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: 'website@ekol.az',
+//     pass: 'dtyxmlsfrhaivojh',
+//   },
+// });
 
 router.post(
   '/applyvacation',
@@ -80,6 +80,8 @@ router.post(
         </footer>
         `,
       };
+
+      const transporter = await getTransporter();
       await transporter.sendMail(mailOptions);
 
       return res.status(200).json({
