@@ -8,22 +8,22 @@ router.post('/mail-config', upload.none(), async (req, res) => {
     const { host, port, user, pass } = req.body;
 
     if (!host || !user || !pass) {
-      return res.status(400).json({ message: 'Required three fields!' });
+      return res.status(400).json({ message: 'Required fields are missing!' });
     }
 
     const updateData = {
       host: host,
-      port: port,
+      port: port || 465,
       user: user,
       pass: pass,
     };
 
-    const savedData = await MailConfigModel({}, updateData, { new: true, upsert: true });
+    const savedData = await MailConfigModel.findOneAndUpdate({}, updateData, { new: true, upsert: true });
 
-    return res.status(200).json(savedData);
+    return res.status(200).json({ message: 'Mail configuration saved successfully!', data: savedData });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: error });
+    console.error(error);
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
