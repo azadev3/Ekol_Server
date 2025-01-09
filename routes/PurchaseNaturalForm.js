@@ -17,12 +17,12 @@ const nodemailer = require('nodemailer');
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
+  host: 'mail.ekol.az',
   port: 465,
   secure: true,
   auth: {
     user: 'website@ekol.az',
-    pass: 'dtyxmlsfrhaivojh',
+    pass: 'dtyx mlsf rhai vojh',
   },
 });
 
