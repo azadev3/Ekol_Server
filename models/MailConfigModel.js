@@ -6,3 +6,7 @@ const MailConfigSchema = mongoose.Schema({
   user: { type: String, required: true },
   pass: { type: String, required: true },
 });
+
+const MailConfigModel = mongoose.model('mail_config', MailConfigSchema);
+
+module.exports = MailConfigModel;

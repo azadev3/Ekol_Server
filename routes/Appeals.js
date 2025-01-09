@@ -4,7 +4,7 @@ const upload = require('../config/MulterConfig');
 const Appeals = require('../models/AppealsModel');
 const checkUser = require('../middlewares/checkUser');
 const checkPermissions = require('../middlewares/checkPermissions');
-const nodemailer = require('nodemailer');
+const getTransporter = require('../middlewares/getTransporter');
 
 // Nodemailer configuration
 // const transporter = nodemailer.createTransport({
@@ -18,15 +18,15 @@ const nodemailer = require('nodemailer');
 // });
 
 // Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  host: 'smtp.yandex.ru',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'website@ekol.az',
-    pass: 'dtyxmlsfrhaivojh',
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.yandex.ru',
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: 'website@ekol.az',
+//     pass: 'dtyxmlsfrhaivojh',
+//   },
+// });
 
 router.post('/appeals', upload.none(), async (req, res) => {
   try {
@@ -59,6 +59,9 @@ router.post('/appeals', upload.none(), async (req, res) => {
       <p><strong>Mesaj:</strong> ${req.body.record}</p>
     `,
     };
+
+    const transporter = await getTransporter();
+
     await transporter.sendMail(mailOptions);
 
     return res.status(200).json(savedData);

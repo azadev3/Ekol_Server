@@ -101,6 +101,7 @@ const MetaTagsElaqe = require('./routes/MetaElaqe');
 const MetaTagsBloqlarDaxili = require('./routes/MetaBloqlarDaxili');
 const MetaTagsXeberlerDaxili = require('./routes/MetaXeberlerDaxili');
 const MetaFavicon = require('./routes/MetaFaviconRoute');
+const MailConfigRoute = require('./routes/MailConfigRoute');
 
 //connect Database
 ConnectDB();
@@ -206,7 +207,8 @@ const apis = [
   MetaTagsElaqe,
   MetaTagsBloqlarDaxili,
   MetaTagsXeberlerDaxili,
-  MetaFavicon
+  MetaFavicon,
+  MailConfigRoute
 ];
 
 apis.forEach((api) => {
