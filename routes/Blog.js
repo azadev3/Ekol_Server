@@ -257,10 +257,14 @@ router.get('/lastblogs', async (req, res) => {
     const acceptLanguage = req.headers['accept-language'];
     const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const lastBlogs = await Blog.find({ status: true }).sort({ created_at: -1 }).limit(5).lean();
-    if (!lastBlogs || lastBlogs.length === 0) {
+    const allBlogs = await Blog.find({ status: true }).lean();
+
+    if (!allBlogs || allBlogs.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }
+
+    const lastBlogs = allBlogs.slice(-5).reverse();
+
     const filteredData = lastBlogs.map((data) => ({
       _id: data._id,
       title: data.title[preferredLanguage],
