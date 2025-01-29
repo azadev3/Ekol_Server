@@ -1,17 +1,14 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const CareerOpportunitiesBackgroundSchema = mongoose.Schema({
   title: {
-    az: { type: String, required: true },
-    en: { type: String, required: true },
-    ru: { type: String, required: true },
+    az: { type: String, required: false, default: '' },
+    en: { type: String, required: false, default: '' },
+    ru: { type: String, required: false, default: '' },
   },
   backgroundImage: { type: String, required: true },
 });
 
-const CareerOpportunitiesBackgroundModel = mongoose.model(
-  "careeropportunitiesbackgroundmodel",
-  CareerOpportunitiesBackgroundSchema
-);
+const CareerOpportunitiesBackgroundModel = mongoose.model('careeropportunitiesbackgroundmodel', CareerOpportunitiesBackgroundSchema);
 
 module.exports = CareerOpportunitiesBackgroundModel;
