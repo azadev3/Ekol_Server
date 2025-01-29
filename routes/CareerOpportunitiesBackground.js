@@ -12,21 +12,13 @@ router.post(
   upload.single("imgback"),
   async (req, res) => {
     try {
-      const requiredFields = ["title_az", "title_en", "title_ru"];
-
-      for (let field of requiredFields) {
-        if (!req.body[field]) {
-          return res.status(400).json({ error: `Missing field: ${field}` });
-        }
-      }
-
       const imageFile = req.file ? `/public/${req.file.filename}` : "";
 
       const createData = new CareerOpportunitiesBackground({
         title: {
-          az: req.body.title_az,
-          en: req.body.title_en,
-          ru: req.body.title_ru,
+          az: req.body.title_az || '',
+          en: req.body.title_en || '',
+          ru: req.body.title_ru || '',
         },
         backgroundImage: imageFile,
       });
@@ -125,10 +117,11 @@ router.put(
       const updatedData = {};
 
       updatedData.title = {
-        az: title_az || existingCareer.title.az,
-        en: title_en || existingCareer.title.en,
-        ru: title_ru || existingCareer.title.ru,
+        az: title_az !== undefined ? title_az : existingCareer.title.az,
+        en: title_en !== undefined ? title_en : existingCareer.title.en,
+        ru: title_ru !== undefined ? title_ru : existingCareer.title.ru,
       };
+      
 
       if (req.file) {
         updatedData.backgroundImage = `/public/${req.file.filename}`;
