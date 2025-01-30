@@ -65,9 +65,9 @@ router.put('/dynamic-category/:editid', async (req, res) => {
     const updatedData = {};
 
     updatedData.title = {
-      az: title_az !== undefined ? title_az : existingData.title.az,
-      en: title_en !== undefined ? title_en : existingData.title.en,
-      ru: title_ru !== undefined ? title_ru : existingData.title.ru,
+      az: title_az ? title_az : existingData.title.az,
+      en: title_en ? title_en : existingData.title.en,
+      ru: title_ru ? title_ru : existingData.title.ru,
     };
 
     const updated = await CategoryModel.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
