@@ -39,6 +39,24 @@ router.get('/dynamic-category/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
 
+    const datasForId = await CategoryModel.findById(editid).lean().exec();
+
+    if (!datasForId) {
+      return res.status(404).json({ error: 'not found editid' });
+    }
+
+    return res.status(200).json(datasForId);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.put('/dynamic-category/:editid', async (req, res) => {
+  try {
+    const { editid } = req.params;
+    const { title_az, title_en, title_ru } = req.body;
+
     const existingData = await CategoryModel.findById(editid).exec();
     if (!existingData) {
       return res.status(404).json({ error: 'Category not found' });
