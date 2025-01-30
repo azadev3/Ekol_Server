@@ -23,6 +23,18 @@ router.post('/dynamic-category', upload.none(), async (req, res) => {
   }
 });
 
+router.get('/dynamic-category', async (req, res) => {
+  try {
+    const datas = await CategoryModel.find();
+    if (!datas || datas.length === 0) {
+      return res.status(404).json({ message: 'No data found' });
+    }
+    return res.status(200).json(datas);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 router.put('/dynamic-category/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
