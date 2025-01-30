@@ -35,7 +35,7 @@ router.get('/dynamic-category', async (req, res) => {
   }
 });
 
-router.put('/dynamic-category/:editid', async (req, res) => {
+router.get('/dynamic-category/:editid', async (req, res) => {
   try {
     const { editid } = req.params;
 
