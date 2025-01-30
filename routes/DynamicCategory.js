@@ -5,20 +5,18 @@ const upload = require('../config/MulterConfig');
 
 router.post('/dynamic-category', upload.none(), async (req, res) => {
   try {
-    const { title_az, title_en, title_ru } = req.body;
-
     const savedData = new CategoryModel({
       title: {
-        az: title_az,
-        en: title_en,
-        ru: title_ru,
+        az: req.body.title_az,
+        en: req.body.title_en,
+        ru: req.body.title_ru,
       },
       statusActive: req.body.statusActive || true,
     });
 
-    await savedData.save();
+    const saved = await savedData.save();
 
-    return res.status(200).json(savedData);
+    return res.status(200).json(saved);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 'server error' });
@@ -69,7 +67,7 @@ router.get('/dynamic-category-front', async (req, res) => {
     const acceptLanguage = req.headers['accept-language'];
     const preferredLanguage = acceptLanguage.split(',')[0].split(';')[0];
 
-    const datas = await CategoryModel.find();
+    const datas = await CategoryModel.find({ statusActive: true });
     if (!datas || datas.length === 0) {
       return res.status(404).json({ message: 'No data found' });
     }

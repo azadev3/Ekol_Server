@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const DynamicCategoryModelSchema = mongoose.Schema({
+const DynamicCategorySchema = mongoose.Schema({
   title: {
     az: { type: String, required: false, default: '' },
     en: { type: String, required: false, default: '' },
@@ -13,6 +13,6 @@ const DynamicCategoryModelSchema = mongoose.Schema({
   },
 });
 
-const DynamicCategoryModel = mongoose.model('calculation_dynamic_category', DynamicCategoryModelSchema);
+const DynamicCategoryModel = mongoose.model('category_calc', DynamicCategorySchema);
 
 module.exports = DynamicCategoryModel;
