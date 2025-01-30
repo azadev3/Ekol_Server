@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const CategoryModel = require("../models/CategoryModel");
+const CategoryModel = require("../models/DynamicCategoryModel");
 const upload = require("../config/MulterConfig");
 
 router.post("/dynamic-category", upload.fields([
