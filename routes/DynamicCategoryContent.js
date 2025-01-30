@@ -104,65 +104,60 @@ router.get('/dynamic-category-content/:editid', async (req, res) => {
 // });
 
 router.put(
-  '/dynamic-category-content/:editid',
-  upload.fields([
-    { name: 'pdfaz', maxCount: 1 },
-    { name: 'pdfen', maxCount: 1 },
-    { name: 'pdfru', maxCount: 1 },
-  ]),
-  async (req, res) => {
-    try {
-      const { editid } = req.params;
-      const { title_az, title_en, title_ru, selected_category } = req.body;
-
-      const existingData = await DynamicCategoryContentModel.findById(editid).exec();
-      if (!existingData) {
-        return res.status(404).json({ error: 'Not found: editid' });
+    '/dynamic-category-content/:editid',
+    upload.fields([
+      { name: 'pdfaz', maxCount: 1 },
+      { name: 'pdfen', maxCount: 1 },
+      { name: 'pdfru', maxCount: 1 },
+    ]),
+    async (req, res) => {
+      try {
+        const { editid } = req.params;
+        const { title_az, title_en, title_ru, selected_category } = req.body;
+  
+        const existingData = await DynamicCategoryContentModel.findById(editid).exec();
+        if (!existingData) {
+          return res.status(404).json({ error: 'Not found: editid' });
+        }
+  
+        const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : existingData.pdf.az;
+        const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : existingData.pdf.en;
+        const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : existingData.pdf.ru;
+  
+        const updateData = {
+          title: {
+            az: title_az,
+            en: title_en,
+            ru: title_ru,
+          },
+          pdf: {
+            az: pdfAzPath,
+            en: pdfEnPath,
+            ru: pdfRuPath,
+          },
+          selected_category: selected_category,
+        };
+  
+        const updatedQuarterlyDynamicCategoryContentModel = await DynamicCategoryContentModel.findByIdAndUpdate(
+          editid,
+          { $set: updateData },
+          { new: true },
+        )
+          .lean()
+          .exec();
+  
+        if (!updatedQuarterlyDynamicCategoryContentModel) {
+          return res.status(404).json({ error: 'Not found: editid' });
+        }
+  
+        return res.status(200).json(updatedQuarterlyDynamicCategoryContentModel);
+      } catch (error) {
+        console.error('Error updating data:', error);
+        return res.status(500).json({ error: error.message });
       }
-
-      const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : '';
-      const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : '';
-      const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : '';
-
-      const updateData = {
-        title: {
-          az: title_az,
-          en: title_en,
-          ru: title_ru,
-        },
-        pdf: {
-          az: pdfAzPath,
-          en: pdfEnPath,
-          ru: pdfRuPath,
-        },
-        selected_category: selected_category,
-      };
-
-      if (req.file) {
-        updateData.pdf.az = `/public/${req.files['pdfaz'][0].filename}`;
-        updateData.pdf.en = `/public/${req.files['pdfen'][0].filename}`;
-        updateData.pdf.ru = `/public/${req.files['pdfru'][0].filename}`;
-      }
-
-      const updatedQuarterlyDynamicCategoryContentModel = await DynamicCategoryContentModel.findByIdAndUpdate(
-        editid,
-        { $set: updateData },
-        { new: true },
-      )
-        .lean()
-        .exec();
-
-      if (!updatedQuarterlyDynamicCategoryContentModel) {
-        return res.status(404).json({ error: 'Not found: editid' });
-      }
-
-      return res.status(200).json(updatedQuarterlyDynamicCategoryContentModel);
-    } catch (error) {
-      console.error('Error updating data:', error);
-      return res.status(500).json({ error: error.message });
-    }
-  },
-);
+    },
+  );
+  
 
 router.delete('/dynamic-category-content/:deleteid', async (req, res) => {
   try {
