@@ -65,16 +65,17 @@ router.put('/dynamic-category/:editid', async (req, res) => {
     const updatedData = {};
 
     updatedData.title = {
-      az: title_az ? title_az : existingData.title.az,
-      en: title_en ? title_en : existingData.title.en,
-      ru: title_ru ? title_ru : existingData.title.ru,
+      az: title_az || existingData.title.az,
+      en: title_en || existingData.title.en,
+      ru: title_ru || existingData.title.ru,
     };
 
     const updated = await CategoryModel.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
+
     return res.status(200).json(updated);
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: 'server error' });
+    console.error(error);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 
