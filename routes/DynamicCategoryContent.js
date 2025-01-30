@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/MulterConfig');
 const DynamicCategoryContentModel = require('../models/DynamicCategoryContentModel');
-const checkUser = require('../middlewares/checkUser');
-const checkPermissions = require('../middlewares/checkPermissions');
 
 router.post(
   '/dynamic-category-content',
