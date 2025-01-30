@@ -123,8 +123,9 @@ router.put(
         const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : existingData.pdf.az;
         const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : existingData.pdf.en;
         const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : existingData.pdf.ru;
-        const selectedCategory = req.body.selected_category ? req.body.selected_category : existingData.selected_category;
-
+  
+        const selectedCategory = req.body.selected_category || existingData.selected_category;
+  
         const updateData = {
           title: {
             az: title_az,
@@ -158,6 +159,7 @@ router.put(
       }
     },
   );
+  
   
 
 router.delete('/dynamic-category-content/:deleteid', async (req, res) => {
