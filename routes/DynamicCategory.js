@@ -6,30 +6,32 @@ const upload = require("../config/MulterConfig");
 
 router.post("/dynamic-category", upload.any(), async (req, res) => {
     try {
-        const { category_title, product } = req.body;
+        const { category_title } = req.body;
+        let product;
 
-        if (!category_title || !product) {
-            return res.status(400).json({ message: "Eksik veri gönderildi." });
+        // Eğer gelen 'product' bir stringse, JSON.parse ile çözümlüyoruz
+        if (typeof req.body.product === "string") {
+            try {
+                product = JSON.parse(req.body.product);
+            } catch (err) {
+                return res.status(400).json({ message: "Ürün verisi JSON formatında olmalı." });
+            }
+        } else {
+            product = req.body.product;
         }
 
-        let parsedProducts = [];
-        try {
-            parsedProducts = JSON.parse(product); 
-        } catch (err) {
-            return res.status(400).json({ message: "Ürün verisi JSON formatında olmalı." });
-        }
-
-        const processedProducts = parsedProducts.map((p, index) => ({
+        // Ürün verilerini işlemek ve veritabanına kaydetmek
+        const processedProducts = product.map((p, index) => ({
             title: {
-                az: p.titleAz || "",
-                en: p.titleEn || "",
-                ru: p.titleRu || "",
+                az: p.titleAz,
+                en: p.titleEn,
+                ru: p.titleRu
             },
             pdf: {
                 az: req.files.find(file => file.fieldname === `product_${index}_pdf_az`)?.path || "",
                 en: req.files.find(file => file.fieldname === `product_${index}_pdf_en`)?.path || "",
                 ru: req.files.find(file => file.fieldname === `product_${index}_pdf_ru`)?.path || "",
-            },
+            }
         }));
 
         const newCategory = new CategoryModel({
@@ -43,11 +45,12 @@ router.post("/dynamic-category", upload.any(), async (req, res) => {
 
         await newCategory.save();
 
-        res.status(201).json({ message: "Başarıyla eklendi", data: newCategory });
+        res.status(201).json({ message: "Başarıyla eklendi!", data: newCategory });
     } catch (error) {
-        console.error("Sunucu hatası:", error);
+        console.error(error);
         res.status(500).json({ message: "Sunucu hatası!" });
     }
 });
+
 
 module.exports = router;
