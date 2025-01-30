@@ -57,20 +57,25 @@ router.put('/dynamic-category/:editid', async (req, res) => {
     const { editid } = req.params;
     const { title_az, title_en, title_ru } = req.body;
 
-    const existingData = await CategoryModel.findById(editid).exec();
-    if (!existingData) {
-      return res.status(404).json({ error: 'Category not found' });
+    const updated = await CategoryModel.findByIdAndUpdate(
+      editid,
+      {
+        $set: {
+          title: {
+            az: title_az,
+            en: title_en,
+            ru: title_ru,
+          },
+        },
+      },
+      { new: true },
+    )
+      .lean()
+      .exec();
+
+    if (!updated) {
+      return res.status(404).json({ error: 'not found editid' });
     }
-
-    const updatedData = {};
-
-    updatedData.title = {
-      az: title_az || existingData.title.az,
-      en: title_en || existingData.title.en,
-      ru: title_ru || existingData.title.ru,
-    };
-
-    const updated = await CategoryModel.findByIdAndUpdate(editid, { $set: updatedData }, { new: true }).lean().exec();
 
     return res.status(200).json(updated);
   } catch (error) {
