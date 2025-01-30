@@ -103,6 +103,7 @@ const MetaTagsXeberlerDaxili = require('./routes/MetaXeberlerDaxili');
 const MetaFavicon = require('./routes/MetaFaviconRoute');
 const MailConfigRoute = require('./routes/MailConfigRoute');
 const DynamicCategories = require('./routes/DynamicCategory');
+const DynamicCategoriesContents = require('./routes/DynamicCategoryContent');
 
 //connect Database
 ConnectDB();
@@ -210,7 +211,8 @@ const apis = [
   MetaTagsXeberlerDaxili,
   MetaFavicon,
   MailConfigRoute,
-  DynamicCategories
+  DynamicCategories,
+  DynamicCategoriesContents,
 ];
 
 apis.forEach((api) => {
