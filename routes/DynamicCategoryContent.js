@@ -113,7 +113,7 @@ router.put(
     async (req, res) => {
       try {
         const { editid } = req.params;
-        const { title_az, title_en, title_ru, selected_category } = req.body;
+        const { title_az, title_en, title_ru } = req.body;
   
         const existingData = await DynamicCategoryContentModel.findById(editid).exec();
         if (!existingData) {
@@ -123,7 +123,8 @@ router.put(
         const pdfAzPath = req.files['pdfaz'] ? `/public/${req.files['pdfaz'][0].filename}` : existingData.pdf.az;
         const pdfEnPath = req.files['pdfen'] ? `/public/${req.files['pdfen'][0].filename}` : existingData.pdf.en;
         const pdfRuPath = req.files['pdfru'] ? `/public/${req.files['pdfru'][0].filename}` : existingData.pdf.ru;
-  
+        const selectedCategory = req.body.selected_category ? req.body.selected_category : existingData.selected_category;
+
         const updateData = {
           title: {
             az: title_az,
@@ -135,7 +136,7 @@ router.put(
             en: pdfEnPath,
             ru: pdfRuPath,
           },
-          selected_category: selected_category,
+          selected_category: selectedCategory,
         };
   
         const updatedQuarterlyDynamicCategoryContentModel = await DynamicCategoryContentModel.findByIdAndUpdate(
