@@ -157,8 +157,6 @@ router.put("/purchase/:editid", upload.single("pdf"), async (req, res) => {
   }
 });
 
-
-
 router.delete("/purchase/:deleteid", async (req, res) => {
   try {
     const { deleteid } = req.params;
@@ -196,4 +194,5 @@ router.get("/purchasefront", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = router;
