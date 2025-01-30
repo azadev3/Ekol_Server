@@ -4,23 +4,24 @@ const multer = require("multer");
 const CategoryModel = require("../models/DynamicCategoryModel");
 const upload = require("../config/MulterConfig");
 
-
 router.post("/dynamic-category", upload.any(), async (req, res) => {
     try {
         const { category_title, product } = req.body;
-
-        const processedProducts = product.map((p, index) => ({
-            title: {
-                az: p.title.az,
-                en: p.title.en,
-                ru: p.title.ru
-            },
-            pdf: {
-                az: req.files.find(file => file.fieldname === `product_${index}_pdf_az`)?.path || "",
-                en: req.files.find(file => file.fieldname === `product_${index}_pdf_en`)?.path || "",
-                ru: req.files.find(file => file.fieldname === `product_${index}_pdf_ru`)?.path || "",
-            }
-        }));
+        
+        const processedProducts = product.map((p, index) => {
+            return {
+                title: {
+                    az: p.title.az,
+                    en: p.title.en,
+                    ru: p.title.ru
+                },
+                pdf: {
+                    az: req.files.find(f => f.fieldname === `product[${index}][pdf][az]`)?.path || '',
+                    en: req.files.find(f => f.fieldname === `product[${index}][pdf][en]`)?.path || '',
+                    ru: req.files.find(f => f.fieldname === `product[${index}][pdf][ru]`)?.path || '',
+                }
+            };
+        });
 
         const newCategory = new CategoryModel({
             category_title: {
@@ -39,6 +40,7 @@ router.post("/dynamic-category", upload.any(), async (req, res) => {
         res.status(500).json({ message: "Server error!" });
     }
 });
+
 
 
 module.exports = router;
