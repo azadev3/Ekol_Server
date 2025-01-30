@@ -190,6 +190,7 @@ router.get('/dynamic-category-content-front', async (req, res) => {
       _id: data._id,
       title: data.title[preferredLanguage],
       pdf: data.pdf[preferredLanguage],
+      selected_category: data.selected_category,
     }));
 
     return res.status(200).json(filteredData);
