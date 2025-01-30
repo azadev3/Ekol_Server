@@ -13,6 +13,12 @@ router.post("/dynamic-category", upload.any(), async (req, res) => {
         if (typeof req.body.product === "string") {
             try {
                 product = JSON.parse(req.body.product);
+                
+                // JSON parse sonrası, ürünlerin bir array olduğundan emin olalım
+                if (!Array.isArray(product)) {
+                    return res.status(400).json({ message: "Ürün verisi geçersiz formatta. Lütfen diziyi kontrol edin." });
+                }
+
             } catch (err) {
                 return res.status(400).json({ message: "Ürün verisi JSON formatında olmalı." });
             }
@@ -20,7 +26,7 @@ router.post("/dynamic-category", upload.any(), async (req, res) => {
             product = req.body.product;
         }
 
-        // Ürün verilerini işlemek ve veritabanına kaydetmek
+        // Şimdi product bir array olarak işleme alınıyor
         const processedProducts = product.map((p, index) => ({
             title: {
                 az: p.titleAz,
@@ -51,6 +57,7 @@ router.post("/dynamic-category", upload.any(), async (req, res) => {
         res.status(500).json({ message: "Sunucu hatası!" });
     }
 });
+
 
 
 module.exports = router;
