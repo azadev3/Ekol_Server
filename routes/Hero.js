@@ -69,51 +69,52 @@ router.get('/hero/:editid', async (req, res) => {
 });
 
 router.put(
- '/hero/:editid',
- checkUser,
- checkPermission('update_hero'),
- uploadConfig.single('imgback'),
- async (req, res) => {
-  try {
-   const { editid } = req.params;
-   const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
-
-   const existingHero = await Hero.findById(editid).exec();
-
-   if (!existingHero) {
-    return res.status(404).json({ error: 'Hero not found' });
-   }
-
-   const updatedHeroData = {};
-
-   if (title_az) updatedHeroData['title.az'] = title_az;
-   if (title_en) updatedHeroData['title.en'] = title_en;
-   if (title_ru) updatedHeroData['title.ru'] = title_ru;
-
-   if (description_az) updatedHeroData['description.az'] = description_az;
-   if (description_en) updatedHeroData['description.en'] = description_en;
-   if (description_ru) updatedHeroData['description.ru'] = description_ru;
-
-   if (req.file) {
-    const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
-    const imgOutputPath = path.join(mountPath, imgFileName);
-    await useSharp(req.file.buffer, imgOutputPath);
-    updatedHeroData.image = `/public/${imgFileName}`;
-   }
-
-   const updatedHero = await Hero.findByIdAndUpdate(editid, { $set: updatedHeroData }, { new: true }).lean().exec();
-
-   if (!updatedHero) {
-    return res.status(404).json({ error: 'not found editid' });
-   }
-
-   return res.status(200).json(updatedHero);
-  } catch (error) {
-   console.error('Error updating hero data:', error);
-   return res.status(500).json({ error: error.message });
-  }
- }
-);
+    '/hero/:editid',
+    checkUser,
+    checkPermission('update_hero'),
+    uploadConfig.single('imgback'),
+    async (req, res) => {
+     try {
+      const { editid } = req.params;
+      const { title_az, title_en, title_ru, description_az, description_en, description_ru } = req.body;
+   
+      const existingHero = await Hero.findById(editid).exec();
+   
+      if (!existingHero) {
+       return res.status(404).json({ error: 'Hero not found' });
+      }
+   
+      const updatedHeroData = {};
+   
+      updatedHeroData['title.az'] = title_az || '';  
+      updatedHeroData['title.en'] = title_en || '';
+      updatedHeroData['title.ru'] = title_ru || '';
+   
+      updatedHeroData['description.az'] = description_az || '';
+      updatedHeroData['description.en'] = description_en || '';
+      updatedHeroData['description.ru'] = description_ru || '';
+   
+      if (req.file) {
+       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
+       const imgOutputPath = path.join(mountPath, imgFileName);
+       await useSharp(req.file.buffer, imgOutputPath);
+       updatedHeroData.image = `/public/${imgFileName}`;
+      }
+   
+      const updatedHero = await Hero.findByIdAndUpdate(editid, { $set: updatedHeroData }, { new: true }).lean().exec();
+   
+      if (!updatedHero) {
+       return res.status(404).json({ error: 'not found editid' });
+      }
+   
+      return res.status(200).json(updatedHero);
+     } catch (error) {
+      console.error('Error updating hero data:', error);
+      return res.status(500).json({ error: error.message });
+     }
+    }
+   );
+   
 
 router.delete('/hero/:deleteid', checkUser, checkPermission('delete_hero'), async (req, res) => {
  try {
