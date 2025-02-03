@@ -59,7 +59,7 @@ router.get("/statistics/:editid", async (req, res) => {
   }
 });
 
-router.put("/statistics/:editid", checkUser, checkPermission("update_statistikalar"), upload.single("imgback"), async (req, res) => {
+router.put("/statistics/:editid", checkUser, checkPermission("edit_statistikalar"), upload.single("imgback"), async (req, res) => {
   try {
     const { editid } = req.params;
     const { title_az, title_en, title_ru, count } = req.body;
