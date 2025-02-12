@@ -27,15 +27,43 @@ router.post('/add-icon-footer', upload.single('icon'), async (req, res) => {
   }
 });
 
-router.get('/get-icon-footer', async (req, res) => {
-    try {
-        const findIcons = await AddIconFooterModel.find();
+router.put('/update-icon-footer/:id', upload.single('icon'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, color, url } = req.body;
+    const imageFile = req.file;
 
-        return res.status(200).json(findIcons);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: error.message });
+    const existingIcon = await AddIconFooterModel.findById(id);
+    if (!existingIcon) {
+      return res.status(404).json({ error: 'Icon not found' });
     }
-})
+
+    existingIcon.title = title || existingIcon.title;
+    existingIcon.color = color || existingIcon.color;
+    existingIcon.url = url || existingIcon.url;
+
+    if (imageFile) {
+      existingIcon.icon = imageFile.filename;
+    }
+
+    const updatedIcon = await existingIcon.save();
+
+    return res.status(200).json(updatedIcon);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/get-icon-footer', async (req, res) => {
+  try {
+    const findIcons = await AddIconFooterModel.find();
+
+    return res.status(200).json(findIcons);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
