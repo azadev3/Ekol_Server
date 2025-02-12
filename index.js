@@ -104,6 +104,7 @@ const MetaFavicon = require('./routes/MetaFaviconRoute');
 const MailConfigRoute = require('./routes/MailConfigRoute');
 const DynamicCategories = require('./routes/DynamicCategory');
 const DynamicCategoriesContents = require('./routes/DynamicCategoryContent');
+const AddIconFooterRoute = require('./routes/AddIconFooter');
 
 //connect Database
 ConnectDB();
@@ -213,6 +214,7 @@ const apis = [
   MailConfigRoute,
   DynamicCategories,
   DynamicCategoriesContents,
+  AddIconFooterRoute,
 ];
 
 apis.forEach((api) => {
