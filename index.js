@@ -105,6 +105,7 @@ const MailConfigRoute = require('./routes/MailConfigRoute');
 const DynamicCategories = require('./routes/DynamicCategory');
 const DynamicCategoriesContents = require('./routes/DynamicCategoryContent');
 const AddIconFooterRoute = require('./routes/AddIconFooter');
+const AddIconMapRoute = require('./routes/AddIconMap');
 
 //connect Database
 ConnectDB();
@@ -215,6 +216,7 @@ const apis = [
   DynamicCategories,
   DynamicCategoriesContents,
   AddIconFooterRoute,
+  AddIconMapRoute
 ];
 
 apis.forEach((api) => {
