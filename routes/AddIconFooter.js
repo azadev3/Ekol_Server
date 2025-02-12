@@ -55,6 +55,23 @@ router.put('/update-icon-footer/:id', upload.single('icon'), async (req, res) =>
   }
 });
 
+router.delete('/delete-icon-footer/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const find = await AddIconFooterModel.findByIdAndDelete(id, { new: true });
+
+    if (!find) {
+      return res.status(400).json({ error: 'melumat tapilmadi' });
+    }
+
+    return res.status(200).json({ success: 'muveffeqiyyetle silindi' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error });
+  }
+});
+
 router.get('/get-icon-footer', async (req, res) => {
   try {
     const findIcons = await AddIconFooterModel.find();
