@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../config/MulterConfig');
+const upload = require('../config/MulterConfig');
 const AddIconFooterModel = require('../models/AddIconFooterModel');
 
 router.post('/add-icon-footer', upload.single("icon"), async (req, res) => {
