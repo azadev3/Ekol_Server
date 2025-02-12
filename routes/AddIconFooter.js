@@ -5,7 +5,7 @@ const AddIconFooterModel = require('../models/AddIconFooterModel');
 
 router.post('/add-icon-footer', upload.single('icon'), async (req, res) => {
   try {
-    const imageFile = req.body.file;
+    const imageFile = req.file;
 
     if (!imageFile) {
       return res.status(400).json({ error: 'not found req body file' });
@@ -15,7 +15,7 @@ router.post('/add-icon-footer', upload.single('icon'), async (req, res) => {
       title: req.body.title,
       color: req.body.color,
       url: req.body.url,
-      icon: imageFile,
+      icon: imageFile.filename,
     });
 
     const save = await newModel.save();
