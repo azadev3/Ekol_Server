@@ -27,4 +27,15 @@ router.post('/add-icon-footer', upload.single('icon'), async (req, res) => {
   }
 });
 
+router.get('/get-icon-footer', async (req, res) => {
+    try {
+        const findIcons = await AddIconFooterModel.find();
+
+        return res.status(200).json(findIcons);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+})
+
 module.exports = router;
