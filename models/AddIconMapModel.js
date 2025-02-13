@@ -4,6 +4,8 @@ const AddIconMapSchema = mongoose.Schema({
   color: { type: String, required: false, default: '' },
   title: { type: String, required: false, default: '' },
   url: { type: String, required: false, default: '' },
+  mainTitle: { type: String, required: false, default: '' },
+  value: { type: String, required: false, default: '' },
   icon: { type: String, required: true },
 });
 

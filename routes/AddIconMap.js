@@ -15,6 +15,8 @@ router.post('/add-icon-map', upload.single('icon'), async (req, res) => {
       title: req.body.title,
       color: req.body.color,
       url: req.body.url,
+      mainTitle: req.body.mainTitle,
+      value: req.body.value,
       icon: imageFile.filename,
     });
 
@@ -30,7 +32,7 @@ router.post('/add-icon-map', upload.single('icon'), async (req, res) => {
 router.put('/update-icon-map/:id', upload.single('icon'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, color, url } = req.body;
+    const { title, color, url, mainTitle, value } = req.body;
     const imageFile = req.file;
 
     const existingIcon = await AddIconMapModel.findById(id);
@@ -41,6 +43,8 @@ router.put('/update-icon-map/:id', upload.single('icon'), async (req, res) => {
     existingIcon.title = title || existingIcon.title;
     existingIcon.color = color || existingIcon.color;
     existingIcon.url = url || existingIcon.url;
+    existingIcon.mainTitle = mainTitle || existingIcon.mainTitle;
+    existingIcon.value = value || existingIcon.value;
 
     if (imageFile) {
       existingIcon.icon = imageFile.filename;
