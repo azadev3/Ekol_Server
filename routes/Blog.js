@@ -182,12 +182,14 @@ router.put('/blog/:editid', checkUser, checkPermission('update_xeberler'), uploa
     updatedData.updated = updated || existingBlog.updated;
 
     let imageFile = existingBlog.image;
+    
     if (req.file) {
       const imgFileName = `${uuidv4()}-${Date.now()}.webp`;
       const imgOutputPath = path.join(mountPath, imgFileName);
       await useSharp(req.file ? req.file.buffer : '', imgOutputPath);
       imageFile = `/public/${imgFileName}`;
     }
+
     updatedData.image = imageFile;
 
     if (Object.keys(updatedData).length === 0) {
