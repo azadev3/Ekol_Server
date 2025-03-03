@@ -142,6 +142,9 @@ router.put('/blog/:editid', checkUser, checkPermission('update_xeberler'), uploa
       slogan_az,
       slogan_en,
       slogan_ru,
+      slug_az,
+      slug_en,
+      slug_ru,
     } = req.body;
 
     const existingBlog = await Blog.findById(editid).exec();
@@ -167,6 +170,12 @@ router.put('/blog/:editid', checkUser, checkPermission('update_xeberler'), uploa
       az: slogan_az || existingBlog.slogan.az,
       en: slogan_en || existingBlog.slogan.en,
       ru: slogan_ru || existingBlog.slogan.ru,
+    };
+
+    updatedData.slug = {
+      az: slug_az || existingBlog.slug.az,
+      en: slug_en || existingBlog.slug.en,
+      ru: slug_ru || existingBlog.slug.ru,
     };
 
     updatedData.created_at = created_at || existingBlog.created_at;
@@ -245,6 +254,7 @@ router.get('/blogfront', async (req, res) => {
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       slogan: data.slogan[preferredLanguage],
+      slug: data.slug,
       image: data.image,
       created_at: data.created_at,
       updated: data.updated,
@@ -274,6 +284,7 @@ router.get('/lastblogs', async (req, res) => {
       _id: data._id,
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
+      slug: data.slug,
       image: data.image,
       created_at: data.created_at,
       updatedAt: data.updatedAt,
