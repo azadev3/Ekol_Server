@@ -38,6 +38,11 @@ router.post('/newblogs', checkUser, checkPermission('create_blog'), uploadConfig
         en: req.body.slogan_en,
         ru: req.body.slogan_ru,
       },
+      slug: {
+        az: req.body.slug_az,
+        en: req.body.slug_en,
+        ru: req.body.slug_ru,
+      },
       created_at: req.body.created_at,
       updated: req.body.updated,
       image: imageFile,
@@ -145,6 +150,9 @@ router.put('/newblogs/:editid', checkUser, checkPermission('update_blog'), uploa
       slogan_az,
       slogan_en,
       slogan_ru,
+      slug_az,
+      slug_en,
+      slug_ru,
       created_at,
       updated,
     } = req.body;
@@ -180,6 +188,11 @@ router.put('/newblogs/:editid', checkUser, checkPermission('update_blog'), uploa
         az: slogan_az || existingBlog.slogan.az,
         en: slogan_en || existingBlog.slogan.en,
         ru: slogan_ru || existingBlog.slogan.ru,
+      },
+      slug: {
+        az: slug_az || existingBlog.slug.az,
+        en: slug_en || existingBlog.slug.en,
+        ru: slug_ru || existingBlog.slug.ru,
       },
       created_at: created_at || existingBlog.created_at,
       updated: updated || existingBlog.updated,
@@ -247,6 +260,7 @@ router.get('/newblogfront', async (req, res) => {
       description: data.description[preferredLanguage],
       slogan: data.slogan[preferredLanguage],
       image: data.image,
+      slug: data.slug,
       created_at: data.created_at,
       updated: data.updated,
     }));
@@ -271,6 +285,7 @@ router.get('/lastnewblog', async (req, res) => {
       title: data.title[preferredLanguage],
       description: data.description[preferredLanguage],
       image: data.image,
+      slug: data.slug,
       created_at: data.created_at,
       updated: data.updated,
     }));
