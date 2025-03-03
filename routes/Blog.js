@@ -34,6 +34,11 @@ router.post('/blog', checkUser, checkPermission('create_xeberler'), uploadConfig
         en: req.body.slogan_en,
         ru: req.body.slogan_ru,
       },
+      slug: {
+        az: req.body.slug_az,
+        en: req.body.slug_en,
+        ru: req.body.slug_ru,
+      },
       created_at: req.body.created_at,
       updated: req.body.updated,
       image: imageFile,
